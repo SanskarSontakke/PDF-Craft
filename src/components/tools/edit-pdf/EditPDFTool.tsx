@@ -106,7 +106,7 @@ export function EditPDFTool({ className = '' }: EditPDFToolProps) {
       )}
 
       {error && (
-        <div className="p-4 rounded-[var(--radius-md)] bg-red-50 border border-red-200 text-red-700" role="alert">
+        <div className="p-4 rounded-[var(--radius-md)] bg-red-900/20 border border-red-800 text-red-200" role="alert">
           <p className="text-sm">{error}</p>
         </div>
       )}
@@ -134,7 +134,7 @@ export function EditPDFTool({ className = '' }: EditPDFToolProps) {
           </Card>
 
           {/* PDF Viewer iframe */}
-          <div className="relative border border-[hsl(var(--color-border))] rounded-[var(--radius-md)] overflow-hidden bg-gray-100">
+          <div className="relative border border-[hsl(var(--color-border))] rounded-[var(--radius-md)] overflow-hidden bg-[hsl(var(--color-muted))]">
             <iframe
               ref={iframeRef}
               src={`/pdfjs-annotation-viewer/web/viewer.html?file=${encodeURIComponent(pdfUrl)}`}
@@ -144,7 +144,7 @@ export function EditPDFTool({ className = '' }: EditPDFToolProps) {
               onLoad={handleIframeLoad}
             />
             {!isEditorReady && (
-              <div className="absolute inset-0 flex items-center justify-center bg-white/80">
+              <div className="absolute inset-0 flex items-center justify-center bg-[hsl(var(--color-card))]/80">
                 <div className="text-center">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[hsl(var(--color-primary))] mx-auto mb-2"></div>
                   <p className="text-sm text-[hsl(var(--color-muted-foreground))]">{t('status.loading') || 'Loading...'}</p>

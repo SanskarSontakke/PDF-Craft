@@ -303,7 +303,7 @@ export function PSDToPDFTool({ className = '' }: PSDToPDFToolProps) {
             {/* Error Message */}
             {error && (
                 <div
-                    className="p-4 rounded-[var(--radius-md)] bg-red-50 border border-red-200 text-red-700"
+                    className="p-4 rounded-[var(--radius-md)] bg-red-900/20 border border-red-800 text-red-200"
                     role="alert"
                 >
                     <p className="text-sm">{error}</p>
@@ -379,7 +379,7 @@ export function PSDToPDFTool({ className = '' }: PSDToPDFToolProps) {
                                 </button>
 
                                 {/* File Info */}
-                                <div className="p-2 bg-white">
+                                <div className="p-2 bg-[hsl(var(--color-card))]">
                                     <p className="text-xs font-medium text-[hsl(var(--color-foreground))] truncate">
                                         {file.file.name}
                                     </p>
@@ -411,7 +411,7 @@ export function PSDToPDFTool({ className = '' }: PSDToPDFToolProps) {
                                 value={pageSize}
                                 onChange={(e) => setPageSize(e.target.value as PageSizeType)}
                                 disabled={isProcessing}
-                                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
+                                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
                             >
                                 <option value="A4">A4</option>
                                 <option value="LETTER">Letter</option>
@@ -431,7 +431,7 @@ export function PSDToPDFTool({ className = '' }: PSDToPDFToolProps) {
                                 value={orientation}
                                 onChange={(e) => setOrientation(e.target.value as 'portrait' | 'landscape' | 'auto')}
                                 disabled={isProcessing}
-                                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
+                                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
                             >
                                 <option value="auto">{tTools('imageToPdf.orientationAuto') || 'Auto (match image)'}</option>
                                 <option value="portrait">{tTools('imageToPdf.orientationPortrait') || 'Portrait'}</option>
@@ -448,7 +448,7 @@ export function PSDToPDFTool({ className = '' }: PSDToPDFToolProps) {
                                 value={margin}
                                 onChange={(e) => setMargin(Number(e.target.value))}
                                 disabled={isProcessing}
-                                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
+                                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
                             >
                                 <option value="0">{tTools('imageToPdf.marginNone') || 'None'}</option>
                                 <option value="18">{tTools('imageToPdf.marginSmall') || 'Small (0.25")'}</option>
@@ -528,7 +528,7 @@ export function PSDToPDFTool({ className = '' }: PSDToPDFToolProps) {
             {/* Success Message */}
             {status === 'complete' && result && (
                 <div
-                    className="p-4 rounded-[var(--radius-md)] bg-green-50 border border-green-200 text-green-700"
+                    className="p-4 rounded-[var(--radius-md)] bg-green-900/20 border border-green-800 text-green-200"
                     role="status"
                 >
                     <p className="text-sm font-medium">

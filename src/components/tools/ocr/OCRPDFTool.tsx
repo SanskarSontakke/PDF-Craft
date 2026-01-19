@@ -232,7 +232,7 @@ export function OCRPDFTool({ className = '' }: OCRPDFToolProps) {
       {/* Error Message */}
       {error && (
         <div 
-          className="p-4 rounded-[var(--radius-md)] bg-red-50 border border-red-200 text-red-700"
+          className="p-4 rounded-[var(--radius-md)] bg-red-900/20 border border-red-800 text-red-200"
           role="alert"
         >
           <p className="text-sm">{error}</p>
@@ -315,7 +315,7 @@ export function OCRPDFTool({ className = '' }: OCRPDFToolProps) {
                   value={outputFormat}
                   onChange={(e) => setOutputFormat(e.target.value as OCROptions['outputFormat'])}
                   disabled={isProcessing}
-                  className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
+                  className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
                 >
                   <option value="text">{tTools('ocrPdf.formatText') || 'Text File (.txt)'}</option>
                   <option value="searchable-pdf">{tTools('ocrPdf.formatPdf') || 'Searchable PDF'}</option>
@@ -331,7 +331,7 @@ export function OCRPDFTool({ className = '' }: OCRPDFToolProps) {
                   value={scale}
                   onChange={(e) => setScale(parseFloat(e.target.value))}
                   disabled={isProcessing}
-                  className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
+                  className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
                 >
                   <option value="1">{tTools('ocrPdf.qualityLow') || 'Low (Faster)'}</option>
                   <option value="2">{tTools('ocrPdf.qualityMedium') || 'Medium (Recommended)'}</option>
@@ -350,7 +350,7 @@ export function OCRPDFTool({ className = '' }: OCRPDFToolProps) {
                   onChange={(e) => setPageRange(e.target.value)}
                   placeholder={tTools('ocrPdf.pageRangePlaceholder') || 'e.g., 1-3, 5, 7'}
                   disabled={isProcessing}
-                  className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
+                  className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
                 />
                 <p className="text-xs text-[hsl(var(--color-muted-foreground))] mt-1">
                   {tTools('ocrPdf.pageRangeHint') || 'Leave empty for all pages'}
@@ -413,7 +413,7 @@ export function OCRPDFTool({ className = '' }: OCRPDFToolProps) {
       {/* Success Message */}
       {status === 'complete' && result && (
         <div 
-          className="p-4 rounded-[var(--radius-md)] bg-green-50 border border-green-200 text-green-700"
+          className="p-4 rounded-[var(--radius-md)] bg-green-900/20 border border-green-800 text-green-200"
           role="status"
         >
           <p className="text-sm font-medium">
@@ -423,13 +423,13 @@ export function OCRPDFTool({ className = '' }: OCRPDFToolProps) {
       )}
 
       {/* Info Note */}
-      <Card variant="outlined" className="bg-blue-50 border-blue-200">
+      <Card variant="outlined" className="bg-blue-900/20 border-blue-800">
         <div className="flex gap-3">
           <svg className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="12" cy="12" r="10" />
             <path d="M12 16v-4M12 8h.01" />
           </svg>
-          <div className="text-sm text-blue-700">
+          <div className="text-sm text-blue-200">
             <p className="font-medium mb-1">{tTools('ocrPdf.infoTitle') || 'About OCR'}</p>
             <p>{tTools('ocrPdf.infoText') || 'OCR (Optical Character Recognition) extracts text from scanned documents and images. For best results, use high-quality scans and select the correct language(s).'}</p>
           </div>

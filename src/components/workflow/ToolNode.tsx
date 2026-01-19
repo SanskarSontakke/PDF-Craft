@@ -95,7 +95,7 @@ const ToolNode = memo(({ id, data, selected = false, isConnectable = true }: Too
                 {/* Icon */}
                 <div className={`
           p-2 rounded-lg
-          ${data.status === 'processing' ? 'bg-blue-200' : 'bg-white/80'}
+          ${data.status === 'processing' ? 'bg-blue-200' : 'bg-[hsl(var(--color-card))]/80'}
         `}>
                     <IconComponent className="w-5 h-5 text-[hsl(var(--color-foreground))]" />
                 </div>

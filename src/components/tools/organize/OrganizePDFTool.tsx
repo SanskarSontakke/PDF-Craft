@@ -342,7 +342,7 @@ export function OrganizePDFTool({ className = '' }: OrganizePDFToolProps) {
       {/* Error Message */}
       {error && (
         <div
-          className="p-4 rounded-[var(--radius-md)] bg-red-50 border border-red-200 text-red-700"
+          className="p-4 rounded-[var(--radius-md)] bg-red-900/20 border border-red-800 text-red-200"
           role="alert"
         >
           <p className="text-sm">{error}</p>
@@ -467,7 +467,7 @@ export function OrganizePDFTool({ className = '' }: OrganizePDFToolProps) {
                         type="button"
                         onClick={(e) => { e.stopPropagation(); handleMovePage(index, index - 1); }}
                         disabled={index === 0 || isProcessing}
-                        className="w-5 h-5 bg-white/90 rounded flex items-center justify-center hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed"
+                        className="w-5 h-5 bg-[hsl(var(--color-card))]/90 rounded flex items-center justify-center hover:bg-[hsl(var(--color-card))] disabled:opacity-30 disabled:cursor-not-allowed"
                         aria-label="Move up"
                       >
                         <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
@@ -478,7 +478,7 @@ export function OrganizePDFTool({ className = '' }: OrganizePDFToolProps) {
                         type="button"
                         onClick={(e) => { e.stopPropagation(); handleMovePage(index, index + 1); }}
                         disabled={index === pageOrder.length - 1 || isProcessing}
-                        className="w-5 h-5 bg-white/90 rounded flex items-center justify-center hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed"
+                        className="w-5 h-5 bg-[hsl(var(--color-card))]/90 rounded flex items-center justify-center hover:bg-[hsl(var(--color-card))] disabled:opacity-30 disabled:cursor-not-allowed"
                         aria-label="Move down"
                       >
                         <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
@@ -525,8 +525,8 @@ export function OrganizePDFTool({ className = '' }: OrganizePDFToolProps) {
           )}
 
           {hasOrderChanged() && (
-            <div className="mt-4 p-3 rounded-[var(--radius-md)] bg-blue-50 border border-blue-200">
-              <p className="text-sm text-blue-700">
+            <div className="mt-4 p-3 rounded-[var(--radius-md)] bg-blue-900/20 border border-blue-800">
+              <p className="text-sm text-blue-200">
                 {tTools('organizePdf.orderChanged') || 'Page order has been changed. Click "Apply Changes" to save.'}
               </p>
             </div>
@@ -576,7 +576,7 @@ export function OrganizePDFTool({ className = '' }: OrganizePDFToolProps) {
       {/* Success Message */}
       {status === 'complete' && result && (
         <div
-          className="p-4 rounded-[var(--radius-md)] bg-green-50 border border-green-200 text-green-700"
+          className="p-4 rounded-[var(--radius-md)] bg-green-900/20 border border-green-800 text-green-200"
           role="status"
         >
           <p className="text-sm font-medium">

@@ -960,7 +960,7 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
 
           <button
             onClick={() => setShowBlankPdfDialog(true)}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-[hsl(var(--color-border))] rounded-lg hover:border-blue-400 hover:bg-blue-900/20 transition-colors"
           >
             <FilePlus2 className="w-5 h-5 text-blue-500" />
             <span className="text-sm font-medium text-gray-600">{tTools('formCreator.createBlankPdf') || 'Create Blank PDF'}</span>
@@ -972,7 +972,7 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
               <button
                 key={template.id}
                 onClick={() => createFromTemplate(template)}
-                className="flex flex-col items-center justify-center gap-2 p-4 border border-gray-200 rounded-lg hover:border-blue-400 hover:bg-blue-50 transition-colors group"
+                className="flex flex-col items-center justify-center gap-2 p-4 border border-[hsl(var(--color-border))] rounded-lg hover:border-blue-400 hover:bg-blue-900/20 transition-colors group"
               >
                 <span className="text-2xl">{template.icon}</span>
                 <span className="text-xs font-medium text-gray-600 text-center group-hover:text-blue-600">{tTools(`formCreator.template.${template.id}`) || template.name}</span>
@@ -987,7 +987,7 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
       )}
 
       {error && (
-        <div className="p-4 rounded-[var(--radius-md)] bg-red-50 border border-red-200 text-red-700">
+        <div className="p-4 rounded-[var(--radius-md)] bg-red-900/20 border border-red-800 text-red-200">
           <p className="text-sm">{error}</p>
         </div>
       )}
@@ -997,14 +997,14 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
           {/* Visual Editor */}
           <div className="space-y-2">
             {/* Simplified Toolbar */}
-            <div className="flex flex-wrap items-center gap-3 p-2 bg-white border border-gray-200 rounded-lg shadow-sm">
+            <div className="flex flex-wrap items-center gap-3 p-2 bg-[hsl(var(--color-card))] border border-[hsl(var(--color-border))] rounded-lg shadow-sm">
               {/* Tool Selector */}
               <div className="flex items-center gap-2">
                 <span className="text-xs font-medium text-gray-500">{tTools('formCreator.addField') || 'Add'}:</span>
                 <select
                   value={currentTool}
                   onChange={(e) => setCurrentTool(e.target.value as FieldType | 'select')}
-                  className="px-2 py-1.5 text-sm border rounded-md bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="px-2 py-1.5 text-sm border rounded-md bg-[hsl(var(--color-card))] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="select">↖ {tTools('formCreator.selectTool')}</option>
                   <optgroup label={tTools('formCreator.basicTools') || 'Basic'}>
@@ -1043,7 +1043,7 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
                       e.target.value = '';
                     }
                   }}
-                  className="px-2 py-1.5 text-sm border rounded-md bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  className="px-2 py-1.5 text-sm border rounded-md bg-[hsl(var(--color-card))] focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
                   <option value="">{tTools('formCreator.selectTemplate') || 'Select...'}</option>
                   {formTemplates.map(template => (
@@ -1061,7 +1061,7 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
                 <button
                   onClick={handleUndo}
                   disabled={historyIndex <= 0}
-                  className={`p-1.5 rounded transition-colors ${historyIndex > 0 ? 'hover:bg-gray-100 text-gray-600' : 'text-gray-300 cursor-not-allowed'}`}
+                  className={`p-1.5 rounded transition-colors ${historyIndex > 0 ? 'hover:bg-[hsl(var(--color-muted))] text-gray-600' : 'text-gray-300 cursor-not-allowed'}`}
                   title={tTools('formCreator.undo') || 'Undo'}
                 >
                   <Undo2 className="w-4 h-4" />
@@ -1069,7 +1069,7 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
                 <button
                   onClick={handleRedo}
                   disabled={historyIndex >= history.length - 1}
-                  className={`p-1.5 rounded transition-colors ${historyIndex < history.length - 1 ? 'hover:bg-gray-100 text-gray-600' : 'text-gray-300 cursor-not-allowed'}`}
+                  className={`p-1.5 rounded transition-colors ${historyIndex < history.length - 1 ? 'hover:bg-[hsl(var(--color-muted))] text-gray-600' : 'text-gray-300 cursor-not-allowed'}`}
                   title={tTools('formCreator.redo') || 'Redo'}
                 >
                   <Redo2 className="w-4 h-4" />
@@ -1078,14 +1078,14 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
                   <>
                     <button
                       onClick={handleDuplicateField}
-                      className="p-1.5 rounded hover:bg-gray-100 text-gray-600 transition-colors"
+                      className="p-1.5 rounded hover:bg-[hsl(var(--color-muted))] text-gray-600 transition-colors"
                       title={tTools('formCreator.duplicate') || 'Duplicate'}
                     >
                       <Copy className="w-4 h-4" />
                     </button>
                     <button
                       onClick={handleDeleteField}
-                      className="p-1.5 rounded hover:bg-red-50 text-red-500 transition-colors"
+                      className="p-1.5 rounded hover:bg-red-900/20 text-red-500 transition-colors"
                       title={tTools('formCreator.deleteTool') || 'Delete'}
                     >
                       <Trash2 className="w-4 h-4" />
@@ -1099,7 +1099,7 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
                 <button
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage <= 1}
-                  className={`px-2 py-1 rounded text-sm ${currentPage > 1 ? 'hover:bg-gray-100 text-gray-600' : 'text-gray-300 cursor-not-allowed'}`}
+                  className={`px-2 py-1 rounded text-sm ${currentPage > 1 ? 'hover:bg-[hsl(var(--color-muted))] text-gray-600' : 'text-gray-300 cursor-not-allowed'}`}
                 >
                   ←
                 </button>
@@ -1109,7 +1109,7 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
                 <button
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage >= totalPages}
-                  className={`px-2 py-1 rounded text-sm ${currentPage < totalPages ? 'hover:bg-gray-100 text-gray-600' : 'text-gray-300 cursor-not-allowed'}`}
+                  className={`px-2 py-1 rounded text-sm ${currentPage < totalPages ? 'hover:bg-[hsl(var(--color-muted))] text-gray-600' : 'text-gray-300 cursor-not-allowed'}`}
                 >
                   →
                 </button>
@@ -1133,31 +1133,31 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
                   }}
                 >
                   <button
-                    className={`p-1.5 rounded transition-colors ${isAddingPage ? 'text-gray-300 cursor-not-allowed' : 'hover:bg-gray-100 text-gray-600'}`}
+                    className={`p-1.5 rounded transition-colors ${isAddingPage ? 'text-gray-300 cursor-not-allowed' : 'hover:bg-[hsl(var(--color-muted))] text-gray-600'}`}
                     title={tTools('formCreator.addBlankPage') || 'Add Blank Page'}
                     disabled={isAddingPage}
                   >
                     <FilePlus2 className="w-4 h-4" />
                   </button>
-                  <div className={`absolute right-0 top-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg py-1 min-w-[140px] z-10 transition-opacity duration-150 ${showAddPageMenu && !isAddingPage ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
+                  <div className={`absolute right-0 top-full mt-1 bg-[hsl(var(--color-card))] border border-[hsl(var(--color-border))] rounded-lg shadow-lg py-1 min-w-[140px] z-10 transition-opacity duration-150 ${showAddPageMenu && !isAddingPage ? 'opacity-100 visible' : 'opacity-0 invisible'}`}>
                     <button
                       onClick={() => { addBlankPage('before'); setShowAddPageMenu(false); }}
                       disabled={isAddingPage}
-                      className="w-full px-3 py-1.5 text-left text-sm hover:bg-gray-50 disabled:opacity-50"
+                      className="w-full px-3 py-1.5 text-left text-sm hover:bg-[hsl(var(--color-muted))] disabled:opacity-50"
                     >
                       {tTools('formCreator.addPageBefore') || 'Before current'}
                     </button>
                     <button
                       onClick={() => { addBlankPage('after'); setShowAddPageMenu(false); }}
                       disabled={isAddingPage}
-                      className="w-full px-3 py-1.5 text-left text-sm hover:bg-gray-50 disabled:opacity-50"
+                      className="w-full px-3 py-1.5 text-left text-sm hover:bg-[hsl(var(--color-muted))] disabled:opacity-50"
                     >
                       {tTools('formCreator.addPageAfter') || 'After current'}
                     </button>
                     <button
                       onClick={() => { addBlankPage('end'); setShowAddPageMenu(false); }}
                       disabled={isAddingPage}
-                      className="w-full px-3 py-1.5 text-left text-sm hover:bg-gray-50 disabled:opacity-50"
+                      className="w-full px-3 py-1.5 text-left text-sm hover:bg-[hsl(var(--color-muted))] disabled:opacity-50"
                     >
                       {tTools('formCreator.addPageEnd') || 'At end'}
                     </button>
@@ -1170,7 +1170,7 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
             <Card variant="outlined" size="sm">
               <div
                 ref={containerRef}
-                className="relative bg-gray-100 rounded-[var(--radius-md)] overflow-auto"
+                className="relative bg-[hsl(var(--color-muted))] rounded-[var(--radius-md)] overflow-auto"
                 style={{ maxHeight: '600px' }}
               >
                 <div
@@ -1180,7 +1180,7 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
                 >
                   <canvas
                     ref={canvasRef}
-                    className="shadow-lg bg-white"
+                    className="shadow-lg bg-[hsl(var(--color-card))]"
                   />
 
                   {/* Field overlays */}
@@ -1196,7 +1196,7 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
                       {/* Label indicator */}
                       {field.label && (
                         <span
-                          className="absolute text-[8px] text-blue-600 bg-blue-50 px-1 rounded whitespace-nowrap"
+                          className="absolute text-[8px] text-blue-600 bg-blue-900/20 px-1 rounded whitespace-nowrap"
                           style={{
                             ...(field.labelPosition === 'left'
                               ? { right: '100%', top: '50%', transform: 'translateY(-50%)', marginRight: '2px' }
@@ -1231,9 +1231,9 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
           </div>
 
           {/* Right Panel - Tabbed Interface */}
-          <div className="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden flex flex-col" style={{ maxHeight: 'calc(100vh - 200px)' }}>
+          <div className="bg-[hsl(var(--color-card))] border border-[hsl(var(--color-border))] rounded-lg shadow-sm overflow-hidden flex flex-col" style={{ maxHeight: 'calc(100vh - 200px)' }}>
             {/* Header with file info */}
-            <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100 bg-gray-50">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-[hsl(var(--color-border))] bg-[hsl(var(--color-muted))]">
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-sm truncate">{file.name}</p>
                 <p className="text-xs text-gray-500">{formatSize(file.size)} • {totalPages} {tTools('formCreator.pages') || 'pages'}</p>
@@ -1244,12 +1244,12 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
             </div>
 
             {/* Tab Navigation */}
-            <div className="flex border-b border-gray-200">
+            <div className="flex border-b border-[hsl(var(--color-border))]">
               <button
                 onClick={() => setActiveTab('properties')}
                 className={`flex-1 px-3 py-2 text-sm font-medium transition-colors ${activeTab === 'properties'
-                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-900/20/50'
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-[hsl(var(--color-muted))]'
                   }`}
               >
                 {tTools('formCreator.properties') || 'Properties'}
@@ -1257,8 +1257,8 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
               <button
                 onClick={() => setActiveTab('fields')}
                 className={`flex-1 px-3 py-2 text-sm font-medium transition-colors ${activeTab === 'fields'
-                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-900/20/50'
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-[hsl(var(--color-muted))]'
                   }`}
               >
                 {tTools('formCreator.fieldsTab') || 'Fields'} ({fields.length})
@@ -1266,8 +1266,8 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
               <button
                 onClick={() => setActiveTab('options')}
                 className={`flex-1 px-3 py-2 text-sm font-medium transition-colors ${activeTab === 'options'
-                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50/50'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-900/20/50'
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-[hsl(var(--color-muted))]'
                   }`}
               >
                 {tTools('formCreator.optionsTab') || 'Options'}
@@ -1282,7 +1282,7 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
                   {selectedField ? (
                     <div className="space-y-3">
                       {/* Field header */}
-                      <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
+                      <div className="flex items-center gap-2 pb-2 border-b border-[hsl(var(--color-border))]">
                         <span className="text-xl">{getFieldIcon(selectedField.type)}</span>
                         <input
                           type="text"
@@ -1296,7 +1296,7 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
                       <select
                         value={selectedField.type}
                         onChange={(e) => updateSelectedField({ type: e.target.value as FieldType })}
-                        className="w-full px-2 py-1.5 text-sm border rounded bg-white"
+                        className="w-full px-2 py-1.5 text-sm border rounded bg-[hsl(var(--color-card))]"
                       >
                         <option value="text">📝 {tTools('formCreator.textFieldTool')}</option>
                         <option value="checkbox">☑ {tTools('formCreator.checkboxTool')}</option>
@@ -1502,7 +1502,7 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
                       )}
 
                       {/* Required field option */}
-                      <label className="flex items-center gap-2 pt-2 border-t border-gray-100">
+                      <label className="flex items-center gap-2 pt-2 border-t border-[hsl(var(--color-border))]">
                         <input
                           type="checkbox"
                           checked={selectedField.required || false}
@@ -1514,7 +1514,7 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
 
                       <button
                         onClick={handleDeleteField}
-                        className="w-full py-1.5 text-sm text-red-500 hover:bg-red-50 rounded border border-red-200"
+                        className="w-full py-1.5 text-sm text-red-500 hover:bg-red-900/20 rounded border border-red-800"
                       >
                         {tTools('formCreator.deleteField')}
                       </button>
@@ -1546,8 +1546,8 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
                         className={`
                           p-2 rounded cursor-pointer text-sm flex items-center justify-between
                           ${field.id === selectedFieldId
-                            ? 'bg-blue-50 border border-blue-200'
-                            : 'bg-gray-50 hover:bg-gray-100'
+                            ? 'bg-blue-900/20 border border-blue-800'
+                            : 'bg-[hsl(var(--color-muted))] hover:bg-[hsl(var(--color-muted))]'
                           }
                         `}
                       >
@@ -1571,7 +1571,7 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
                       type="checkbox"
                       checked={flattenForm}
                       onChange={(e) => setFlattenForm(e.target.checked)}
-                      className="w-4 h-4 mt-0.5 rounded border-gray-300"
+                      className="w-4 h-4 mt-0.5 rounded border-[hsl(var(--color-border))]"
                     />
                     <div>
                       <span className="text-sm font-medium">{tTools('formCreator.flattenForm') || 'Flatten Form'}</span>
@@ -1580,11 +1580,11 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
                   </label>
 
                   {/* Save Project */}
-                  <div className="pt-3 border-t border-gray-100">
+                  <div className="pt-3 border-t border-[hsl(var(--color-border))]">
                     <button
                       onClick={() => setShowSaveDialog(true)}
                       disabled={fields.length === 0}
-                      className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded disabled:opacity-50"
+                      className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm bg-[hsl(var(--color-muted))] hover:bg-gray-200 rounded disabled:opacity-50"
                     >
                       <Save className="w-4 h-4" />
                       {tTools('formCreator.saveProject') || 'Save Project'}
@@ -1598,7 +1598,7 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
                       {savedProjects.map(project => (
                         <div
                           key={project.id}
-                          className="flex items-center justify-between p-2 bg-gray-50 rounded text-xs"
+                          className="flex items-center justify-between p-2 bg-[hsl(var(--color-muted))] rounded text-xs"
                         >
                           <div className="flex-1 min-w-0 mr-2">
                             <p className="font-medium truncate">{project.name}</p>
@@ -1607,13 +1607,13 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
                           <div className="flex gap-1">
                             <button
                               onClick={() => handleLoadProject(project)}
-                              className="p-1 text-blue-600 hover:bg-blue-50 rounded"
+                              className="p-1 text-blue-600 hover:bg-blue-900/20 rounded"
                             >
                               <FolderOpen className="w-3.5 h-3.5" />
                             </button>
                             <button
                               onClick={() => handleDeleteProject(project.id)}
-                              className="p-1 text-red-500 hover:bg-red-50 rounded"
+                              className="p-1 text-red-500 hover:bg-red-900/20 rounded"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -1627,7 +1627,7 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
             </div>
 
             {/* Action Button */}
-            <div className="p-3 border-t border-gray-100 bg-gray-50">
+            <div className="p-3 border-t border-[hsl(var(--color-border))] bg-[hsl(var(--color-muted))]">
               <Button
                 variant="primary"
                 size="md"
@@ -1655,8 +1655,8 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
 
       {/* Success Message & Download */}
       {status === 'complete' && result && (
-        <div className="flex items-center gap-4 p-4 rounded-lg bg-green-50 border border-green-200">
-          <p className="text-sm font-medium text-green-700">
+        <div className="flex items-center gap-4 p-4 rounded-lg bg-green-900/20 border border-green-800">
+          <p className="text-sm font-medium text-green-200">
             {tTools('formCreator.successMessage') || 'Form created successfully!'}
           </p>
           <DownloadButton
@@ -1672,7 +1672,7 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
       {/* Save Project Dialog */}
       {showSaveDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <Card variant="outlined" size="lg" className="w-full max-w-md mx-4 bg-white shadow-xl">
+          <Card variant="outlined" size="lg" className="w-full max-w-md mx-4 bg-[hsl(var(--color-card))] shadow-xl">
             <h3 className="text-lg font-medium mb-4">{tTools('formCreator.saveProjectTitle') || 'Save Project'}</h3>
             <div className="space-y-4">
               <div>
@@ -1718,7 +1718,7 @@ export function FormCreatorTool({ className = '' }: FormCreatorToolProps) {
       {/* Create Blank PDF Dialog */}
       {showBlankPdfDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <Card variant="outlined" size="lg" className="w-full max-w-md mx-4 bg-white shadow-xl">
+          <Card variant="outlined" size="lg" className="w-full max-w-md mx-4 bg-[hsl(var(--color-card))] shadow-xl">
             <h3 className="text-lg font-medium mb-4 flex items-center gap-2">
               <FilePlus2 className="w-5 h-5 text-blue-500" />
               {tTools('formCreator.createBlankPdfTitle') || 'Create Blank PDF'}

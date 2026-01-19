@@ -93,7 +93,7 @@ export function PDFReaderTool({ className = '' }: PDFReaderToolProps) {
             )}
 
             {error && (
-                <div className="p-4 rounded-[var(--radius-md)] bg-red-50 border border-red-200 text-red-700" role="alert">
+                <div className="p-4 rounded-[var(--radius-md)] bg-red-900/20 border border-red-800 text-red-200" role="alert">
                     <p className="text-sm">{error}</p>
                 </div>
             )}
@@ -124,7 +124,7 @@ export function PDFReaderTool({ className = '' }: PDFReaderToolProps) {
 
                     {/* PDF Viewer - Using browser's built-in PDF viewer */}
                     <div
-                        className="relative bg-gray-100 rounded-[var(--radius-md)] overflow-hidden"
+                        className="relative bg-[hsl(var(--color-muted))] rounded-[var(--radius-md)] overflow-hidden"
                         style={{ height: '80vh', minHeight: '600px' }}
                     >
                         <iframe

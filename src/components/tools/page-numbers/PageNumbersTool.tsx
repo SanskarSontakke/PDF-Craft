@@ -356,7 +356,7 @@ export function PageNumbersTool({ className = '' }: PageNumbersToolProps) {
       )}
 
       {error && (
-        <div className="p-4 rounded-[var(--radius-md)] bg-red-50 border border-red-200 text-red-700">
+        <div className="p-4 rounded-[var(--radius-md)] bg-red-900/20 border border-red-800 text-red-200">
           <p className="text-sm">{error}</p>
         </div>
       )}
@@ -400,8 +400,8 @@ export function PageNumbersTool({ className = '' }: PageNumbersToolProps) {
                     className={`
                       p-2 rounded-md border transition-all text-center
                       ${position === opt.value
-                        ? 'border-blue-500 bg-blue-50 text-blue-700'
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? 'border-blue-500 bg-blue-900/20 text-blue-200'
+                        : 'border-[hsl(var(--color-border))] hover:border-[hsl(var(--color-border))]'
                       }
                       disabled:opacity-50 disabled:cursor-not-allowed
                     `}
@@ -521,7 +521,7 @@ export function PageNumbersTool({ className = '' }: PageNumbersToolProps) {
                     type="color"
                     value={fontColor}
                     onChange={(e) => setFontColor(e.target.value)}
-                    className="w-10 h-10 p-0.5 cursor-pointer rounded border border-gray-300"
+                    className="w-10 h-10 p-0.5 cursor-pointer rounded border border-[hsl(var(--color-border))]"
                     disabled={isProcessing}
                   />
                   <input
@@ -546,7 +546,7 @@ export function PageNumbersTool({ className = '' }: PageNumbersToolProps) {
               </label>
 
               {/* Odd/Even Page Mode */}
-              <div className="mt-3 pt-3 border-t border-gray-200">
+              <div className="mt-3 pt-3 border-t border-[hsl(var(--color-border))]">
                 <h4 className="text-sm font-semibold mb-2 text-gray-700">
                   {tTools('pageNumbers.oddEvenTitle')}
                 </h4>
@@ -607,7 +607,7 @@ export function PageNumbersTool({ className = '' }: PageNumbersToolProps) {
                   )}
 
                   {pageMode === 'odd-even-different' && (
-                    <div className="p-2 bg-blue-50 rounded text-sm text-blue-700">
+                    <div className="p-2 bg-blue-900/20 rounded text-sm text-blue-200">
                       <p>{tTools('pageNumbers.differentModeHint')}</p>
                     </div>
                   )}
@@ -684,7 +684,7 @@ export function PageNumbersTool({ className = '' }: PageNumbersToolProps) {
                 </Button>
               </div>
 
-              <div className="bg-gray-100 dark:bg-gray-800 rounded-[var(--radius-md)] p-4 overflow-auto" style={{ maxHeight: '600px', minHeight: '500px' }}>
+              <div className="bg-[hsl(var(--color-muted))] dark:bg-gray-800 rounded-[var(--radius-md)] p-4 overflow-auto" style={{ maxHeight: '600px', minHeight: '500px' }}>
                 <div
                   className="flex justify-center"
                   style={{
@@ -695,7 +695,7 @@ export function PageNumbersTool({ className = '' }: PageNumbersToolProps) {
                 >
                   <canvas
                     ref={previewCanvasRef}
-                    className="shadow-lg bg-white"
+                    className="shadow-lg bg-[hsl(var(--color-card))]"
                   />
                 </div>
               </div>
@@ -745,7 +745,7 @@ export function PageNumbersTool({ className = '' }: PageNumbersToolProps) {
       )}
 
       {status === 'complete' && result && (
-        <div className="p-4 rounded-[var(--radius-md)] bg-green-50 border border-green-200 text-green-700">
+        <div className="p-4 rounded-[var(--radius-md)] bg-green-900/20 border border-green-800 text-green-200">
           <p className="text-sm font-medium">
             {tTools('pageNumbers.successMessage')}
           </p>

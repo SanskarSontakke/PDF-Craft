@@ -90,7 +90,7 @@ export function RepairPDFTool({ className = '' }: RepairPDFToolProps) {
             )}
 
             {error && (
-                <div className="p-4 rounded-[var(--radius-md)] bg-red-50 border border-red-200 text-red-700" role="alert">
+                <div className="p-4 rounded-[var(--radius-md)] bg-red-900/20 border border-red-800 text-red-200" role="alert">
                     <p className="text-sm">{error}</p>
                 </div>
             )}
@@ -106,7 +106,7 @@ export function RepairPDFTool({ className = '' }: RepairPDFToolProps) {
                         </div>
                         <div className="space-y-2 max-h-60 overflow-y-auto">
                             {files.map((file, index) => (
-                                <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                                <div key={index} className="flex items-center justify-between p-2 bg-[hsl(var(--color-muted))] rounded">
                                     <span className="text-sm truncate">{file.name}</span>
                                     <Button
                                         variant="ghost"
@@ -148,9 +148,9 @@ export function RepairPDFTool({ className = '' }: RepairPDFToolProps) {
             )}
 
             {status === 'complete' && result && (
-                <div className="p-4 rounded-[var(--radius-md)] bg-green-50 border border-green-200">
+                <div className="p-4 rounded-[var(--radius-md)] bg-green-900/20 border border-green-800">
                     <div className="flex flex-wrap items-center justify-between gap-4">
-                        <div className="text-green-700 font-medium">
+                        <div className="text-green-200 font-medium">
                             {tTools('repairPdf.successMessage') || 'PDF repaired successfully!'}
                         </div>
                         <DownloadButton

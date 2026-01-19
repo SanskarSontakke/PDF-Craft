@@ -319,14 +319,14 @@ export function GridCombineTool({ className = '' }: GridCombineToolProps) {
 
             {/* Error Message */}
             {error && (
-                <div className="p-4 rounded-[var(--radius-md)] bg-red-50 border border-red-200 text-red-700" role="alert">
+                <div className="p-4 rounded-[var(--radius-md)] bg-red-900/20 border border-red-800 text-red-200" role="alert">
                     <p className="text-sm">{error}</p>
                 </div>
             )}
 
             {/* Preview Info */}
             {files.length > 0 && (
-                <Card variant="outlined" className="bg-blue-50 border-blue-200">
+                <Card variant="outlined" className="bg-blue-900/20 border-blue-800">
                     <div className="flex items-center gap-2 text-blue-800">
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -493,7 +493,7 @@ export function GridCombineTool({ className = '' }: GridCombineToolProps) {
                                             {tTools('gridCombine.layoutPreview') || 'Layout Preview'}:
                                         </p>
                                         <div
-                                            className="grid mx-auto border border-[hsl(var(--color-border))] rounded bg-white transition-all duration-300 ease-in-out"
+                                            className="grid mx-auto border border-[hsl(var(--color-border))] rounded bg-[hsl(var(--color-card))] transition-all duration-300 ease-in-out"
                                             style={{
                                                 gridTemplateColumns: `repeat(${cols}, 1fr)`,
                                                 gridTemplateRows: `repeat(${rows}, 1fr)`,
@@ -739,7 +739,7 @@ export function GridCombineTool({ className = '' }: GridCombineToolProps) {
 
             {/* Success Message */}
             {status === 'complete' && result && (
-                <div className="p-4 rounded-[var(--radius-md)] bg-green-50 border border-green-200 text-green-700" role="status">
+                <div className="p-4 rounded-[var(--radius-md)] bg-green-900/20 border border-green-800 text-green-200" role="status">
                     <p className="text-sm font-medium">
                         {tTools('gridCombine.successMessage') || 'PDFs combined successfully! Click the download button to save your file.'}
                     </p>

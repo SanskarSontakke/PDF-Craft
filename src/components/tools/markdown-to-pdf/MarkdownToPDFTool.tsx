@@ -300,7 +300,7 @@ Enjoy converting your Markdown to PDF!
                                         border border-[hsl(var(--color-border))]
                                         rounded-[var(--radius-md)]
                                         prose prose-sm max-w-none
-                                        ${theme === 'dark' ? 'bg-gray-900 text-white prose-invert' : 'bg-white'}
+                                        ${theme === 'dark' ? 'bg-gray-900 text-white prose-invert' : 'bg-[hsl(var(--color-card))]'}
                                     `}
                                     dangerouslySetInnerHTML={{ __html: previewHtml }}
                                 />
@@ -313,7 +313,7 @@ Enjoy converting your Markdown to PDF!
             {/* Error Message */}
             {error && (
                 <div
-                    className="p-4 rounded-[var(--radius-md)] bg-red-50 border border-red-200 text-red-700"
+                    className="p-4 rounded-[var(--radius-md)] bg-red-900/20 border border-red-800 text-red-200"
                     role="alert"
                 >
                     <p className="text-sm">{error}</p>
@@ -452,7 +452,7 @@ Enjoy converting your Markdown to PDF!
             {/* Success Message */}
             {resultBlob && (
                 <div
-                    className="p-4 rounded-[var(--radius-md)] bg-green-50 border border-green-200 text-green-700"
+                    className="p-4 rounded-[var(--radius-md)] bg-green-900/20 border border-green-800 text-green-200"
                     role="status"
                 >
                     <p className="text-sm font-medium">

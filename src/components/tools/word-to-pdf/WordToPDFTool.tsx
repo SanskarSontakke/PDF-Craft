@@ -164,7 +164,7 @@ export function WordToPDFTool({ className = '' }: WordToPDFToolProps) {
             {/* Error Message */}
             {error && (
                 <div
-                    className="p-4 rounded-xl bg-red-50/50 border border-red-200 text-red-700 flex items-start gap-3 animate-in fade-in slide-in-from-top-2"
+                    className="p-4 rounded-xl bg-red-900/20/50 border border-red-800 text-red-200 flex items-start gap-3 animate-in fade-in slide-in-from-top-2"
                     role="alert"
                 >
                     <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
@@ -190,7 +190,7 @@ export function WordToPDFTool({ className = '' }: WordToPDFToolProps) {
                             size="sm"
                             onClick={handleRemoveFile}
                             disabled={isProcessing}
-                            className="text-[hsl(var(--color-muted-foreground))] hover:text-red-500 hover:bg-red-50"
+                            className="text-[hsl(var(--color-muted-foreground))] hover:text-red-500 hover:bg-red-900/20"
                         >
                             <Trash2 className="w-5 h-5" />
                             <span className="sr-only">{t('buttons.remove') || 'Remove'}</span>
@@ -242,7 +242,7 @@ export function WordToPDFTool({ className = '' }: WordToPDFToolProps) {
             {/* Success Message */}
             {status === 'complete' && result && (
                 <div
-                    className="p-6 rounded-2xl bg-green-50/50 border border-green-200 text-green-700 text-center animate-in fade-in zoom-in-95 duration-300"
+                    className="p-6 rounded-2xl bg-green-900/20/50 border border-green-800 text-green-200 text-center animate-in fade-in zoom-in-95 duration-300"
                     role="status"
                 >
                     <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-100 mb-4">

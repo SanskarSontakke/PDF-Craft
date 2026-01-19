@@ -236,7 +236,7 @@ export default function ContactPageClient({ locale }: ContactPageClientProps) {
                     </div>
 
                     {formStatus === 'error' && (
-                      <div className="flex items-center gap-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
+                      <div className="flex items-center gap-2 p-4 bg-red-900/20 border border-red-800 rounded-lg text-red-200">
                         <AlertCircle className="h-5 w-5 flex-shrink-0" />
                         <p className="text-sm">
                           {t('form.error')}

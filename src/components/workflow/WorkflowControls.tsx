@@ -101,7 +101,7 @@ export function WorkflowControls({
     const StatusIndicator = () => {
         if (executionState.status === 'running') {
             return (
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-100 text-blue-700 rounded-full">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-100 text-blue-200 rounded-full">
                     <Loader2 className="w-4 h-4 animate-spin" />
                     <span className="text-sm font-medium">
                         {tWorkflow('running') || 'Running'} ({executionState.progress}%)
@@ -111,7 +111,7 @@ export function WorkflowControls({
         }
         if (executionState.status === 'complete') {
             return (
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-green-100 text-green-700 rounded-full">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-green-100 text-green-200 rounded-full">
                     <CheckCircle className="w-4 h-4" />
                     <span className="text-sm font-medium">{tWorkflow('complete') || 'Complete'}</span>
                 </div>
@@ -119,7 +119,7 @@ export function WorkflowControls({
         }
         if (executionState.status === 'error') {
             return (
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-red-100 text-red-700 rounded-full">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-red-100 text-red-200 rounded-full">
                     <XCircle className="w-4 h-4" />
                     <span className="text-sm font-medium">{tWorkflow('error') || 'Error'}</span>
                 </div>
@@ -202,7 +202,7 @@ export function WorkflowControls({
                             variant="outline"
                             size="sm"
                             onClick={onStop}
-                            className="text-red-600 border-red-300 hover:bg-red-50"
+                            className="text-red-600 border-red-300 hover:bg-red-900/20"
                         >
                             <Square className="w-4 h-4 mr-2" />
                             {tWorkflow('stop') || 'Stop'}
@@ -254,7 +254,7 @@ export function WorkflowControls({
                         size="sm"
                         onClick={onClear}
                         disabled={nodes.length === 0 || isRunning}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="text-red-600 hover:text-red-200 hover:bg-red-900/20"
                     >
                         <Trash2 className="w-4 h-4 mr-2" />
                         {tWorkflow('clear') || 'Clear'}
@@ -264,9 +264,9 @@ export function WorkflowControls({
 
             {/* Download output button */}
             {executionState.status === 'complete' && executionState.outputFiles && executionState.outputFiles.length > 0 && (
-                <div className="px-4 py-2 bg-green-50 border-b border-green-200">
+                <div className="px-4 py-2 bg-green-900/20 border-b border-green-800">
                     <div className="flex items-center justify-between">
-                        <span className="text-sm text-green-700">
+                        <span className="text-sm text-green-200">
                             {tWorkflow('workflowComplete') || 'Workflow completed successfully!'}
                         </span>
                         <Button
@@ -303,10 +303,10 @@ export function WorkflowControls({
 
             {/* Validation errors */}
             {validation.errors.length > 0 && !isRunning && (
-                <div className="px-4 py-2 bg-red-50 border-b border-red-200">
+                <div className="px-4 py-2 bg-red-900/20 border-b border-red-800">
                     <div className="flex items-start gap-2">
                         <AlertCircle className="w-4 h-4 text-red-500 mt-0.5 flex-shrink-0" />
-                        <div className="text-sm text-red-700">
+                        <div className="text-sm text-red-200">
                             {validation.errors.map((error, index) => (
                                 <p key={index}>{error.message}</p>
                             ))}

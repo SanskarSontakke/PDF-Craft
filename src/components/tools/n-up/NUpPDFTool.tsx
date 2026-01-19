@@ -219,7 +219,7 @@ export function NUpPDFTool({ className = '' }: NUpPDFToolProps) {
       {/* Error Message */}
       {error && (
         <div
-          className="p-4 rounded-[var(--radius-md)] bg-red-50 border border-red-200 text-red-700"
+          className="p-4 rounded-[var(--radius-md)] bg-red-900/20 border border-red-800 text-red-200"
           role="alert"
         >
           <p className="text-sm">{error}</p>
@@ -449,7 +449,7 @@ export function NUpPDFTool({ className = '' }: NUpPDFToolProps) {
               {/* Grid visualization */}
               <div className="relative">
                 <div
-                  className="relative border-2 border-[hsl(var(--color-primary)/0.3)] rounded-lg p-3 bg-white dark:bg-[hsl(var(--color-card))] shadow-sm"
+                  className="relative border-2 border-[hsl(var(--color-primary)/0.3)] rounded-lg p-3 bg-[hsl(var(--color-card))] dark:bg-[hsl(var(--color-card))] shadow-sm"
                   style={{
                     width: orientation === 'landscape' ? '180px' : '140px',
                     height: orientation === 'landscape' ? '140px' : '180px',
@@ -488,11 +488,11 @@ export function NUpPDFTool({ className = '' }: NUpPDFToolProps) {
               <div className="flex-1 space-y-3 text-center sm:text-left">
                 {/* Main stats */}
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="p-3 rounded-lg bg-white dark:bg-[hsl(var(--color-card))] border border-[hsl(var(--color-border))] shadow-sm">
+                  <div className="p-3 rounded-lg bg-[hsl(var(--color-card))] dark:bg-[hsl(var(--color-card))] border border-[hsl(var(--color-border))] shadow-sm">
                     <div className="text-2xl font-bold text-[hsl(var(--color-primary))]">{gridCols} × {gridRows}</div>
                     <div className="text-xs text-[hsl(var(--color-muted-foreground))]">{tTools('nUpPdf.gridLabel') || '网格布局'}</div>
                   </div>
-                  <div className="p-3 rounded-lg bg-white dark:bg-[hsl(var(--color-card))] border border-[hsl(var(--color-border))] shadow-sm">
+                  <div className="p-3 rounded-lg bg-[hsl(var(--color-card))] dark:bg-[hsl(var(--color-card))] border border-[hsl(var(--color-border))] shadow-sm">
                     <div className="text-2xl font-bold text-[hsl(var(--color-foreground))]">{outputSheets}</div>
                     <div className="text-xs text-[hsl(var(--color-muted-foreground))]">{tTools('nUpPdf.outputPages') || '输出页数'}</div>
                   </div>
@@ -572,7 +572,7 @@ export function NUpPDFTool({ className = '' }: NUpPDFToolProps) {
       {/* Success Message */}
       {status === 'complete' && result && (
         <div
-          className="p-4 rounded-[var(--radius-md)] bg-green-50 border border-green-200 text-green-700"
+          className="p-4 rounded-[var(--radius-md)] bg-green-900/20 border border-green-800 text-green-200"
           role="status"
         >
           <p className="text-sm font-medium">

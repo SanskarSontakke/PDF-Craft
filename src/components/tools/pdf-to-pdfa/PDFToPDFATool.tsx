@@ -129,7 +129,7 @@ export function PDFToPDFATool({ className = '' }: PDFToPDFAToolProps) {
             />
 
             {error && (
-                <div className="p-4 rounded-[var(--radius-md)] bg-red-50 border border-red-200 text-red-700" role="alert">
+                <div className="p-4 rounded-[var(--radius-md)] bg-red-900/20 border border-red-800 text-red-200" role="alert">
                     <p className="text-sm">{error}</p>
                 </div>
             )}
@@ -262,7 +262,7 @@ export function PDFToPDFATool({ className = '' }: PDFToPDFAToolProps) {
             </div>
 
             {allCompleted && (
-                <div className="p-4 rounded-[var(--radius-md)] bg-green-50 border border-green-200 text-green-700" role="status">
+                <div className="p-4 rounded-[var(--radius-md)] bg-green-900/20 border border-green-800 text-green-200" role="status">
                     <p className="text-sm font-medium">
                         {tTools('pdfToPdfa.successMessage') || `Successfully converted ${completedCount} file(s) to PDF/A!`}
                     </p>

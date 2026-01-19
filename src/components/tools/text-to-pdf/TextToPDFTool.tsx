@@ -189,7 +189,7 @@ export function TextToPDFTool({ className = '' }: TextToPDFToolProps) {
               </div>
               <ul className="space-y-2" role="list">
                 {files.map((file) => (
-                  <li key={file.id} className="flex items-center gap-3 p-3 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-white">
+                  <li key={file.id} className="flex items-center gap-3 p-3 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))]">
                     <svg className="w-8 h-8 text-blue-500 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" />
                       <path d="M14 2v6h6" fill="white" />
@@ -222,12 +222,12 @@ export function TextToPDFTool({ className = '' }: TextToPDFToolProps) {
           <h3 className="text-lg font-medium mb-4">{tTools('txtToPdf.enterText') || 'Enter Text'}</h3>
           <textarea value={directText} onChange={(e) => setDirectText(e.target.value)}
             placeholder={tTools('txtToPdf.textPlaceholder') || 'Type or paste your text here...'} disabled={isProcessing}
-            className="w-full h-64 px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-white text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))] resize-y" />
+            className="w-full h-64 px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))] resize-y" />
           <p className="text-xs text-[hsl(var(--color-muted-foreground))] mt-2">{directText.length} {tTools('txtToPdf.characters') || 'characters'}</p>
         </Card>
       )}
 
-      {error && <div className="p-4 rounded-[var(--radius-md)] bg-red-50 border border-red-200 text-red-700" role="alert"><p className="text-sm">{error}</p></div>}
+      {error && <div className="p-4 rounded-[var(--radius-md)] bg-red-900/20 border border-red-800 text-red-200" role="alert"><p className="text-sm">{error}</p></div>}
 
       {/* Options Panel */}
       {(files.length >= 1 || (inputMode === 'text' && directText.length > 0)) && (
@@ -237,7 +237,7 @@ export function TextToPDFTool({ className = '' }: TextToPDFToolProps) {
             <div>
               <label className="block text-sm font-medium mb-2">{tTools('txtToPdf.pageSize') || 'Page Size'}</label>
               <select value={pageSize} onChange={(e) => setPageSize(e.target.value as TextPageSizeType)} disabled={isProcessing}
-                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-white text-sm">
+                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] text-sm">
                 <option value="A4">A4</option><option value="LETTER">Letter</option><option value="LEGAL">Legal</option>
                 <option value="A5">A5</option><option value="A3">A3</option><option value="CUSTOM">{tTools('txtToPdf.custom') || 'Custom'}</option>
               </select>
@@ -247,19 +247,19 @@ export function TextToPDFTool({ className = '' }: TextToPDFToolProps) {
                 <div>
                   <label className="block text-sm font-medium mb-2">{tTools('txtToPdf.width') || 'Width (pt)'}</label>
                   <input type="number" value={customWidth} onChange={(e) => setCustomWidth(Number(e.target.value))} disabled={isProcessing} min={72} max={2000}
-                    className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-white text-sm" />
+                    className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] text-sm" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-2">{tTools('txtToPdf.height') || 'Height (pt)'}</label>
                   <input type="number" value={customHeight} onChange={(e) => setCustomHeight(Number(e.target.value))} disabled={isProcessing} min={72} max={2000}
-                    className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-white text-sm" />
+                    className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] text-sm" />
                 </div>
               </>
             )}
             <div>
               <label className="block text-sm font-medium mb-2">{tTools('txtToPdf.orientation') || 'Orientation'}</label>
               <select value={orientation} onChange={(e) => setOrientation(e.target.value as PageOrientation)} disabled={isProcessing}
-                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-white text-sm">
+                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] text-sm">
                 <option value="portrait">{tTools('txtToPdf.portrait') || 'Portrait'}</option>
                 <option value="landscape">{tTools('txtToPdf.landscape') || 'Landscape'}</option>
               </select>
@@ -267,7 +267,7 @@ export function TextToPDFTool({ className = '' }: TextToPDFToolProps) {
             <div>
               <label className="block text-sm font-medium mb-2">{tTools('txtToPdf.fontFamily') || 'Font Family'}</label>
               <select value={fontId} onChange={(e) => setFontId(e.target.value as FontId)} disabled={isProcessing}
-                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-white text-sm">
+                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] text-sm">
                 {AVAILABLE_FONTS.map(font => (
                   <option key={font.id} value={font.id}>{font.name}</option>
                 ))}
@@ -276,14 +276,14 @@ export function TextToPDFTool({ className = '' }: TextToPDFToolProps) {
             <div>
               <label className="block text-sm font-medium mb-2">{tTools('txtToPdf.fontSize') || 'Font Size'}</label>
               <select value={fontSize} onChange={(e) => setFontSize(Number(e.target.value))} disabled={isProcessing}
-                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-white text-sm">
+                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] text-sm">
                 {[8, 10, 11, 12, 14, 16, 18, 20, 24].map(size => <option key={size} value={size}>{size}pt</option>)}
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium mb-2">{tTools('txtToPdf.lineHeight') || 'Line Spacing'}</label>
               <select value={lineHeight} onChange={(e) => setLineHeight(Number(e.target.value))} disabled={isProcessing}
-                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-white text-sm">
+                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] text-sm">
                 <option value="1">{tTools('txtToPdf.single') || 'Single'}</option>
                 <option value="1.15">1.15</option>
                 <option value="1.5">1.5</option>
@@ -295,7 +295,7 @@ export function TextToPDFTool({ className = '' }: TextToPDFToolProps) {
               <div className="flex gap-2">
                 <input type="color" value={textColor} onChange={(e) => setTextColor(e.target.value)} disabled={isProcessing} className="w-10 h-10 rounded border cursor-pointer" />
                 <input type="text" value={textColor} onChange={(e) => setTextColor(e.target.value)} disabled={isProcessing}
-                  className="flex-1 px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-white text-sm" />
+                  className="flex-1 px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] text-sm" />
               </div>
             </div>
           </div>
@@ -327,7 +327,7 @@ export function TextToPDFTool({ className = '' }: TextToPDFToolProps) {
       </div>
 
       {status === 'complete' && result && (
-        <div className="p-4 rounded-[var(--radius-md)] bg-green-50 border border-green-200 text-green-700" role="status">
+        <div className="p-4 rounded-[var(--radius-md)] bg-green-900/20 border border-green-800 text-green-200" role="status">
           <p className="text-sm font-medium">{tTools('txtToPdf.successMessage') || 'Text converted to PDF successfully!'}</p>
         </div>
       )}

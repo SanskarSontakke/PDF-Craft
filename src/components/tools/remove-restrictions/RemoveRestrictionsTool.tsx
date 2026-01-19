@@ -200,7 +200,7 @@ export function RemoveRestrictionsTool({ className = '' }: RemoveRestrictionsToo
       {/* Error Message */}
       {error && (
         <div 
-          className="p-4 rounded-[var(--radius-md)] bg-red-50 border border-red-200 text-red-700"
+          className="p-4 rounded-[var(--radius-md)] bg-red-900/20 border border-red-800 text-red-200"
           role="alert"
         >
           <p className="text-sm">{error}</p>
@@ -276,8 +276,8 @@ export function RemoveRestrictionsTool({ className = '' }: RemoveRestrictionsToo
             </div>
 
             {/* Info about restrictions */}
-            <div className="p-3 rounded-[var(--radius-sm)] bg-blue-50 border border-blue-200">
-              <p className="text-sm text-blue-700">
+            <div className="p-3 rounded-[var(--radius-sm)] bg-blue-900/20 border border-blue-800">
+              <p className="text-sm text-blue-200">
                 {tTools('removeRestrictions.info') || 'This tool removes owner password restrictions that prevent printing, copying, and editing. It works on PDFs with permission restrictions but cannot remove user passwords required to open the document.'}
               </p>
             </div>
@@ -332,7 +332,7 @@ export function RemoveRestrictionsTool({ className = '' }: RemoveRestrictionsToo
       {/* Results */}
       {status === 'complete' && result && stats && (
         <div 
-          className="p-4 rounded-[var(--radius-md)] bg-green-50 border border-green-200 text-green-700"
+          className="p-4 rounded-[var(--radius-md)] bg-green-900/20 border border-green-800 text-green-200"
           role="status"
         >
           <p className="text-sm font-medium mb-2">

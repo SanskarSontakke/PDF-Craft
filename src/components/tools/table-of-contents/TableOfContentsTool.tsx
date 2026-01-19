@@ -106,7 +106,7 @@ export function TableOfContentsTool({ className = '' }: TableOfContentsToolProps
       )}
 
       {error && (
-        <div className="p-4 rounded bg-red-50 border border-red-200 text-red-700 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
+        <div className="p-4 rounded bg-red-900/20 border border-red-800 text-red-200 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
           <p className="text-sm">{error}</p>
         </div>
       )}
@@ -115,7 +115,7 @@ export function TableOfContentsTool({ className = '' }: TableOfContentsToolProps
         <>
           <Card variant="outlined">
             <div className="flex items-center justify-between">
-              <p className="font-medium text-gray-900 dark:text-gray-100">{file.name}</p>
+              <p className="font-medium text-[hsl(var(--color-foreground))] dark:text-gray-100">{file.name}</p>
               <Button
                 variant="ghost"
                 size="sm"
@@ -132,7 +132,7 @@ export function TableOfContentsTool({ className = '' }: TableOfContentsToolProps
           </Card>
 
           <Card variant="outlined" size="lg">
-            <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-gray-100">
+            <h3 className="text-lg font-semibold mb-4 text-[hsl(var(--color-foreground))] dark:text-gray-100">
               {tTools('options')}
             </h3>
 
@@ -146,7 +146,7 @@ export function TableOfContentsTool({ className = '' }: TableOfContentsToolProps
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100"
+                  className="w-full px-3 py-2 border rounded-lg bg-[hsl(var(--color-card))] dark:bg-gray-800 border-[hsl(var(--color-border))] dark:border-[hsl(var(--color-border))] text-[hsl(var(--color-foreground))] dark:text-gray-100"
                   disabled={isProcessing}
                   placeholder="Table of Contents"
                 />
@@ -160,7 +160,7 @@ export function TableOfContentsTool({ className = '' }: TableOfContentsToolProps
                 <select
                   value={fontSize}
                   onChange={(e) => setFontSize(parseInt(e.target.value, 10))}
-                  className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100"
+                  className="w-full px-3 py-2 border rounded-lg bg-[hsl(var(--color-card))] dark:bg-gray-800 border-[hsl(var(--color-border))] dark:border-[hsl(var(--color-border))] text-[hsl(var(--color-foreground))] dark:text-gray-100"
                   disabled={isProcessing}
                 >
                   <option value={8}>8pt</option>
@@ -181,7 +181,7 @@ export function TableOfContentsTool({ className = '' }: TableOfContentsToolProps
                 <select
                   value={fontFamily}
                   onChange={(e) => setFontFamily(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100"
+                  className="w-full px-3 py-2 border rounded-lg bg-[hsl(var(--color-card))] dark:bg-gray-800 border-[hsl(var(--color-border))] dark:border-[hsl(var(--color-border))] text-[hsl(var(--color-foreground))] dark:text-gray-100"
                   disabled={isProcessing}
                 >
                   {fontOptions.map((option) => (
@@ -199,7 +199,7 @@ export function TableOfContentsTool({ className = '' }: TableOfContentsToolProps
                   id="addBookmark"
                   checked={addBookmark}
                   onChange={(e) => setAddBookmark(e.target.checked)}
-                  className="w-4 h-4 rounded border-gray-300 dark:border-gray-600"
+                  className="w-4 h-4 rounded border-[hsl(var(--color-border))] dark:border-[hsl(var(--color-border))]"
                   disabled={isProcessing}
                 />
                 <label
@@ -212,8 +212,8 @@ export function TableOfContentsTool({ className = '' }: TableOfContentsToolProps
             </div>
 
             {/* Info message */}
-            <div className="mt-4 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
-              <p className="text-sm text-blue-700 dark:text-blue-400">
+            <div className="mt-4 p-3 rounded-lg bg-blue-900/20 dark:bg-blue-900/20 border border-blue-800 dark:border-blue-800">
+              <p className="text-sm text-blue-200 dark:text-blue-400">
                 {tTools('bookmarkRequired')}
               </p>
             </div>
@@ -257,7 +257,7 @@ export function TableOfContentsTool({ className = '' }: TableOfContentsToolProps
       )}
 
       {status === 'complete' && result && (
-        <div className="p-4 rounded bg-green-50 border border-green-200 text-green-700 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400">
+        <div className="p-4 rounded bg-green-900/20 border border-green-800 text-green-200 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400">
           <p className="text-sm font-medium">{tTools('success')}</p>
         </div>
       )}

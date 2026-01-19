@@ -308,7 +308,7 @@ export function ImageToPDFTool({ className = '', imageType }: ImageToPDFToolProp
       {/* Error Message */}
       {error && (
         <div
-          className="p-4 rounded-[var(--radius-md)] bg-red-50 border border-red-200 text-red-700"
+          className="p-4 rounded-[var(--radius-md)] bg-red-900/20 border border-red-800 text-red-200"
           role="alert"
         >
           <p className="text-sm">{error}</p>
@@ -382,7 +382,7 @@ export function ImageToPDFTool({ className = '', imageType }: ImageToPDFToolProp
                 </button>
 
                 {/* File Info */}
-                <div className="p-2 bg-white">
+                <div className="p-2 bg-[hsl(var(--color-card))]">
                   <p className="text-xs font-medium text-[hsl(var(--color-foreground))] truncate">
                     {file.file.name}
                   </p>
@@ -414,7 +414,7 @@ export function ImageToPDFTool({ className = '', imageType }: ImageToPDFToolProp
                 value={pageSize}
                 onChange={(e) => setPageSize(e.target.value as PageSizeType)}
                 disabled={isProcessing}
-                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
+                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
               >
                 <option value="A4">A4</option>
                 <option value="LETTER">Letter</option>
@@ -434,7 +434,7 @@ export function ImageToPDFTool({ className = '', imageType }: ImageToPDFToolProp
                 value={orientation}
                 onChange={(e) => setOrientation(e.target.value as 'portrait' | 'landscape' | 'auto')}
                 disabled={isProcessing}
-                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
+                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
               >
                 <option value="auto">{tTools('imageToPdf.orientationAuto') || 'Auto (match image)'}</option>
                 <option value="portrait">{tTools('imageToPdf.orientationPortrait') || 'Portrait'}</option>
@@ -451,7 +451,7 @@ export function ImageToPDFTool({ className = '', imageType }: ImageToPDFToolProp
                 value={margin}
                 onChange={(e) => setMargin(Number(e.target.value))}
                 disabled={isProcessing}
-                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
+                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
               >
                 <option value="0">{tTools('imageToPdf.marginNone') || 'None'}</option>
                 <option value="18">{tTools('imageToPdf.marginSmall') || 'Small (0.25")'}</option>
@@ -517,7 +517,7 @@ export function ImageToPDFTool({ className = '', imageType }: ImageToPDFToolProp
                     value={imagesPerPdf}
                     onChange={(e) => setImagesPerPdf(Math.max(1, Math.min(files.length, parseInt(e.target.value) || 1)))}
                     disabled={isProcessing}
-                    className="w-24 px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
+                    className="w-24 px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
                   />
                   <p className="text-xs text-[hsl(var(--color-muted-foreground))]">
                     {tTools('imageToPdf.batchModeHint', { pdfCount: Math.ceil(files.length / imagesPerPdf) }) ||
@@ -538,7 +538,7 @@ export function ImageToPDFTool({ className = '', imageType }: ImageToPDFToolProp
                 value={svgScale}
                 onChange={(e) => setSvgScale(Number(e.target.value))}
                 disabled={isProcessing}
-                className="w-full sm:w-auto px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
+                className="w-full sm:w-auto px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
               >
                 <option value="1">{tTools('imageToPdf.svgQualityLow') || 'Low (1x - smaller file)'}</option>
                 <option value="2">{tTools('imageToPdf.svgQualityMedium') || 'Medium (2x - balanced)'}</option>
@@ -603,7 +603,7 @@ export function ImageToPDFTool({ className = '', imageType }: ImageToPDFToolProp
       {/* Success Message */}
       {status === 'complete' && result && (
         <div
-          className="p-4 rounded-[var(--radius-md)] bg-green-50 border border-green-200 text-green-700"
+          className="p-4 rounded-[var(--radius-md)] bg-green-900/20 border border-green-800 text-green-200"
           role="status"
         >
           <p className="text-sm font-medium">
@@ -615,7 +615,7 @@ export function ImageToPDFTool({ className = '', imageType }: ImageToPDFToolProp
       {/* Batch Success Message */}
       {status === 'complete' && batchResult && (
         <div
-          className="p-4 rounded-[var(--radius-md)] bg-green-50 border border-green-200 text-green-700"
+          className="p-4 rounded-[var(--radius-md)] bg-green-900/20 border border-green-800 text-green-200"
           role="status"
         >
           <p className="text-sm font-medium">

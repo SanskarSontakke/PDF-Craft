@@ -236,7 +236,7 @@ export default function HomePageClient({ locale, localizedToolContent }: HomePag
                     href={`/${locale}/tools?category=${category}`}
                     className="group"
                   >
-                    <Card className="p-5 h-full glass-card hover:bg-white/80 dark:hover:bg-slate-800/80 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-[hsl(var(--color-border)/0.6)]">
+                    <Card className="p-5 h-full glass-card hover:bg-[hsl(var(--color-secondary)/0.8)] transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-[hsl(var(--color-border)/0.6)]">
                       <div className="flex items-start gap-4">
                         <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-[hsl(var(--color-primary)/0.1)] flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
                           <Icon className="h-5 w-5 text-[hsl(var(--color-primary))]" aria-hidden="true" />

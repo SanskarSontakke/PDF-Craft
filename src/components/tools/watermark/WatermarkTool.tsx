@@ -172,7 +172,7 @@ export function WatermarkTool({ className = '' }: WatermarkToolProps) {
       )}
 
       {error && (
-        <div className="p-4 rounded-lg bg-red-50 border border-red-200 text-red-700 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
+        <div className="p-4 rounded-lg bg-red-900/20 border border-red-800 text-red-200 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400">
           <p className="text-sm">{error}</p>
         </div>
       )}
@@ -186,7 +186,7 @@ export function WatermarkTool({ className = '' }: WatermarkToolProps) {
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6z" />
                 </svg>
                 <div>
-                  <p className="font-medium text-gray-900 dark:text-gray-100">{file.name}</p>
+                  <p className="font-medium text-[hsl(var(--color-foreground))] dark:text-gray-100">{file.name}</p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">{formatSize(file.size)}</p>
                 </div>
               </div>
@@ -197,7 +197,7 @@ export function WatermarkTool({ className = '' }: WatermarkToolProps) {
           </Card>
 
           <Card variant="outlined" size="lg">
-            <h3 className="text-lg font-medium mb-4 text-gray-900 dark:text-gray-100">
+            <h3 className="text-lg font-medium mb-4 text-[hsl(var(--color-foreground))] dark:text-gray-100">
               {tTools('optionsTitle')}
             </h3>
             
@@ -245,7 +245,7 @@ export function WatermarkTool({ className = '' }: WatermarkToolProps) {
                     value={watermarkText}
                     onChange={(e) => setWatermarkText(e.target.value)}
                     placeholder="CONFIDENTIAL"
-                    className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100"
+                    className="w-full px-3 py-2 border rounded-lg bg-[hsl(var(--color-card))] dark:bg-gray-800 border-[hsl(var(--color-border))] dark:border-[hsl(var(--color-border))] text-[hsl(var(--color-foreground))] dark:text-gray-100"
                     disabled={isProcessing}
                   />
                 </div>
@@ -261,7 +261,7 @@ export function WatermarkTool({ className = '' }: WatermarkToolProps) {
                       onChange={(e) => setFontSize(parseInt(e.target.value) || 72)}
                       min={10}
                       max={200}
-                      className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100"
+                      className="w-full px-3 py-2 border rounded-lg bg-[hsl(var(--color-card))] dark:bg-gray-800 border-[hsl(var(--color-border))] dark:border-[hsl(var(--color-border))] text-[hsl(var(--color-foreground))] dark:text-gray-100"
                       disabled={isProcessing}
                     />
                   </div>
@@ -274,14 +274,14 @@ export function WatermarkTool({ className = '' }: WatermarkToolProps) {
                         type="color"
                         value={textColor}
                         onChange={(e) => setTextColor(e.target.value)}
-                        className="w-10 h-10 p-1 cursor-pointer rounded border border-gray-300 dark:border-gray-600"
+                        className="w-10 h-10 p-1 cursor-pointer rounded border border-[hsl(var(--color-border))] dark:border-[hsl(var(--color-border))]"
                         disabled={isProcessing}
                       />
                       <input
                         type="text"
                         value={textColor}
                         onChange={(e) => setTextColor(e.target.value)}
-                        className="flex-1 px-3 py-2 border rounded-lg bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 text-sm"
+                        className="flex-1 px-3 py-2 border rounded-lg bg-[hsl(var(--color-card))] dark:bg-gray-800 border-[hsl(var(--color-border))] dark:border-[hsl(var(--color-border))] text-[hsl(var(--color-foreground))] dark:text-gray-100 text-sm"
                         disabled={isProcessing}
                       />
                     </div>
@@ -334,7 +334,7 @@ export function WatermarkTool({ className = '' }: WatermarkToolProps) {
                     type="file"
                     accept="image/png, image/jpeg"
                     onChange={handleImageSelected}
-                    className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
+                    className="w-full px-3 py-2 border rounded-lg bg-[hsl(var(--color-card))] dark:bg-gray-800 border-[hsl(var(--color-border))] dark:border-[hsl(var(--color-border))] text-[hsl(var(--color-foreground))] dark:text-gray-100 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700"
                     disabled={isProcessing}
                   />
                   {imageFile && (
@@ -416,7 +416,7 @@ export function WatermarkTool({ className = '' }: WatermarkToolProps) {
       )}
 
       {status === 'complete' && result && (
-        <div className="p-4 rounded-lg bg-green-50 border border-green-200 text-green-700 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400">
+        <div className="p-4 rounded-lg bg-green-900/20 border border-green-800 text-green-200 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400">
           <p className="text-sm font-medium">{tTools('successMessage')}</p>
         </div>
       )}
