@@ -344,7 +344,7 @@ export function BookmarkTool({ className = '' }: BookmarkToolProps) {
         <div
           className={`flex items-center gap-2 p-2 rounded cursor-pointer transition-colors ${isSelected
             ? 'bg-blue-100 border border-blue-300'
-            : 'hover:bg-gray-100'
+            : 'hover:bg-[hsl(var(--color-muted))]'
             }`}
           onClick={() => handleBookmarkClick(bookmark)}
         >
@@ -415,7 +415,7 @@ export function BookmarkTool({ className = '' }: BookmarkToolProps) {
 
         {/* Render children */}
         {bookmark.isExpanded && bookmark.children.length > 0 && (
-          <div className="border-l border-gray-200 ml-2">
+          <div className="border-l border-[hsl(var(--color-border))] ml-2">
             {bookmark.children.map(child => renderBookmarkItem(child, depth + 1))}
           </div>
         )}
@@ -439,7 +439,7 @@ export function BookmarkTool({ className = '' }: BookmarkToolProps) {
       )}
 
       {error && (
-        <div className="p-4 rounded-[var(--radius-md)] bg-red-50 border border-red-200 text-red-700" role="alert">
+        <div className="p-4 rounded-[var(--radius-md)] bg-red-900/20 border border-red-800 text-red-200" role="alert">
           <p className="text-sm">{error}</p>
         </div>
       )}
@@ -479,7 +479,7 @@ export function BookmarkTool({ className = '' }: BookmarkToolProps) {
             </div>
 
             {/* Canvas */}
-            <div className="flex justify-center bg-gray-100 rounded p-4 overflow-auto max-h-[600px]">
+            <div className="flex justify-center bg-[hsl(var(--color-muted))] rounded p-4 overflow-auto max-h-[600px]">
               <canvas ref={canvasRef} className="shadow-lg" />
             </div>
           </Card>
@@ -554,7 +554,7 @@ export function BookmarkTool({ className = '' }: BookmarkToolProps) {
       )}
 
       {status === 'complete' && result && (
-        <div className="p-4 rounded-[var(--radius-md)] bg-green-50 border border-green-200 text-green-700">
+        <div className="p-4 rounded-[var(--radius-md)] bg-green-900/20 border border-green-800 text-green-200">
           <p className="text-sm font-medium">
             {tTools('bookmark.successMessage') || 'Bookmarks saved successfully!'}
           </p>

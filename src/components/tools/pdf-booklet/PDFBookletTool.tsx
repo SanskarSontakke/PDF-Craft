@@ -126,7 +126,7 @@ export function PDFBookletTool({ className = '' }: PDFBookletToolProps) {
             {/* Error Message */}
             {error && (
                 <div
-                    className="p-4 rounded-[var(--radius-md)] bg-red-50 border border-red-200 text-red-700"
+                    className="p-4 rounded-[var(--radius-md)] bg-red-900/20 border border-red-800 text-red-200"
                     role="alert"
                 >
                     <p className="text-sm">{error}</p>
@@ -298,12 +298,12 @@ export function PDFBookletTool({ className = '' }: PDFBookletToolProps) {
                                 {tTools('pdfBooklet.previewLabel') || 'Layout Preview'}
                             </label>
                             <div
-                                className="relative bg-gray-100 rounded-[var(--radius-md)] p-4 flex items-center justify-center"
+                                className="relative bg-[hsl(var(--color-muted))] rounded-[var(--radius-md)] p-4 flex items-center justify-center"
                                 style={{ minHeight: '200px' }}
                             >
                                 {/* Preview Paper */}
                                 <div
-                                    className="bg-white shadow-lg border border-gray-300 relative"
+                                    className="bg-[hsl(var(--color-card))] shadow-lg border border-[hsl(var(--color-border))] relative"
                                     style={{
                                         width: orientation === 'landscape' ? '280px' : '200px',
                                         height: orientation === 'landscape' ? '200px' : '280px',
@@ -322,7 +322,7 @@ export function PDFBookletTool({ className = '' }: PDFBookletToolProps) {
                                         {Array.from({ length: parseInt(gridMode.split('x')[0]) * parseInt(gridMode.split('x')[1]) }).map((_, i) => (
                                             <div
                                                 key={i}
-                                                className="bg-blue-50 border border-blue-200 flex items-center justify-center text-xs text-blue-500 font-medium"
+                                                className="bg-blue-900/20 border border-blue-800 flex items-center justify-center text-xs text-blue-500 font-medium"
                                                 style={{
                                                     transform: rotation === '90cw' ? 'rotate(90deg)' : rotation === '90ccw' ? 'rotate(-90deg)' : rotation === 'alternate' && i % 2 === 1 ? 'rotate(180deg)' : 'none',
                                                 }}
@@ -335,7 +335,7 @@ export function PDFBookletTool({ className = '' }: PDFBookletToolProps) {
 
                                 {/* Preview Info */}
                                 <div className="absolute bottom-2 left-2 right-2 text-center">
-                                    <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded shadow-sm">
+                                    <span className="text-xs text-gray-500 bg-[hsl(var(--color-card))] px-2 py-1 rounded shadow-sm">
                                         {paperSize.toUpperCase()} • {orientation} • {gridMode} grid
                                     </span>
                                 </div>
@@ -387,7 +387,7 @@ export function PDFBookletTool({ className = '' }: PDFBookletToolProps) {
             {/* Success Message */}
             {resultBlob && (
                 <div
-                    className="p-4 rounded-[var(--radius-md)] bg-green-50 border border-green-200 text-green-700"
+                    className="p-4 rounded-[var(--radius-md)] bg-green-900/20 border border-green-800 text-green-200"
                     role="status"
                 >
                     <p className="text-sm font-medium">

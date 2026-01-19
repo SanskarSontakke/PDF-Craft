@@ -203,7 +203,7 @@ export function LinearizePDFTool({ className = '' }: LinearizePDFToolProps) {
       {/* Error Message */}
       {error && (
         <div 
-          className="p-4 rounded-[var(--radius-md)] bg-red-50 border border-red-200 text-red-700"
+          className="p-4 rounded-[var(--radius-md)] bg-red-900/20 border border-red-800 text-red-200"
           role="alert"
         >
           <p className="text-sm">{error}</p>
@@ -273,8 +273,8 @@ export function LinearizePDFTool({ className = '' }: LinearizePDFToolProps) {
           
           <div className="space-y-4">
             {/* Info about linearization */}
-            <div className="p-3 rounded-[var(--radius-sm)] bg-blue-50 border border-blue-200">
-              <p className="text-sm text-blue-700">
+            <div className="p-3 rounded-[var(--radius-sm)] bg-blue-900/20 border border-blue-800">
+              <p className="text-sm text-blue-200">
                 {tTools('linearizePdf.info') || 'Linearization optimizes PDFs for fast web viewing. The first page will display before the entire file is downloaded, improving user experience for web-hosted documents.'}
               </p>
             </div>
@@ -343,7 +343,7 @@ export function LinearizePDFTool({ className = '' }: LinearizePDFToolProps) {
       {/* Results */}
       {status === 'complete' && result && stats && (
         <div 
-          className="p-4 rounded-[var(--radius-md)] bg-green-50 border border-green-200 text-green-700"
+          className="p-4 rounded-[var(--radius-md)] bg-green-900/20 border border-green-800 text-green-200"
           role="status"
         >
           <p className="text-sm font-medium mb-2">

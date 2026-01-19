@@ -235,7 +235,7 @@ export default function PrivacyPageClient({ locale }: PrivacyPageClientProps) {
         <section className="py-12 bg-[hsl(var(--color-muted)/0.3)]">
           <div className="container mx-auto px-4">
             <div className="max-w-2xl mx-auto text-center">
-              <div className="inline-flex items-center gap-3 px-6 py-4 bg-green-50 border border-green-200 rounded-lg">
+              <div className="inline-flex items-center gap-3 px-6 py-4 bg-green-900/20 border border-green-800 rounded-lg">
                 <Shield className="h-8 w-8 text-green-600" />
                 <div className="text-left">
                   <p className="font-semibold text-green-800">

@@ -249,7 +249,7 @@ export function PDFToSVGTool({ className = '' }: PDFToSVGToolProps) {
             {/* Error Message */}
             {error && (
                 <div
-                    className="p-4 rounded-[var(--radius-md)] bg-red-50 border border-red-200 text-red-700"
+                    className="p-4 rounded-[var(--radius-md)] bg-red-900/20 border border-red-800 text-red-200"
                     role="alert"
                 >
                     <p className="text-sm">{error}</p>
@@ -302,7 +302,7 @@ export function PDFToSVGTool({ className = '' }: PDFToSVGToolProps) {
                                 value={scale}
                                 onChange={(e) => setScale(parseFloat(e.target.value))}
                                 disabled={isProcessing}
-                                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
+                                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
                             >
                                 <option value="1">72 DPI (Low)</option>
                                 <option value="2">144 DPI (Medium)</option>
@@ -325,7 +325,7 @@ export function PDFToSVGTool({ className = '' }: PDFToSVGToolProps) {
                                 onChange={(e) => setPageRange(e.target.value)}
                                 placeholder={tTools('pdfToSvg.pageRangePlaceholder') || 'e.g., 1-3, 5, 7'}
                                 disabled={isProcessing}
-                                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
+                                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
                             />
                             <p className="text-xs text-[hsl(var(--color-muted-foreground))] mt-1">
                                 {tTools('pdfToSvg.pageRangeHint') || 'Leave empty for all pages'}
@@ -438,10 +438,10 @@ export function PDFToSVGTool({ className = '' }: PDFToSVGToolProps) {
                     onClick={closePreview}
                 >
                     <div
-                        className="relative max-w-[90vw] max-h-[90vh] bg-white rounded-lg overflow-auto"
+                        className="relative max-w-[90vw] max-h-[90vh] bg-[hsl(var(--color-card))] rounded-lg overflow-auto"
                         onClick={(e) => e.stopPropagation()}
                     >
-                        <div className="sticky top-0 bg-white border-b border-gray-200 p-4 flex items-center justify-between">
+                        <div className="sticky top-0 bg-[hsl(var(--color-card))] border-b border-[hsl(var(--color-border))] p-4 flex items-center justify-between">
                             <h4 className="font-medium">
                                 {tTools('pdfToSvg.previewPage') || 'Page'} {svgResults[previewIndex].pageNumber}
                             </h4>
@@ -472,7 +472,7 @@ export function PDFToSVGTool({ className = '' }: PDFToSVGToolProps) {
             {/* Success Message */}
             {status === 'complete' && result && (
                 <div
-                    className="p-4 rounded-[var(--radius-md)] bg-green-50 border border-green-200 text-green-700"
+                    className="p-4 rounded-[var(--radius-md)] bg-green-900/20 border border-green-800 text-green-200"
                     role="status"
                 >
                     <p className="text-sm font-medium">

@@ -268,7 +268,7 @@ export function HeaderFooterTool({ className = '' }: HeaderFooterToolProps) {
       )}
 
       {error && (
-        <div className="p-4 rounded-[var(--radius-md)] bg-red-50 border border-red-200 text-red-700">
+        <div className="p-4 rounded-[var(--radius-md)] bg-red-900/20 border border-red-800 text-red-200">
           <p className="text-sm">{error}</p>
         </div>
       )}
@@ -384,7 +384,7 @@ export function HeaderFooterTool({ className = '' }: HeaderFooterToolProps) {
                     <button
                       key={item.label}
                       onClick={() => navigator.clipboard.writeText(item.label)}
-                      className="px-3 py-1.5 text-xs bg-gray-100 hover:bg-gray-200 rounded-full transition-colors"
+                      className="px-3 py-1.5 text-xs bg-[hsl(var(--color-muted))] hover:bg-gray-200 rounded-full transition-colors"
                       title={`Copy "${item.label}" - ${item.desc}`}
                     >
                       <code>{item.label}</code>
@@ -429,7 +429,7 @@ export function HeaderFooterTool({ className = '' }: HeaderFooterToolProps) {
                     type="color"
                     value={fontColor}
                     onChange={(e) => setFontColor(e.target.value)}
-                    className="w-full h-10 p-1 cursor-pointer rounded border border-gray-300"
+                    className="w-full h-10 p-1 cursor-pointer rounded border border-[hsl(var(--color-border))]"
                     disabled={isProcessing}
                   />
                 </div>
@@ -495,10 +495,10 @@ export function HeaderFooterTool({ className = '' }: HeaderFooterToolProps) {
                 </div>
               </div>
 
-              <div className="bg-gray-100 rounded-[var(--radius-md)] p-4 flex justify-center">
+              <div className="bg-[hsl(var(--color-muted))] rounded-[var(--radius-md)] p-4 flex justify-center">
                 <canvas
                   ref={previewCanvasRef}
-                  className="shadow-lg bg-white max-w-full h-auto"
+                  className="shadow-lg bg-[hsl(var(--color-card))] max-w-full h-auto"
                   style={{ maxHeight: '500px' }}
                 />
               </div>
@@ -566,7 +566,7 @@ export function HeaderFooterTool({ className = '' }: HeaderFooterToolProps) {
       )}
 
       {status === 'complete' && result && (
-        <div className="p-4 rounded-[var(--radius-md)] bg-green-50 border border-green-200 text-green-700">
+        <div className="p-4 rounded-[var(--radius-md)] bg-green-900/20 border border-green-800 text-green-200">
           <p className="text-sm font-medium">
             {tTools('headerFooter.successMessage') || 'Header & footer added successfully!'}
           </p>

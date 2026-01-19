@@ -244,7 +244,7 @@ export function FileListPanel({ files, onFilesChange, onClose }: FileListPanelPr
                                         {/* Remove */}
                                         <button
                                             onClick={() => handleRemoveFile(index)}
-                                            className="p-1.5 rounded hover:bg-red-50 transition-colors"
+                                            className="p-1.5 rounded hover:bg-red-900/20 transition-colors"
                                             title={tWorkflow('removeFile') || 'Remove'}
                                         >
                                             <Trash2 className="w-4 h-4 text-red-500" />
@@ -261,7 +261,7 @@ export function FileListPanel({ files, onFilesChange, onClose }: FileListPanelPr
                             variant="ghost"
                             size="sm"
                             onClick={handleClearAll}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            className="text-red-600 hover:text-red-200 hover:bg-red-900/20"
                         >
                             <XCircle className="w-4 h-4 mr-2" />
                             {tWorkflow('clearAll') || 'Clear All'}

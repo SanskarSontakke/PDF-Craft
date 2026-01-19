@@ -614,7 +614,7 @@ export function ComparePDFsTool({ className = '' }: ComparePDFsToolProps) {
       {/* Error Message */}
       {error && (
         <div 
-          className="p-4 rounded-[var(--radius-md)] bg-red-50 border border-red-200 text-red-700"
+          className="p-4 rounded-[var(--radius-md)] bg-red-900/20 border border-red-800 text-red-200"
           role="alert"
         >
           <p className="text-sm">{error}</p>
@@ -750,8 +750,8 @@ export function ComparePDFsTool({ className = '' }: ComparePDFsToolProps) {
                 {currentDiff && (
                   <span className={`text-xs px-2 py-1 rounded ${
                     currentDiff.hasDifference 
-                      ? 'bg-red-100 text-red-700' 
-                      : 'bg-green-100 text-green-700'
+                      ? 'bg-red-100 text-red-200'
+                      : 'bg-green-100 text-green-200'
                   }`}>
                     {currentDiff.hasDifference 
                       ? `${currentDiff.differencePercentage.toFixed(1)}% different`
@@ -789,8 +789,8 @@ export function ComparePDFsTool({ className = '' }: ComparePDFsToolProps) {
                   {currentDiff && (
                     <span className={`text-xs px-2 py-1 rounded ${
                       currentDiff.hasDifference 
-                        ? 'bg-red-100 text-red-700' 
-                        : 'bg-green-100 text-green-700'
+                        ? 'bg-red-100 text-red-200'
+                        : 'bg-green-100 text-green-200'
                     }`}>
                       {currentDiff.hasDifference 
                         ? `${currentDiff.differencePercentage.toFixed(1)}% different`
@@ -824,7 +824,7 @@ export function ComparePDFsTool({ className = '' }: ComparePDFsToolProps) {
                   <div 
                     ref={scrollContainer1Ref}
                     onScroll={handleScroll1}
-                    className={`overflow-auto border border-[hsl(var(--color-border))] rounded bg-white ${
+                    className={`overflow-auto border border-[hsl(var(--color-border))] rounded bg-[hsl(var(--color-card))] ${
                       isFullscreen ? 'flex-1 min-h-0' : 'max-h-[600px]'
                     }`}
                   >
@@ -838,7 +838,7 @@ export function ComparePDFsTool({ className = '' }: ComparePDFsToolProps) {
                   <div 
                     ref={scrollContainer2Ref}
                     onScroll={handleScroll2}
-                    className={`overflow-auto border border-[hsl(var(--color-border))] rounded bg-white ${
+                    className={`overflow-auto border border-[hsl(var(--color-border))] rounded bg-[hsl(var(--color-card))] ${
                       isFullscreen ? 'flex-1 min-h-0' : 'max-h-[600px]'
                     }`}
                   >
@@ -853,7 +853,7 @@ export function ComparePDFsTool({ className = '' }: ComparePDFsToolProps) {
                 <p className="text-sm font-medium text-[hsl(var(--color-foreground))] mb-2 flex-shrink-0">
                   Overlay View (Red: First PDF, Blue: Second PDF)
                 </p>
-                <div className={`relative overflow-auto border border-[hsl(var(--color-border))] rounded bg-white ${
+                <div className={`relative overflow-auto border border-[hsl(var(--color-border))] rounded bg-[hsl(var(--color-card))] ${
                   isFullscreen ? 'flex-1 min-h-0 w-full' : 'max-h-[600px] inline-block'
                 }`}>
                   <canvas ref={canvas1Ref} className="max-w-full h-auto" />
@@ -871,7 +871,7 @@ export function ComparePDFsTool({ className = '' }: ComparePDFsToolProps) {
                 <p className="text-sm font-medium text-[hsl(var(--color-foreground))] mb-2 flex-shrink-0">
                   {tTools('comparePdfs.diffView') || 'Difference View (Red areas show changes)'}
                 </p>
-                <div className={`overflow-auto border border-[hsl(var(--color-border))] rounded bg-white ${
+                <div className={`overflow-auto border border-[hsl(var(--color-border))] rounded bg-[hsl(var(--color-card))] ${
                   isFullscreen ? 'flex-1 min-h-0 w-full' : 'max-h-[600px] inline-block'
                 }`}>
                   {currentDiff?.diffImageUrl ? (
@@ -902,8 +902,8 @@ export function ComparePDFsTool({ className = '' }: ComparePDFsToolProps) {
                       : ''
                     }
                     ${diff.hasDifference 
-                      ? 'bg-red-100 text-red-700 hover:bg-red-200' 
-                      : 'bg-green-100 text-green-700 hover:bg-green-200'
+                      ? 'bg-red-100 text-red-200 hover:bg-red-200'
+                      : 'bg-green-100 text-green-200 hover:bg-green-200'
                     }
                   `}
                   title={diff.hasDifference 
@@ -923,7 +923,7 @@ export function ComparePDFsTool({ className = '' }: ComparePDFsToolProps) {
 
           {/* Success Message */}
           <div 
-            className="p-4 rounded-[var(--radius-md)] bg-green-50 border border-green-200 text-green-700"
+            className="p-4 rounded-[var(--radius-md)] bg-green-900/20 border border-green-800 text-green-200"
             role="status"
           >
             <p className="text-sm font-medium">

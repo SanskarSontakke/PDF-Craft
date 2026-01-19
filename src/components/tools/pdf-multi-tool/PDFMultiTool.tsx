@@ -424,7 +424,7 @@ export function PDFMultiTool({ className = '' }: PDFMultiToolProps) {
 
       {/* Error Message */}
       {error && (
-        <div className="p-4 rounded-[var(--radius-md)] bg-red-50 border border-red-200 text-red-700" role="alert">
+        <div className="p-4 rounded-[var(--radius-md)] bg-red-900/20 border border-red-800 text-red-200" role="alert">
           <p className="text-sm">{error}</p>
         </div>
       )}
@@ -649,7 +649,7 @@ export function PDFMultiTool({ className = '' }: PDFMultiToolProps) {
                         type="button"
                         onClick={(e) => { e.stopPropagation(); handleMovePage(index, index - 1); }}
                         disabled={index === 0 || isProcessing}
-                        className="w-5 h-5 bg-white/90 rounded flex items-center justify-center hover:bg-white disabled:opacity-30"
+                        className="w-5 h-5 bg-[hsl(var(--color-card))]/90 rounded flex items-center justify-center hover:bg-[hsl(var(--color-card))] disabled:opacity-30"
                         aria-label="Move up"
                       >
                         <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
@@ -660,7 +660,7 @@ export function PDFMultiTool({ className = '' }: PDFMultiToolProps) {
                         type="button"
                         onClick={(e) => { e.stopPropagation(); handleMovePage(index, index + 1); }}
                         disabled={index === pagePreviews.length - 1 || isProcessing}
-                        className="w-5 h-5 bg-white/90 rounded flex items-center justify-center hover:bg-white disabled:opacity-30"
+                        className="w-5 h-5 bg-[hsl(var(--color-card))]/90 rounded flex items-center justify-center hover:bg-[hsl(var(--color-card))] disabled:opacity-30"
                         aria-label="Move down"
                       >
                         <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
@@ -676,7 +676,7 @@ export function PDFMultiTool({ className = '' }: PDFMultiToolProps) {
                         type="button"
                         onClick={(e) => { e.stopPropagation(); handleRotatePage(index, -90); }}
                         disabled={isProcessing}
-                        className="w-5 h-5 bg-white/90 rounded flex items-center justify-center hover:bg-white"
+                        className="w-5 h-5 bg-[hsl(var(--color-card))]/90 rounded flex items-center justify-center hover:bg-[hsl(var(--color-card))]"
                         aria-label="Rotate left"
                       >
                         <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -688,7 +688,7 @@ export function PDFMultiTool({ className = '' }: PDFMultiToolProps) {
                         type="button"
                         onClick={(e) => { e.stopPropagation(); handleRotatePage(index, 90); }}
                         disabled={isProcessing}
-                        className="w-5 h-5 bg-white/90 rounded flex items-center justify-center hover:bg-white"
+                        className="w-5 h-5 bg-[hsl(var(--color-card))]/90 rounded flex items-center justify-center hover:bg-[hsl(var(--color-card))]"
                         aria-label="Rotate right"
                       >
                         <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -705,7 +705,7 @@ export function PDFMultiTool({ className = '' }: PDFMultiToolProps) {
                         type="button"
                         onClick={(e) => { e.stopPropagation(); handleDuplicatePage(index); }}
                         disabled={isProcessing}
-                        className="w-5 h-5 bg-white/90 rounded flex items-center justify-center hover:bg-white"
+                        className="w-5 h-5 bg-[hsl(var(--color-card))]/90 rounded flex items-center justify-center hover:bg-[hsl(var(--color-card))]"
                         aria-label="Duplicate page"
                       >
                         <svg className="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -770,7 +770,7 @@ export function PDFMultiTool({ className = '' }: PDFMultiToolProps) {
 
       {/* Success Message */}
       {status === 'complete' && result && (
-        <div className="p-4 rounded-[var(--radius-md)] bg-green-50 border border-green-200 text-green-700" role="status">
+        <div className="p-4 rounded-[var(--radius-md)] bg-green-900/20 border border-green-800 text-green-200" role="status">
           <p className="text-sm font-medium">
             {tTools('pdfMultiTool.successMessage') || 'PDF processed successfully! Click the download button to save your file.'}
           </p>

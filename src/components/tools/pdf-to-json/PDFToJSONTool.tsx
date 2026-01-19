@@ -218,7 +218,7 @@ export function PDFToJSONTool({ className = '' }: PDFToJSONToolProps) {
       {/* Error Message */}
       {error && (
         <div 
-          className="p-4 rounded-[var(--radius-md)] bg-red-50 border border-red-200 text-red-700"
+          className="p-4 rounded-[var(--radius-md)] bg-red-900/20 border border-red-800 text-red-200"
           role="alert"
         >
           <p className="text-sm">{error}</p>
@@ -339,7 +339,7 @@ export function PDFToJSONTool({ className = '' }: PDFToJSONToolProps) {
                 onChange={(e) => setPageRange(e.target.value)}
                 placeholder={tTools('pdfToJson.pageRangePlaceholder') || 'e.g., 1-3, 5, 7'}
                 disabled={isProcessing}
-                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
+                className="w-full px-3 py-2 rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] bg-[hsl(var(--color-card))] text-sm focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))]"
               />
               <p className="text-xs text-[hsl(var(--color-muted-foreground))] mt-1">
                 {tTools('pdfToJson.pageRangeHint') || 'Leave empty for all pages'}
@@ -401,7 +401,7 @@ export function PDFToJSONTool({ className = '' }: PDFToJSONToolProps) {
       {/* Success Message */}
       {status === 'complete' && result && (
         <div 
-          className="p-4 rounded-[var(--radius-md)] bg-green-50 border border-green-200 text-green-700"
+          className="p-4 rounded-[var(--radius-md)] bg-green-900/20 border border-green-800 text-green-200"
           role="status"
         >
           <p className="text-sm font-medium">
