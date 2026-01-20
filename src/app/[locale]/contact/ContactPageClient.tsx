@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
-import { Mail, MessageSquare, Github, Twitter, Send, CheckCircle, AlertCircle } from 'lucide-react';
+import { Mail, MessageSquare, Send, CheckCircle, AlertCircle } from 'lucide-react';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/Button';
@@ -34,20 +34,6 @@ export default function ContactPageClient({ locale }: ContactPageClientProps) {
       description: t('methods.email.description'),
       action: t('methods.email.action'),
       href: 'mailto:contact@pdfcraft.gitu.net',
-    },
-    {
-      icon: Github,
-      title: t('methods.github.title'),
-      description: t('methods.github.description'),
-      action: t('methods.github.action'),
-      href: 'https://github.com/PDFCraftTool/pdfcraft',
-    },
-    {
-      icon: Twitter,
-      title: t('methods.twitter.title'),
-      description: t('methods.twitter.description'),
-      action: t('methods.twitter.action'),
-      href: 'https://x.com/PDFCraftTool',
     },
   ];
 

@@ -4,7 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Shield, Lock, FileCheck, Github, Twitter, Mail, Globe } from 'lucide-react';
+import { Shield, Lock, FileCheck, Globe } from 'lucide-react';
 import { type Locale, locales, localeConfig, getLocalizedPath } from '@/lib/i18n/config';
 import { saveLanguagePreference } from './LanguageSelector';
 
@@ -64,18 +64,6 @@ export const Footer: React.FC<FooterProps> = ({ locale }) => {
             <p className="text-sm text-[hsl(var(--color-muted-foreground))] leading-relaxed max-w-xs">
               {t('tagline') || 'Professional, secure, and free PDF tools for everyone. No installation required.'}
             </p>
-
-            <div className="flex gap-4">
-              <a href="https://github.com/PDFCraftTool/pdfcraft" className="p-2 rounded-full bg-[hsl(var(--color-muted))] text-[hsl(var(--color-muted-foreground))] hover:bg-[hsl(var(--color-primary))] hover:text-white transition-all">
-                <Github className="w-4 h-4" />
-              </a>
-              <a href="https://x.com/PDFCraftTool" className="p-2 rounded-full bg-[hsl(var(--color-muted))] text-[hsl(var(--color-muted-foreground))] hover:bg-[hsl(var(--color-primary))] hover:text-white transition-all">
-                <Twitter className="w-4 h-4" />
-              </a>
-              <a href="#" className="p-2 rounded-full bg-[hsl(var(--color-muted))] text-[hsl(var(--color-muted-foreground))] hover:bg-[hsl(var(--color-primary))] hover:text-white transition-all">
-                <Mail className="w-4 h-4" />
-              </a>
-            </div>
           </div>
 
           {/* Quick Links */}
@@ -179,7 +167,7 @@ export const Footer: React.FC<FooterProps> = ({ locale }) => {
         {/* Copyright */}
         <div className="pt-8 border-t border-[hsl(var(--color-border))] flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-[hsl(var(--color-muted-foreground))]">
-            &copy; {currentYear} {t('brand')}. {t('footer.copyright', { year: '' }).replace(/^\d{4}\s*/, '')}
+            &copy; {currentYear} SanskarSontakke. All rights reserved.
           </p>
           <div className="flex items-center gap-6">
             <Link href={`/${locale}/terms`} className="text-xs text-[hsl(var(--color-muted-foreground))] hover:text-[hsl(var(--color-foreground))]">Terms</Link>
