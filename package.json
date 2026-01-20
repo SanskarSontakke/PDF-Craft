@@ -2,6 +2,7 @@
   "name": "pdfcraft",
   "version": "0.1.0",
   "private": true,
+  "author": "SanskarSontakke",
   "type": "module",
   "scripts": {
     "dev": "next dev --turbopack",

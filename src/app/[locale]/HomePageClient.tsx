@@ -88,7 +88,7 @@ export default function HomePageClient({ locale, localizedToolContent }: HomePag
       <main id="main-content" className="flex-1 relative" tabIndex={-1}>
         {/* Hero Section */}
         <section
-          className="relative overflow-hidden pt-16 pb-20 lg:pt-24 lg:pb-28"
+          className="relative overflow-hidden pt-16 pb-20 lg:pt-24 lg:pb-28 animate-in fade-in slide-in-from-bottom-4 duration-700"
           aria-labelledby="hero-title"
         >
           {/* Animated Background Blobs */}
@@ -96,12 +96,14 @@ export default function HomePageClient({ locale, localizedToolContent }: HomePag
             <div className="absolute top-0 left-1/4 w-96 h-96 bg-[hsl(var(--color-primary)/0.2)] rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob" />
             <div className="absolute top-0 right-1/4 w-96 h-96 bg-[hsl(var(--color-accent)/0.2)] rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000" />
             <div className="absolute -bottom-32 left-1/2 w-96 h-96 bg-[hsl(var(--color-secondary)/0.3)] rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000" />
+            <div className="absolute top-1/2 left-1/3 w-72 h-72 bg-[hsl(var(--color-primary)/0.15)] rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-blob animation-delay-3000" />
+            <div className="absolute bottom-10 right-10 w-80 h-80 bg-[hsl(var(--color-accent)/0.15)] rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-blob animation-delay-5000" />
           </div>
 
           <div className="container mx-auto px-4 relative z-10">
-            <div className="max-w-4xl mx-auto text-center">
+            <div className="max-w-4xl mx-auto text-center animate-in fade-in zoom-in-95 duration-1000 delay-200 fill-mode-both">
               {/* Brand Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-[hsl(var(--color-background)/0.8)] border border-[hsl(var(--color-primary)/0.2)] shadow-sm backdrop-blur-md transition-all hover:bg-[hsl(var(--color-background))]">
+              <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-[hsl(var(--color-background)/0.8)] border border-[hsl(var(--color-primary)/0.2)] shadow-sm backdrop-blur-md transition-all hover:bg-[hsl(var(--color-background))] hover:scale-105 duration-300">
                 <Sparkles className="h-4 w-4 text-[hsl(var(--color-primary))]" aria-hidden="true" />
                 <span className="text-sm font-medium text-[hsl(var(--color-primary))]">
                   {t('common.brand')}
@@ -137,14 +139,14 @@ export default function HomePageClient({ locale, localizedToolContent }: HomePag
         </section>
 
         {/* Features Section */}
-        <section className="py-12 relative z-20" aria-label="Features">
+        <section className="py-12 relative z-20 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-300 fill-mode-both" aria-label="Features">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {features.map((feature, index) => {
                 const Icon = feature.icon;
                 return (
-                  <Card key={index} className="p-6 text-center glass-card border-0 hover:-translate-y-1 transition-transform duration-300" hover={false}>
-                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[hsl(var(--color-primary)/0.1)] mb-4 text-[hsl(var(--color-primary))]">
+                  <Card key={index} className="p-6 text-center glass-card border-0 hover:-translate-y-2 hover:scale-105 transition-all duration-300" hover={false}>
+                    <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[hsl(var(--color-primary)/0.1)] mb-4 text-[hsl(var(--color-primary))] transition-transform duration-300 hover:rotate-12">
                       <Icon className={`h-6 w-6 ${feature.color}`} aria-hidden="true" />
                     </div>
                     <h3 className="text-lg font-bold text-[hsl(var(--color-foreground))] mb-2">
@@ -161,7 +163,7 @@ export default function HomePageClient({ locale, localizedToolContent }: HomePag
         </section>
 
         {/* Popular Tools Section */}
-        <section className="py-16 bg-[hsl(var(--color-muted)/0.5)]" aria-labelledby="popular-tools-heading">
+        <section className="py-16 bg-[hsl(var(--color-muted)/0.5)] animate-in fade-in slide-in-from-bottom-8 duration-700 delay-500 fill-mode-both" aria-labelledby="popular-tools-heading">
           <div className="container mx-auto px-4">
             <div className="text-center mb-10">
               <div className="inline-flex items-center gap-2 px-3 py-1 mb-3 rounded-full bg-[hsl(var(--color-primary)/0.1)] border border-[hsl(var(--color-primary)/0.2)]">
@@ -185,7 +187,7 @@ export default function HomePageClient({ locale, localizedToolContent }: HomePag
           </div>
         </section>
 
-        <section className="py-16" aria-labelledby="featured-tools-heading">
+        <section className="py-16 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-500 fill-mode-both" aria-labelledby="featured-tools-heading">
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
               <div className="max-w-2xl">
@@ -212,7 +214,7 @@ export default function HomePageClient({ locale, localizedToolContent }: HomePag
         </section>
 
         {/* Tool Categories Section */}
-        <section className="py-16 bg-[hsl(var(--color-muted)/0.3)]" aria-labelledby="categories-heading">
+        <section className="py-16 bg-[hsl(var(--color-muted)/0.3)] animate-in fade-in slide-in-from-bottom-8 duration-700 delay-700 fill-mode-both" aria-labelledby="categories-heading">
           <div className="container mx-auto px-4">
             <div className="text-center mb-10">
               <h2 id="categories-heading" className="text-3xl font-bold text-[hsl(var(--color-foreground))] mb-3">
@@ -264,7 +266,7 @@ export default function HomePageClient({ locale, localizedToolContent }: HomePag
         </section>
 
         {/* Stats Section */}
-        <section className="py-16" aria-label="Statistics">
+        <section className="py-16 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-700 fill-mode-both" aria-label="Statistics">
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center divide-x divide-[hsl(var(--color-border))]">
               <div className="p-4">
