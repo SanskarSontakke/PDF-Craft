@@ -6,6 +6,7 @@ import { localeConfig, type Locale, locales } from '@/lib/i18n/config';
 import { generateHomeMetadata } from '@/lib/seo';
 import { fontVariables } from '@/lib/fonts';
 import { SkipLink } from '@/components/common/SkipLink';
+import { AppShell } from '@/components/layout/AppShell';
 import '@/app/globals.css';
 
 export function generateStaticParams() {
@@ -20,6 +21,7 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
+  viewportFit: 'cover',
   themeColor: '#0f172a',
 };
 
@@ -62,8 +64,10 @@ export default async function LocaleLayout({
   return (
     <NextIntlClientProvider messages={messages}>
       <div lang={locale} dir={direction} className={`${fontVariables} min-h-screen bg-background text-foreground antialiased font-sans`}>
-        <SkipLink targetId="main-content">Skip to main content</SkipLink>
-        {children}
+        <AppShell>
+          <SkipLink targetId="main-content">Skip to main content</SkipLink>
+          {children}
+        </AppShell>
       </div>
     </NextIntlClientProvider>
   );

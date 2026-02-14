@@ -1,11 +1,10 @@
 // Layout Components
-export { Header, type HeaderProps } from './Header';
+
 export { Footer, type FooterProps } from './Footer';
-export { Navigation, type NavigationProps } from './Navigation';
-export { MobileMenu, type MobileMenuProps } from './MobileMenu';
-export { 
-  LanguageSelector, 
+export { BottomDock, type BottomDockProps } from './BottomDock';
+export {
+  LanguageSelector,
   type LanguageSelectorProps,
   saveLanguagePreference,
-  getLanguagePreference 
+  getLanguagePreference
 } from './LanguageSelector';

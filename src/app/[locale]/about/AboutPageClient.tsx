@@ -3,7 +3,7 @@
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import { Shield, Zap, Globe, Heart, Code, Users, ArrowRight } from 'lucide-react';
-import { Header } from '@/components/layout/Header';
+import { BottomDock } from '@/components/layout/BottomDock';
 import { Footer } from '@/components/layout/Footer';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
@@ -54,7 +54,7 @@ export default function AboutPageClient({ locale }: AboutPageClientProps) {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header locale={locale} />
+
 
       <main className="flex-1">
         {/* Hero Section */}
@@ -172,6 +172,7 @@ export default function AboutPageClient({ locale }: AboutPageClientProps) {
       </main>
 
       <Footer locale={locale} />
+      <BottomDock locale={locale} />
     </div>
   );
 }

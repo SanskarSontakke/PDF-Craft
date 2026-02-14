@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { Tool, ToolContent, HowToStep, UseCase, FAQ, ToolCategory } from '@/types/tool';
 import { Card } from '@/components/ui/Card';
 import { getToolById } from '@/config/tools';
-import { Header } from '@/components/layout/Header';
+import { BottomDock } from '@/components/layout/BottomDock';
 import { Footer } from '@/components/layout/Footer';
 import { type Locale } from '@/lib/i18n/config';
 import { ToolProvider } from '@/lib/contexts/ToolContext';
@@ -56,10 +56,10 @@ export function ToolPage({ tool, content, locale, children, localizedRelatedTool
   return (
     <ToolProvider toolSlug={tool.slug} toolName={toolDisplayName}>
       <div className="min-h-screen flex flex-col" data-testid="tool-page">
-        <Header locale={locale as Locale} />
+
 
         <main id="main-content" className="flex-1" tabIndex={-1}>
-          <div className="max-w-7xl mx-auto px-4 pt-24 pb-8">
+          <div className="max-w-7xl mx-auto px-4 pt-8 pb-8">
             {/* Breadcrumb Navigation */}
             <nav aria-label="Breadcrumb" className="mb-4 flex items-center text-sm text-[hsl(var(--color-muted-foreground))] animate-in fade-in slide-in-from-top-4 duration-500 delay-100">
               <Link
@@ -123,6 +123,7 @@ export function ToolPage({ tool, content, locale, children, localizedRelatedTool
         </main>
 
         <Footer locale={locale as Locale} />
+        <BottomDock locale={locale as Locale} />
       </div>
     </ToolProvider>
   );

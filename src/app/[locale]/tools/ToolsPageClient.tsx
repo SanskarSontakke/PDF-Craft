@@ -4,7 +4,9 @@ import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
 import { Search, X, Filter, Star } from 'lucide-react';
-import { Header } from '@/components/layout/Header';
+import { useRouter } from 'next/navigation';
+import { useRef, type TouchEvent } from 'react';
+import { BottomDock } from '@/components/layout/BottomDock';
 import { Footer } from '@/components/layout/Footer';
 import { ToolGrid } from '@/components/tools/ToolGrid';
 import { ToolCard } from '@/components/tools/ToolCard';
@@ -25,9 +27,37 @@ interface ToolsPageClientProps {
 
 export default function ToolsPageClient({ locale, localizedToolContent }: ToolsPageClientProps) {
   const t = useTranslations();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const allTools = getAllTools();
   const { favorites, isLoaded: favoritesLoaded, favoritesCount } = useFavorites();
+
+  // Swipe Logic
+  const touchStart = useRef<number | null>(null);
+  const touchEnd = useRef<number | null>(null);
+
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: TouchEvent) => {
+    touchEnd.current = null;
+    touchStart.current = e.targetTouches[0].clientX;
+  };
+
+  const onTouchMove = (e: TouchEvent) => {
+    touchEnd.current = e.targetTouches[0].clientX;
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart.current || !touchEnd.current) return;
+    const distance = touchStart.current - touchEnd.current;
+
+    // Swipe Right (Negative distance)
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isRightSwipe) {
+      router.push(`/${locale}`);
+    }
+  };
 
   const categoryTranslationKeys: Record<ToolCategory, string> = {
     'edit-annotate': 'editAnnotate',
@@ -106,8 +136,14 @@ export default function ToolsPageClient({ locale, localizedToolContent }: ToolsP
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[hsl(var(--color-background))]">
-      <Header locale={locale} />
+
+    <div
+      className="min-h-screen flex flex-col bg-[hsl(var(--color-background))]"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
+
 
       <main className="flex-1">
         {/* Page Header */}
@@ -294,6 +330,7 @@ export default function ToolsPageClient({ locale, localizedToolContent }: ToolsP
       </main>
 
       <Footer locale={locale} />
+      <BottomDock locale={locale} />
     </div>
   );
 }

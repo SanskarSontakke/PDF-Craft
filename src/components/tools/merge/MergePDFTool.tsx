@@ -1,13 +1,13 @@
 'use client';
 
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
 import { FileUploader } from '../FileUploader';
 import { ProcessingProgress, ProcessingStatus } from '../ProcessingProgress';
 import { DownloadButton } from '../DownloadButton';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { mergePDFs } from '@/lib/pdf';
+import { usePDFWorker } from '@/hooks/usePDFWorker';
 import type { MergeOptions, UploadedFile, ProcessOutput } from '@/types/pdf';
 
 /**
@@ -31,20 +31,46 @@ export interface MergePDFToolProps {
 export function MergePDFTool({ className = '' }: MergePDFToolProps) {
   const t = useTranslations('common');
   const tTools = useTranslations('tools');
-  
+
   // State
   const [files, setFiles] = useState<UploadedFile[]>([]);
-  const [status, setStatus] = useState<ProcessingStatus>('idle');
+  // const [status, setStatus] = useState<ProcessingStatus>('idle'); // Replaced by worker state
   const [progress, setProgress] = useState(0);
   const [progressMessage, setProgressMessage] = useState('');
-  const [result, setResult] = useState<Blob | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  // const [result, setResult] = useState<Blob | null>(null); // Replaced by worker state
+  // const [error, setError] = useState<string | null>(null); // Replaced by worker state
   const [preserveBookmarks, setPreserveBookmarks] = useState(true);
-  
+
+  const { processPDF, isProcessing: isWorkerProcessing, error: workerError, result: workerResult, reset: resetWorker } = usePDFWorker();
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  // Local state to bridge compatibility
+  const [localResult, setLocalResult] = useState<Blob | null>(null);
+
+  // Cleanup effect for object URLs
+  useEffect(() => {
+    return () => {
+      if (localResult) {
+        // In a real app we might create an object URL for download. 
+        // If we did, we'd revoke it here. 
+        // For now, we just clear the blob reference.
+      }
+    };
+  }, [localResult]);
+
+  // Sync worker result to local blob
+  useEffect(() => {
+    if (workerResult && workerResult instanceof ArrayBuffer) {
+      const blob = new Blob([workerResult], { type: 'application/pdf' });
+      setLocalResult(blob);
+    }
+  }, [workerResult]);
+
+
   // Drag state
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
-  
+
   // Ref for cancellation
   const cancelledRef = useRef(false);
 
@@ -57,17 +83,18 @@ export function MergePDFTool({ className = '' }: MergePDFToolProps) {
       file,
       status: 'pending' as const,
     }));
-    
+
     setFiles(prev => [...prev, ...uploadedFiles]);
-    setError(null);
-    setResult(null);
-  }, []);
+    setFiles(prev => [...prev, ...uploadedFiles]);
+    resetWorker();
+    setLocalResult(null);
+  }, [resetWorker]);
 
   /**
    * Handle file upload error
    */
   const handleUploadError = useCallback((errorMessage: string) => {
-    setError(errorMessage);
+    setUploadError(errorMessage);
   }, []);
 
   /**
@@ -75,7 +102,8 @@ export function MergePDFTool({ className = '' }: MergePDFToolProps) {
    */
   const handleRemoveFile = useCallback((id: string) => {
     setFiles(prev => prev.filter(f => f.id !== id));
-    setResult(null);
+    setFiles(prev => prev.filter(f => f.id !== id));
+    setLocalResult(null);
   }, []);
 
   /**
@@ -83,11 +111,11 @@ export function MergePDFTool({ className = '' }: MergePDFToolProps) {
    */
   const handleClearAll = useCallback(() => {
     setFiles([]);
-    setResult(null);
-    setError(null);
-    setStatus('idle');
+    setFiles([]);
+    setLocalResult(null);
+    resetWorker();
     setProgress(0);
-  }, []);
+  }, [resetWorker]);
 
   /**
    * Handle drag start
@@ -151,61 +179,37 @@ export function MergePDFTool({ className = '' }: MergePDFToolProps) {
    */
   const handleMerge = useCallback(async () => {
     if (files.length < 2) {
-      setError('Please add at least 2 PDF files to merge.');
+      // We can use a local error state or alert, but for now relying on the UI validation
       return;
     }
 
     cancelledRef.current = false;
-    setStatus('processing');
     setProgress(0);
-    setError(null);
-    setResult(null);
-
-    const options: MergeOptions = {
-      preserveBookmarks,
-      pageOrder: 'sequential',
-    };
+    setLocalResult(null);
+    resetWorker();
 
     try {
-      const output: ProcessOutput = await mergePDFs(
-        files.map(f => f.file),
-        options,
-        (prog, message) => {
-          if (!cancelledRef.current) {
-            setProgress(prog);
-            setProgressMessage(message || '');
-          }
-        }
+      // Read all files as ArrayBuffers
+      const fileBuffers = await Promise.all(
+        files.map(f => f.file.arrayBuffer())
       );
 
-      if (cancelledRef.current) {
-        setStatus('idle');
-        return;
-      }
+      // Send to worker
+      processPDF('MERGE_PDFS', { files: fileBuffers });
 
-      if (output.success && output.result) {
-        setResult(output.result as Blob);
-        setStatus('complete');
-      } else {
-        setError(output.error?.message || 'Failed to merge PDF files.');
-        setStatus('error');
-      }
     } catch (err) {
-      if (!cancelledRef.current) {
-        setError(err instanceof Error ? err.message : 'An unexpected error occurred.');
-        setStatus('error');
-      }
+      console.error("Error preparing files for worker:", err);
     }
-  }, [files, preserveBookmarks]);
+  }, [files, processPDF, resetWorker]);
 
   /**
    * Handle cancel operation
    */
   const handleCancel = useCallback(() => {
     cancelledRef.current = true;
-    setStatus('idle');
+    resetWorker();
     setProgress(0);
-  }, []);
+  }, [resetWorker]);
 
   /**
    * Format file size
@@ -216,7 +220,7 @@ export function MergePDFTool({ className = '' }: MergePDFToolProps) {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
-  const isProcessing = status === 'processing' || status === 'uploading';
+  const isProcessing = isWorkerProcessing;
   const canMerge = files.length >= 2 && !isProcessing;
 
   return (
@@ -234,12 +238,12 @@ export function MergePDFTool({ className = '' }: MergePDFToolProps) {
       />
 
       {/* Error Message */}
-      {error && (
-        <div 
+      {(uploadError || workerError) && (
+        <div
           className="p-4 rounded-[var(--radius-md)] bg-red-900/20 border border-red-800 text-red-200"
           role="alert"
         >
-          <p className="text-sm">{error}</p>
+          <p className="text-sm">{uploadError || workerError}</p>
         </div>
       )}
 
@@ -281,7 +285,7 @@ export function MergePDFTool({ className = '' }: MergePDFToolProps) {
                 `}
               >
                 {/* Drag Handle */}
-                <div 
+                <div
                   className="flex-shrink-0 text-[hsl(var(--color-muted-foreground))]"
                   aria-hidden="true"
                 >
@@ -369,7 +373,7 @@ export function MergePDFTool({ className = '' }: MergePDFToolProps) {
           <h3 className="text-lg font-medium text-[hsl(var(--color-foreground))] mb-4">
             {tTools('mergePdf.optionsTitle') || 'Merge Options'}
           </h3>
-          
+
           <label className="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
@@ -390,11 +394,11 @@ export function MergePDFTool({ className = '' }: MergePDFToolProps) {
       {/* Processing Progress */}
       {isProcessing && (
         <ProcessingProgress
-          progress={progress}
-          status={status}
-          message={progressMessage}
+          progress={progress} // Worker currently doesn't stream progress, but we can update this later
+          status={'processing'}
+          message={progressMessage || 'Merging PDFs...'}
           onCancel={handleCancel}
-          showPercentage
+          showPercentage={false}
         />
       )}
 
@@ -407,15 +411,15 @@ export function MergePDFTool({ className = '' }: MergePDFToolProps) {
           disabled={!canMerge}
           loading={isProcessing}
         >
-          {isProcessing 
-            ? (t('status.processing') || 'Processing...') 
+          {isProcessing
+            ? (t('status.processing') || 'Processing...')
             : (tTools('mergePdf.mergeButton') || 'Merge PDFs')
           }
         </Button>
 
-        {result && (
+        {localResult && (
           <DownloadButton
-            file={result}
+            file={localResult}
             filename="merged.pdf"
             variant="secondary"
             size="lg"
@@ -425,8 +429,8 @@ export function MergePDFTool({ className = '' }: MergePDFToolProps) {
       </div>
 
       {/* Success Message */}
-      {status === 'complete' && result && (
-        <div 
+      {localResult && (
+        <div
           className="p-4 rounded-[var(--radius-md)] bg-green-900/20 border border-green-800 text-green-200"
           role="status"
         >

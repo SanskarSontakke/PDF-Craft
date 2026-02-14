@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { Shield, Lock, Eye, Server, Trash2, Cookie, Globe, Mail } from 'lucide-react';
-import { Header } from '@/components/layout/Header';
+import { BottomDock } from '@/components/layout/BottomDock';
 import { Footer } from '@/components/layout/Footer';
 import { Card } from '@/components/ui/Card';
 import { type Locale } from '@/lib/i18n/config';
@@ -39,8 +39,8 @@ export default function PrivacyPageClient({ locale }: PrivacyPageClientProps) {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header locale={locale} />
-      
+
+
       <main className="flex-1">
         {/* Hero Section */}
         <section className="bg-gradient-to-br from-[hsl(var(--color-primary)/0.1)] via-[hsl(var(--color-background))] to-[hsl(var(--color-secondary)/0.1)] py-16">
@@ -53,7 +53,7 @@ export default function PrivacyPageClient({ locale }: PrivacyPageClientProps) {
                 Privacy Policy
               </h1>
               <p className="text-lg text-[hsl(var(--color-muted-foreground))]">
-                Your privacy is our top priority. {t('common.brand')} is designed from the ground up 
+                Your privacy is our top priority. {t('common.brand')} is designed from the ground up
                 to protect your data.
               </p>
             </div>
@@ -96,7 +96,7 @@ export default function PrivacyPageClient({ locale }: PrivacyPageClientProps) {
                 1. Introduction
               </h2>
               <p className="text-[hsl(var(--color-muted-foreground))] mb-4">
-                {t('common.brand')} (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your privacy. 
+                {t('common.brand')} (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your privacy.
                 This Privacy Policy explains how we handle your information when you use our PDF tools.
               </p>
 
@@ -120,7 +120,7 @@ export default function PrivacyPageClient({ locale }: PrivacyPageClientProps) {
                 3.1 Your Files
               </h3>
               <p className="text-[hsl(var(--color-muted-foreground))] mb-4">
-                <strong>We do not collect your files.</strong> When you use our PDF tools, your files 
+                <strong>We do not collect your files.</strong> When you use our PDF tools, your files
                 are processed entirely within your browser. They are never transmitted to our servers.
               </p>
 
@@ -186,7 +186,7 @@ export default function PrivacyPageClient({ locale }: PrivacyPageClientProps) {
                 7. Data Security
               </h2>
               <p className="text-[hsl(var(--color-muted-foreground))] mb-4">
-                Since your files never leave your device, they are protected by your own device&apos;s 
+                Since your files never leave your device, they are protected by your own device&apos;s
                 security measures. We recommend:
               </p>
               <ul className="list-disc pl-6 space-y-2 text-[hsl(var(--color-muted-foreground))] mb-4">
@@ -199,8 +199,8 @@ export default function PrivacyPageClient({ locale }: PrivacyPageClientProps) {
                 8. Your Rights
               </h2>
               <p className="text-[hsl(var(--color-muted-foreground))] mb-4">
-                Since we don&apos;t collect personal data, there is no personal data to access, correct, 
-                or delete. You can clear your browser&apos;s local storage at any time to remove any 
+                Since we don&apos;t collect personal data, there is no personal data to access, correct,
+                or delete. You can clear your browser&apos;s local storage at any time to remove any
                 preferences stored by {t('common.brand')}.
               </p>
 
@@ -208,7 +208,7 @@ export default function PrivacyPageClient({ locale }: PrivacyPageClientProps) {
                 9. Children&apos;s Privacy
               </h2>
               <p className="text-[hsl(var(--color-muted-foreground))] mb-4">
-                {t('common.brand')} is not directed at children under 13. We do not knowingly collect 
+                {t('common.brand')} is not directed at children under 13. We do not knowingly collect
                 any information from children.
               </p>
 
@@ -216,7 +216,7 @@ export default function PrivacyPageClient({ locale }: PrivacyPageClientProps) {
                 10. Changes to This Policy
               </h2>
               <p className="text-[hsl(var(--color-muted-foreground))] mb-4">
-                We may update this Privacy Policy from time to time. We will notify you of any changes 
+                We may update this Privacy Policy from time to time. We will notify you of any changes
                 by posting the new Privacy Policy on this page and updating the &quot;Last updated&quot; date.
               </p>
 
@@ -224,7 +224,7 @@ export default function PrivacyPageClient({ locale }: PrivacyPageClientProps) {
                 11. Contact Us
               </h2>
               <p className="text-[hsl(var(--color-muted-foreground))] mb-4">
-                If you have any questions about this Privacy Policy, please contact us through our 
+                If you have any questions about this Privacy Policy, please contact us through our
                 contact page.
               </p>
             </div>
@@ -252,6 +252,7 @@ export default function PrivacyPageClient({ locale }: PrivacyPageClientProps) {
       </main>
 
       <Footer locale={locale} />
+      <BottomDock locale={locale} />
     </div>
   );
 }

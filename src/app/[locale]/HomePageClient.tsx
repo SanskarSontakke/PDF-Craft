@@ -2,13 +2,15 @@
 
 import { useTranslations } from 'next-intl';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { type TouchEvent, useRef } from 'react';
 import { ArrowRight, Zap, Wrench, Lock, Sparkles, Edit, FileImage, FolderOpen, Settings, ShieldCheck, Star } from 'lucide-react';
-import { Header } from '@/components/layout/Header';
+import { BottomDock } from '@/components/layout/BottomDock';
 import { Footer } from '@/components/layout/Footer';
 import { ToolGrid } from '@/components/tools/ToolGrid';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { getAllTools, getToolsByCategory, getPopularTools } from '@/config/tools';
+import { getAllTools, getToolsByCategory } from '@/config/tools';
 import { type Locale } from '@/lib/i18n/config';
 import { CATEGORY_INFO, type ToolCategory } from '@/types/tool';
 
@@ -27,8 +29,33 @@ interface HomePageClientProps {
 
 export default function HomePageClient({ locale, localizedToolContent }: HomePageClientProps) {
   const t = useTranslations();
+  const router = useRouter();
   const allTools = getAllTools();
-  const popularTools = getPopularTools();
+
+  // Swipe Logic
+  const touchStart = useRef<number | null>(null);
+  const touchEnd = useRef<number | null>(null);
+
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e: TouchEvent) => {
+    touchEnd.current = null;
+    touchStart.current = e.targetTouches[0].clientX;
+  };
+
+  const onTouchMove = (e: TouchEvent) => {
+    touchEnd.current = e.targetTouches[0].clientX;
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart.current || !touchEnd.current) return;
+    const distance = touchStart.current - touchEnd.current;
+    const isLeftSwipe = distance > minSwipeDistance;
+
+    if (isLeftSwipe) {
+      router.push(`/${locale}/tools`);
+    }
+  };
 
   // Feature highlights (same as before)
   const features = [
@@ -82,8 +109,13 @@ export default function HomePageClient({ locale, localizedToolContent }: HomePag
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[hsl(var(--color-background))]">
-      <Header locale={locale} />
+    <div
+      className="min-h-screen flex flex-col bg-[hsl(var(--color-background))]"
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
+    >
+
 
       <main id="main-content" className="flex-1 relative" tabIndex={-1}>
         {/* Hero Section */}
@@ -91,13 +123,10 @@ export default function HomePageClient({ locale, localizedToolContent }: HomePag
           className="relative overflow-hidden pt-16 pb-20 lg:pt-24 lg:pb-28 animate-in fade-in slide-in-from-bottom-4 duration-700"
           aria-labelledby="hero-title"
         >
-          {/* Animated Background Blobs */}
+          {/* Animated Background Blobs — reduced to 2 for mobile performance */}
           <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none -z-10">
-            <div className="absolute top-0 left-1/4 w-96 h-96 bg-[hsl(var(--color-primary)/0.2)] rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob" />
-            <div className="absolute top-0 right-1/4 w-96 h-96 bg-[hsl(var(--color-accent)/0.2)] rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000" />
-            <div className="absolute -bottom-32 left-1/2 w-96 h-96 bg-[hsl(var(--color-secondary)/0.3)] rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-4000" />
-            <div className="absolute top-1/2 left-1/3 w-72 h-72 bg-[hsl(var(--color-primary)/0.15)] rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-blob animation-delay-3000" />
-            <div className="absolute bottom-10 right-10 w-80 h-80 bg-[hsl(var(--color-accent)/0.15)] rounded-full mix-blend-multiply filter blur-3xl opacity-60 animate-blob animation-delay-5000" />
+            <div className="absolute top-0 left-1/4 w-96 h-96 bg-[hsl(var(--color-primary)/0.2)] rounded-full mix-blend-multiply filter blur-2xl opacity-70 animate-blob" style={{ willChange: 'transform' }} />
+            <div className="absolute top-0 right-1/4 w-96 h-96 bg-[hsl(var(--color-accent)/0.2)] rounded-full mix-blend-multiply filter blur-2xl opacity-70 animate-blob animation-delay-2000" style={{ willChange: 'transform' }} />
           </div>
 
           <div className="container mx-auto px-4 relative z-10">
@@ -129,10 +158,7 @@ export default function HomePageClient({ locale, localizedToolContent }: HomePag
                     <ArrowRight className="ml-2 h-5 w-5" aria-hidden="true" />
                   </Button>
                 </Link>
-                <div className="flex items-center gap-2 text-sm text-[hsl(var(--color-muted-foreground))] bg-[hsl(var(--color-background)/0.5)] px-4 py-2 rounded-full border border-[hsl(var(--color-border))] backdrop-blur-sm">
-                  <Lock className="h-4 w-4 text-green-500" aria-hidden="true" />
-                  <span>{t('common.footer.privacyBadge')}</span>
-                </div>
+
               </div>
             </div>
           </div>
@@ -162,30 +188,7 @@ export default function HomePageClient({ locale, localizedToolContent }: HomePag
           </div>
         </section>
 
-        {/* Popular Tools Section */}
-        <section className="py-16 bg-[hsl(var(--color-muted)/0.5)] animate-in fade-in slide-in-from-bottom-8 duration-700 delay-500 fill-mode-both" aria-labelledby="popular-tools-heading">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1 mb-3 rounded-full bg-[hsl(var(--color-primary)/0.1)] border border-[hsl(var(--color-primary)/0.2)]">
-                <Star className="h-4 w-4 text-[hsl(var(--color-primary))]" aria-hidden="true" />
-                <span className="text-sm font-medium text-[hsl(var(--color-primary))]">
-                  {t('home.popularTools.badge')}
-                </span>
-              </div>
-              <h2 id="popular-tools-heading" className="text-3xl font-bold text-[hsl(var(--color-foreground))] mb-3">
-                {t('home.popularTools.title')}
-              </h2>
-              <p className="text-[hsl(var(--color-muted-foreground))] max-w-2xl mx-auto text-base">
-                {t('home.popularTools.description')}
-              </p>
-            </div>
-            <ToolGrid
-              tools={popularTools}
-              locale={locale}
-              localizedToolContent={localizedToolContent}
-            />
-          </div>
-        </section>
+
 
         <section className="py-16 animate-in fade-in slide-in-from-bottom-8 duration-700 delay-500 fill-mode-both" aria-labelledby="featured-tools-heading">
           <div className="container mx-auto px-4">
@@ -307,6 +310,7 @@ export default function HomePageClient({ locale, localizedToolContent }: HomePag
       </main>
 
       <Footer locale={locale} />
+      <BottomDock locale={locale} />
     </div>
   );
 }

@@ -5,6 +5,8 @@ import { useTranslations } from 'next-intl';
 import { Button, type ButtonProps } from '../ui/Button';
 import { addRecentFile } from '@/lib/storage/recent-files';
 import { useToolContext } from '@/lib/contexts/ToolContext';
+import { isNativePlatform } from '@/lib/utils/platform';
+import { saveFileNatively } from '@/lib/native/download';
 
 export interface DownloadButtonProps extends Omit<ButtonProps, 'onClick' | 'children'> {
   /** Blob data to download */
@@ -32,11 +34,11 @@ export interface DownloadButtonProps extends Omit<ButtonProps, 'onClick' | 'chil
  */
 function formatFileSize(bytes: number): string {
   if (bytes === 0) return '0 Bytes';
-  
+
   const k = 1024;
   const sizes = ['Bytes', 'KB', 'MB', 'GB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
-  
+
   return `${parseFloat((bytes / Math.pow(k, i)).toFixed(2))} ${sizes[i]}`;
 }
 
@@ -66,7 +68,7 @@ export const DownloadButton: React.FC<DownloadButtonProps> = ({
   const t = useTranslations('common');
   const [blobUrl, setBlobUrl] = useState<string | null>(null);
   const [isDownloading, setIsDownloading] = useState(false);
-  
+
   // Get tool info from context if not provided via props
   const toolContext = useToolContext();
   const toolSlug = propToolSlug || toolContext?.toolSlug;
@@ -77,7 +79,7 @@ export const DownloadButton: React.FC<DownloadButtonProps> = ({
     if (file) {
       const url = URL.createObjectURL(file);
       setBlobUrl(url);
-      
+
       // Cleanup function to revoke URL when component unmounts or file changes
       return () => {
         URL.revokeObjectURL(url);
@@ -90,42 +92,48 @@ export const DownloadButton: React.FC<DownloadButtonProps> = ({
   /**
    * Handle download click
    */
-  const handleDownload = useCallback(() => {
-    if (!file || !blobUrl || isDownloading) return;
+  const handleDownload = useCallback(async () => {
+    if (!file || isDownloading) return;
+    // On web, we need a blob URL; on native, we don't
+    if (!isNativePlatform() && !blobUrl) return;
 
     setIsDownloading(true);
     onDownloadStart?.();
 
-    // Create a temporary anchor element
-    const link = document.createElement('a');
-    link.href = blobUrl;
-    link.download = filename;
-    link.style.display = 'none';
-    
-    // Append to body, click, and remove
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    if (isNativePlatform()) {
+      // Native path: save directly to device filesystem
+      await saveFileNatively(file, filename);
+    } else {
+      // Web path: use the standard <a> tag download
+      const link = document.createElement('a');
+      link.href = blobUrl!;
+      link.download = filename;
+      link.style.display = 'none';
 
-    // Revoke the blob URL after a short delay to ensure download starts
-    if (autoRevoke) {
-      setTimeout(() => {
-        URL.revokeObjectURL(blobUrl);
-        setBlobUrl(null);
-        
-        // Recreate URL for potential re-download
-        if (file) {
-          const newUrl = URL.createObjectURL(file);
-          setBlobUrl(newUrl);
-        }
-      }, 100);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Revoke the blob URL after a short delay to ensure download starts
+      if (autoRevoke) {
+        setTimeout(() => {
+          URL.revokeObjectURL(blobUrl!);
+          setBlobUrl(null);
+
+          // Recreate URL for potential re-download
+          if (file) {
+            const newUrl = URL.createObjectURL(file);
+            setBlobUrl(newUrl);
+          }
+        }, 100);
+      }
     }
 
     // Mark download as complete
     setTimeout(() => {
       setIsDownloading(false);
       onDownloadComplete?.();
-      
+
       // Record to recent files if tool info is provided
       if (toolSlug && file) {
         addRecentFile(filename, file.size, toolSlug, toolName);
@@ -134,7 +142,8 @@ export const DownloadButton: React.FC<DownloadButtonProps> = ({
   }, [file, blobUrl, filename, isDownloading, autoRevoke, onDownloadStart, onDownloadComplete, toolSlug, toolName]);
 
   // Determine if button should be disabled
-  const isDisabled = disabled || !file || !blobUrl;
+  // On native platforms, blob URL is not required for download
+  const isDisabled = disabled || !file || (!isNativePlatform() && !blobUrl);
 
   // Build button text
   const buttonText = label || t('buttons.download');
@@ -168,7 +177,7 @@ export const DownloadButton: React.FC<DownloadButtonProps> = ({
           />
         </svg>
       )}
-      
+
       <span>
         {buttonText}
         {fileSizeText}

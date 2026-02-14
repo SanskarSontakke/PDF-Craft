@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Header } from '@/components/layout/Header';
+import { BottomDock } from '@/components/layout/BottomDock';
 import { Footer } from '@/components/layout/Footer';
 import { ToolGrid } from '@/components/tools/ToolGrid';
 import { getToolsByCategory } from '@/config/tools';
@@ -34,10 +34,10 @@ export default function CategoryPageClient({ locale, category, localizedToolCont
 
     return (
         <div className="min-h-screen flex flex-col bg-[hsl(var(--color-background))]">
-            <Header locale={locale} />
+
 
             <main className="flex-1">
-                <div className="container mx-auto px-4 pt-24 pb-8">
+                <div className="container mx-auto px-4 pt-8 pb-8">
                     {/* Breadcrumb Navigation */}
                     <nav aria-label="Breadcrumb" className="mb-4 flex items-center text-sm text-[hsl(var(--color-muted-foreground))] animate-in fade-in slide-in-from-top-4 duration-500 delay-100">
                         <Link
@@ -80,6 +80,7 @@ export default function CategoryPageClient({ locale, category, localizedToolCont
             </main>
 
             <Footer locale={locale} />
+            <BottomDock locale={locale} />
         </div>
     );
 }

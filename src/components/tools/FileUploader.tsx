@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useCallback, useRef, useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslations } from 'next-intl';
-import { UploadCloud, File, Plus, X } from 'lucide-react';
+import { UploadCloud, File, Plus, X, FileText } from 'lucide-react';
 
 export interface FileUploaderProps {
   /** Accepted file types (MIME types or extensions) */
@@ -33,6 +34,7 @@ export interface FileUploaderProps {
  * 
  * Supports drag-and-drop, file picker, and paste from clipboard.
  * Beautified with premium UI and glassmorphism.
+ * Shows a 3-second processing animation before completing upload.
  */
 export const FileUploader: React.FC<FileUploaderProps> = ({
   accept = ['application/pdf'],
@@ -51,6 +53,9 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
 
   const [isDragging, setIsDragging] = useState(false);
   const [dragCounter, setDragCounter] = useState(0);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [processingFileName, setProcessingFileName] = useState('');
+  const [processingFiles, setProcessingFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
 
@@ -118,7 +123,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   }, [accept, maxSize, maxFiles, multiple, tErrors]);
 
   /**
-   * Handle file selection
+   * Handle file selection — shows 3-second processing animation
    */
   const handleFiles = useCallback((files: FileList | File[]) => {
     if (disabled) return;
@@ -133,9 +138,27 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
     }
 
     if (valid.length > 0) {
-      onFilesSelected(valid);
+      // Show processing animation for 3 seconds
+      const displayName = valid.length === 1
+        ? valid[0].name
+        : `${valid.length} files`;
+      setProcessingFileName(displayName);
+      setProcessingFiles(valid);
+      setIsProcessing(true);
     }
-  }, [disabled, validateFiles, onError, onFilesSelected]);
+  }, [disabled, validateFiles, onError]);
+
+  // 3-second timer to complete processing
+  useEffect(() => {
+    if (!isProcessing) return;
+    const timer = setTimeout(() => {
+      setIsProcessing(false);
+      setProcessingFileName('');
+      onFilesSelected(processingFiles);
+      setProcessingFiles([]);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [isProcessing, processingFiles, onFilesSelected]);
 
   /**
    * Handle drag enter
@@ -276,89 +299,149 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
       bg-[hsl(var(--color-card)/0.5)] 
       hover:border-[hsl(var(--color-primary))] 
       hover:bg-[hsl(var(--color-background))] 
-      hover:shadow-xl hover:shadow-[hsl(var(--color-primary)/0.05)]
+      hover:shadow-xl hover:shadow-[hsl(var(--color-primary)/0.1)]
+      hover:scale-[1.01] active:scale-[0.99]
       glass-card
     `;
 
-  return (
-    <div
-      ref={dropZoneRef}
-      role="button"
-      tabIndex={disabled ? -1 : 0}
-      aria-label={label || t('buttons.upload')}
-      aria-disabled={disabled}
-      className={`${baseStyles} ${stateStyles} ${className}`.trim()}
-      onClick={handleClick}
-      onKeyDown={handleKeyDown}
-      onDragEnter={handleDragEnter}
-      onDragLeave={handleDragLeave}
-      onDragOver={handleDragOver}
-      onDrop={handleDrop}
-    >
-      {/* Hidden file input */}
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept={acceptString}
-        multiple={multiple}
-        onChange={handleInputChange}
-        className="hidden"
-        aria-hidden="true"
-        disabled={disabled}
-      />
-
-      {/* Decorative background blob */}
-      <div className="absolute inset-0 overflow-hidden rounded-[2rem] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[hsl(var(--color-primary)/0.03)] rounded-full blur-3xl" />
-      </div>
-
-      {/* Upload icon */}
-      <div className={`
-        mb-6 p-4 rounded-full transition-transform duration-300 group-hover:scale-110
-        ${isDragging ? 'bg-[hsl(var(--color-primary)/0.1)] text-[hsl(var(--color-primary))]' : 'bg-[hsl(var(--color-muted))] text-[hsl(var(--color-muted-foreground))] group-hover:bg-[hsl(var(--color-primary)/0.1)] group-hover:text-[hsl(var(--color-primary))]'}
-      `}>
-        <UploadCloud className="w-10 h-10" aria-hidden="true" />
-      </div>
-
-      {/* Label */}
-      <p className="text-xl font-semibold text-[hsl(var(--color-foreground))] mb-3 text-center">
-        {label || t('buttons.upload')}
-      </p>
-
-      {/* Description */}
-      <div className="text-sm text-[hsl(var(--color-muted-foreground))] text-center max-w-sm leading-relaxed">
-        {description || (
-          <>
-            <p className="mb-2">Drag and drop files here, or click to browse</p>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[hsl(var(--color-muted)/0.5)] text-xs font-medium">
-              <span className="opacity-70">Support:</span>
-              <span>Paste (Ctrl+V)</span>
-            </div>
-          </>
-        )}
-      </div>
-
-      {/* File info hints - only show when multiple files allowed */}
-      {multiple && (
-        <div className="mt-6 flex flex-wrap gap-2 justify-center">
-          <span className="text-xs px-2 py-1 rounded-md bg-[hsl(var(--color-muted))] text-[hsl(var(--color-muted-foreground))]">
-            Files: {maxFiles}
-          </span>
-        </div>
-      )}
-
-      {/* Drag overlay */}
-      {isDragging && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-[hsl(var(--color-background)/0.9)] backdrop-blur-sm rounded-[2rem] z-10 transition-opacity duration-200">
-          <div className="p-4 rounded-full bg-[hsl(var(--color-primary)/0.1)] text-[hsl(var(--color-primary))] mb-4 animate-bounce">
-            <Plus className="w-8 h-8" />
+  // Full-screen rainbow border overlay (rendered via portal)
+  const rainbowOverlay = isDragging && typeof document !== 'undefined'
+    ? createPortal(
+      <div
+        className="rainbow-border-overlay"
+        style={{ pointerEvents: 'none' }}
+      >
+        {/* Dark backdrop */}
+        <div
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          style={{ pointerEvents: 'auto' }}
+          onDragEnter={handleDragEnter}
+          onDragLeave={handleDragLeave}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+        />
+        {/* Centered prompt */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
+          <div className="p-5 rounded-full bg-[hsl(var(--color-primary)/0.15)] text-[hsl(var(--color-primary))] mb-5 animate-bounce">
+            <Plus className="w-10 h-10" />
           </div>
-          <p className="text-xl font-bold text-[hsl(var(--color-primary))]">
+          <p className="text-2xl font-bold text-white mb-2">
             Drop files to upload
           </p>
+          <p className="text-sm text-white/60">
+            Release to start processing
+          </p>
         </div>
-      )}
-    </div>
+      </div>,
+      document.body
+    )
+    : null;
+
+  // 3-second processing overlay (rendered via portal)
+  const processingOverlay = isProcessing && typeof document !== 'undefined'
+    ? createPortal(
+      <>
+        {/* Animated gradient border around the entire screen */}
+        <div className="processing-border" />
+        <div className="processing-overlay">
+          {/* Spinning ring wrapper */}
+          <div className="relative mb-8">
+            <div className="processing-ring" />
+            {/* PDF icon in center of ring */}
+            <div className="absolute inset-0 flex items-center justify-center processing-pulse-icon">
+              <FileText className="w-10 h-10 text-[hsl(var(--color-primary))]" />
+            </div>
+          </div>
+
+          {/* Processing text */}
+          <p className="text-xl font-semibold text-white mb-2">Processing PDF</p>
+          <p className="text-sm text-white/70 mb-6 max-w-xs text-center truncate px-4">
+            {processingFileName}
+          </p>
+
+          {/* Progress bar */}
+          <div className="w-64 h-1.5 rounded-full bg-white/10 overflow-hidden">
+            <div className="h-full rounded-full bg-gradient-to-r from-[hsl(var(--color-primary))] to-[hsl(var(--color-accent))] processing-progress-bar" />
+          </div>
+
+          <p className="text-xs text-white/40 mt-3">Please wait...</p>
+        </div>
+      </>,
+      document.body
+    )
+    : null;
+
+  return (
+    <>
+      {rainbowOverlay}
+      {processingOverlay}
+      <div
+        ref={dropZoneRef}
+        role="button"
+        tabIndex={disabled ? -1 : 0}
+        aria-label={label || t('buttons.upload')}
+        aria-disabled={disabled}
+        className={`${baseStyles} ${stateStyles} ${className}`.trim()}
+        onClick={handleClick}
+        onKeyDown={handleKeyDown}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+      >
+        {/* Hidden file input */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={acceptString}
+          multiple={multiple}
+          onChange={handleInputChange}
+          className="hidden"
+          aria-hidden="true"
+          disabled={disabled}
+        />
+
+        {/* Decorative background blob */}
+        <div className="absolute inset-0 overflow-hidden rounded-[2rem] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[hsl(var(--color-primary)/0.03)] rounded-full blur-3xl" />
+        </div>
+
+        {/* Upload icon */}
+        <div className={`
+          mb-6 p-4 rounded-full transition-all duration-300 group-hover:scale-110 group-hover:animate-[pulse_2s_ease-in-out_infinite]
+          ${isDragging ? 'bg-[hsl(var(--color-primary)/0.1)] text-[hsl(var(--color-primary))] animate-[pulse_1.5s_ease-in-out_infinite]' : 'bg-[hsl(var(--color-muted))] text-[hsl(var(--color-muted-foreground))] group-hover:bg-[hsl(var(--color-primary)/0.1)] group-hover:text-[hsl(var(--color-primary))]'}
+        `}>
+          <UploadCloud className="w-10 h-10" aria-hidden="true" />
+        </div>
+
+        {/* Label */}
+        <p className="text-xl font-semibold text-[hsl(var(--color-foreground))] mb-3 text-center">
+          {label || t('buttons.upload')}
+        </p>
+
+        {/* Description */}
+        <div className="text-sm text-[hsl(var(--color-muted-foreground))] text-center max-w-sm leading-relaxed">
+          {description || (
+            <>
+              <p className="mb-2">Drag and drop files here, or click to browse</p>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[hsl(var(--color-muted)/0.5)] text-xs font-medium">
+                <span className="opacity-70">Support:</span>
+                <span>Paste (Ctrl+V)</span>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* File info hints - only show when multiple files allowed */}
+        {multiple && (
+          <div className="mt-6 flex flex-wrap gap-2 justify-center">
+            <span className="text-xs px-2 py-1 rounded-md bg-[hsl(var(--color-muted))] text-[hsl(var(--color-muted-foreground))]">
+              Files: {maxFiles}
+            </span>
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 

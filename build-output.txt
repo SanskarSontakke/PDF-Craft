@@ -1,0 +1,99 @@
+﻿
+> pdfcraft@0.1.0 build
+> next build
+
+node.exe :  ΓÜá Specified "headers" 
+will not automatically work with 
+"output: export". See more info 
+here: https://nextjs.org/docs/message
+s/export-no-custom-routes
+At line:1 char:1
++ & "C:\Program 
+Files\nodejs/node.exe" "C:\Program 
+Files\nodejs/node_mo ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : 
+NotSpeci    fied: ( ΓÜá Specified 
+...o-custom-    routes:String) [], 
+RemoteException
+    + FullyQualifiedErrorId : 
+NativeCo    mmandError
+ 
+   Γû▓ Next.js 15.5.9
+
+   Creating an optimized production build ...
+ Γ£ô Compiled successfully in 22.6s
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/875) ...
+   Generating static pages (218/875) 
+   Generating static pages (437/875) 
+   Generating static pages (656/875) 
+ Γ£ô Generating static pages (875/875)
+   Finalizing page optimization ...
+   Collecting build traces ...
+ ΓÜá rewrites, redirects, and 
+headers are not applied when 
+exporting your application, detected 
+(headers). See more info here: https:
+//nextjs.org/docs/messages/export-no-
+custom-routes
+   Exporting (0/2) ...
+ Γ£ô Exporting (2/2)
+
+Route (app)                                   Size  First Load JS
+Γöî Γùï /                                        877 B         105 kB
+Γö£ Γùï /_not-found                               1 kB         105 kB
+Γö£ ΓùÅ /[locale]                              3.27 kB         372 kB
+Γö£   Γö£ /en
+Γö£   Γö£ /ja
+Γö£   Γö£ /ko
+Γö£   Γöö [+6 more paths]
+Γö£ ΓùÅ /[locale]/about                        1.77 kB         361 kB
+Γö£   Γö£ /en/about
+Γö£   Γö£ /ja/about
+Γö£   Γö£ /ko/about
+Γö£   Γöö [+6 more paths]
+Γö£ ΓùÅ /[locale]/contact                       2.3 kB         362 kB
+Γö£   Γö£ /en/contact
+Γö£   Γö£ /ja/contact
+Γö£   Γö£ /ko/contact
+Γö£   Γöö [+6 more paths]
+Γö£ ΓùÅ /[locale]/faq                          1.89 kB         361 kB
+Γö£   Γö£ /en/faq
+Γö£   Γö£ /ja/faq
+Γö£   Γö£ /ko/faq
+Γö£   Γöö [+6 more paths]
+Γö£ ΓùÅ /[locale]/privacy                      3.06 kB         362 kB
+Γö£   Γö£ /en/privacy
+Γö£   Γö£ /ja/privacy
+Γö£   Γö£ /ko/privacy
+Γö£   Γöö [+6 more paths]
+Γö£ ΓùÅ /[locale]/tools                         2.7 kB         372 kB
+Γö£   Γö£ /en/tools
+Γö£   Γö£ /ja/tools
+Γö£   Γö£ /ko/tools
+Γö£   Γöö [+6 more paths]
+Γö£ ΓùÅ /[locale]/tools/[tool]                 9.17 kB         374 kB
+Γö£   Γö£ /en/tools/pdf-multi-tool
+Γö£   Γö£ /en/tools/merge-pdf
+Γö£   Γö£ /en/tools/split-pdf
+Γö£   Γöö [+757 more paths]
+Γö£ ΓùÅ /[locale]/tools/category/[category]    1.05 kB         370 kB
+Γö£   Γö£ /en/tools/category/edit-annotate
+Γö£   Γö£ /en/tools/category/convert-to-pdf
+Γö£   Γö£ /en/tools/category/convert-from-pdf
+Γö£   Γöö [+51 more paths]
+Γö£ Γùï /manifest.webmanifest                    135 B         104 kB
+Γö£ Γùï /robots.txt                              135 B         104 kB
+Γöö Γùï /sitemap.xml                             135 B         104 kB
++ First Load JS shared by all               104 kB
+  Γö£ chunks/1255-ae7c990a5c8f3407.js        45.7 kB
+  Γö£ chunks/4bd1b696-100b9d70ed4e49c1.js    54.2 kB
+  Γöö other shared chunks (total)            4.34 kB
+
+
+Γùï  (Static)  prerendered as static content
+ΓùÅ  (SSG)     prerendered as static HTML (uses generateStaticParams)
+

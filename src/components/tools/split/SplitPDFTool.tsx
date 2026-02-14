@@ -7,14 +7,47 @@ import { ProcessingProgress, ProcessingStatus } from '../ProcessingProgress';
 import { DownloadButton } from '../DownloadButton';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { 
-  splitPDF, 
-  parsePageRanges, 
+import {
+  parsePageRanges,
   createSplitEveryPage,
-  createSplitEveryNPages 
+  createSplitEveryNPages
 } from '@/lib/pdf';
+import { usePDFWorker } from '@/hooks/usePDFWorker';
 import { configurePdfjsWorker } from '@/lib/pdf/loader';
 import type { SplitOptions, PageRange, ProcessOutput } from '@/types/pdf';
+
+/**
+ * Get filename without extension
+ */
+function getFileNameWithoutExtension(filename: string): string {
+  const lastDot = filename.lastIndexOf('.');
+  if (lastDot === -1) return filename;
+  return filename.slice(0, lastDot);
+}
+
+/**
+ * Generate a filename for a split PDF
+ */
+function generateSplitFilename(
+  originalName: string,
+  range: PageRange,
+  rangeIndex: number,
+  totalRanges: number
+): string {
+  const baseName = getFileNameWithoutExtension(originalName);
+
+  if (totalRanges === 1) {
+    if (range.start === range.end) {
+      return `${baseName}_page_${range.start}.pdf`;
+    }
+    return `${baseName}_pages_${range.start}-${range.end}.pdf`;
+  }
+
+  if (range.start === range.end) {
+    return `${baseName}_part${rangeIndex}_page_${range.start}.pdf`;
+  }
+  return `${baseName}_part${rangeIndex}_pages_${range.start}-${range.end}.pdf`;
+}
 
 export interface SplitPDFToolProps {
   /** Custom class name */
@@ -37,26 +70,50 @@ interface PagePreview {
 export function SplitPDFTool({ className = '' }: SplitPDFToolProps) {
   const t = useTranslations('common');
   const tTools = useTranslations('tools');
-  
+
   // State
   const [file, setFile] = useState<File | null>(null);
   const [totalPages, setTotalPages] = useState<number>(0);
-  const [status, setStatus] = useState<ProcessingStatus>('idle');
+  // const [status, setStatus] = useState<ProcessingStatus>('idle'); // Replaced by worker
   const [progress, setProgress] = useState(0);
   const [progressMessage, setProgressMessage] = useState('');
   const [results, setResults] = useState<{ blob: Blob; filename: string }[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  
+  // const [error, setError] = useState<string | null>(null); // Replaced by worker
+
+  const { processPDF, isProcessing: isWorkerProcessing, error: workerError, result: workerResult, reset: resetWorker } = usePDFWorker();
+
+  // Store ranges for filename generation
+  const activeRangesRef = useRef<PageRange[]>([]);
+  const isUploadErrorRef = useRef<boolean>(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  // Effect to handle worker results
+  useEffect(() => {
+    if (workerResult && Array.isArray(workerResult)) {
+      const ranges = activeRangesRef.current;
+      const blobs = workerResult.map(buffer => new Blob([buffer], { type: 'application/pdf' }));
+
+      const resultFiles = blobs.map((blob, i) => {
+        const range = ranges[i] || { start: i + 1, end: i + 1 }; // Fallback
+        const filename = file ? generateSplitFilename(file.name, range, i + 1, ranges.length) : `split_${i + 1}.pdf`;
+        return { blob, filename };
+      });
+
+      setResults(resultFiles);
+      // status is implicitly 'complete' when not processing and results exist
+    }
+  }, [workerResult, file]);
+
   // Split options
   const [splitMode, setSplitMode] = useState<SplitMode>('ranges');
   const [rangeInput, setRangeInput] = useState('');
   const [pagesPerSplit, setPagesPerSplit] = useState(1);
-  
+
   // Page previews
   const [pagePreviews, setPagePreviews] = useState<PagePreview[]>([]);
   const [selectedPages, setSelectedPages] = useState<Set<number>>(new Set());
   const [isLoadingPreviews, setIsLoadingPreviews] = useState(false);
-  
+
   // Ref for cancellation
   const cancelledRef = useRef(false);
   const pdfDocRef = useRef<any>(null);
@@ -67,53 +124,54 @@ export function SplitPDFTool({ className = '' }: SplitPDFToolProps) {
   const loadPdfPreviews = useCallback(async (pdfFile: File) => {
     setIsLoadingPreviews(true);
     setPagePreviews([]);
-    
+
     try {
       const pdfjsLib = await import('pdfjs-dist');
       configurePdfjsWorker(pdfjsLib);
-      
+
       const arrayBuffer = await pdfFile.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      
+
       pdfDocRef.current = pdf;
       setTotalPages(pdf.numPages);
-      
+
       // Generate thumbnails for each page
       const previews: PagePreview[] = [];
       const maxPreviewPages = Math.min(pdf.numPages, 50); // Limit previews for performance
-      
+
       for (let i = 1; i <= maxPreviewPages; i++) {
         const page = await pdf.getPage(i);
         const viewport = page.getViewport({ scale: 0.2 });
-        
+
         const canvas = document.createElement('canvas');
         const context = canvas.getContext('2d');
-        
+
         if (context) {
           canvas.height = viewport.height;
           canvas.width = viewport.width;
-          
+
           await page.render({
             canvasContext: context,
             viewport: viewport,
           }).promise;
-          
+
           previews.push({
             pageNumber: i,
             thumbnail: canvas.toDataURL('image/jpeg', 0.7),
           });
         }
       }
-      
+
       // Add remaining pages without thumbnails
       for (let i = maxPreviewPages + 1; i <= pdf.numPages; i++) {
         previews.push({ pageNumber: i });
       }
-      
+
       setPagePreviews(previews);
     } catch (err) {
       console.error('Failed to load PDF previews:', err);
-      setError('Failed to load PDF preview. The file may be corrupted or encrypted.');
+      setUploadError('Failed to load PDF preview. The file may be corrupted or encrypted.');
+      isUploadErrorRef.current = true;
     } finally {
       setIsLoadingPreviews(false);
     }
@@ -126,19 +184,22 @@ export function SplitPDFTool({ className = '' }: SplitPDFToolProps) {
     if (files.length > 0) {
       const selectedFile = files[0];
       setFile(selectedFile);
-      setError(null);
+      setUploadError(null);
+      isUploadErrorRef.current = false;
       setResults([]);
       setSelectedPages(new Set());
       setRangeInput('');
+      resetWorker();
       loadPdfPreviews(selectedFile);
     }
-  }, [loadPdfPreviews]);
+  }, [loadPdfPreviews, resetWorker]);
 
   /**
    * Handle file upload error
    */
   const handleUploadError = useCallback((errorMessage: string) => {
-    setError(errorMessage);
+    setUploadError(errorMessage);
+    isUploadErrorRef.current = true;
   }, []);
 
   /**
@@ -150,12 +211,14 @@ export function SplitPDFTool({ className = '' }: SplitPDFToolProps) {
     setPagePreviews([]);
     setSelectedPages(new Set());
     setResults([]);
-    setError(null);
-    setStatus('idle');
+    setResults([]);
+    setUploadError(null);
+    isUploadErrorRef.current = false;
+    resetWorker();
     setProgress(0);
     setRangeInput('');
     pdfDocRef.current = null;
-  }, []);
+  }, [resetWorker]);
 
   /**
    * Toggle page selection
@@ -201,7 +264,7 @@ export function SplitPDFTool({ className = '' }: SplitPDFToolProps) {
           const ranges: PageRange[] = [];
           let start = sortedPages[0];
           let end = sortedPages[0];
-          
+
           for (let i = 1; i < sortedPages.length; i++) {
             if (sortedPages[i] === end + 1) {
               end = sortedPages[i];
@@ -215,13 +278,13 @@ export function SplitPDFTool({ className = '' }: SplitPDFToolProps) {
           return ranges;
         }
         return [];
-        
+
       case 'every-page':
         return createSplitEveryPage(totalPages);
-        
+
       case 'every-n-pages':
         return createSplitEveryNPages(totalPages, pagesPerSplit);
-        
+
       default:
         return [];
     }
@@ -232,76 +295,40 @@ export function SplitPDFTool({ className = '' }: SplitPDFToolProps) {
    */
   const handleSplit = useCallback(async () => {
     if (!file) {
-      setError('Please upload a PDF file first.');
+      setUploadError('Please upload a PDF file first.');
       return;
     }
 
     const ranges = getPageRanges();
     if (ranges.length === 0) {
-      setError('Please specify page ranges or select pages to extract.');
+      setUploadError('Please specify page ranges or select pages to extract.');
       return;
     }
 
     cancelledRef.current = false;
-    setStatus('processing');
     setProgress(0);
-    setError(null);
+    setUploadError(null);
     setResults([]);
-
-    const options: SplitOptions = {
-      ranges,
-      outputFormat: 'multiple',
-    };
+    activeRangesRef.current = ranges;
+    resetWorker();
 
     try {
-      const output: ProcessOutput = await splitPDF(
-        file,
-        options,
-        (prog, message) => {
-          if (!cancelledRef.current) {
-            setProgress(prog);
-            setProgressMessage(message || '');
-          }
-        }
-      );
-
-      if (cancelledRef.current) {
-        setStatus('idle');
-        return;
-      }
-
-      if (output.success && output.result) {
-        const blobs = Array.isArray(output.result) ? output.result : [output.result];
-        const filenames = output.metadata?.outputFiles as string[] || 
-          blobs.map((_, i) => `split_${i + 1}.pdf`);
-        
-        const resultFiles = blobs.map((blob, i) => ({
-          blob,
-          filename: filenames[i] || `split_${i + 1}.pdf`,
-        }));
-        
-        setResults(resultFiles);
-        setStatus('complete');
-      } else {
-        setError(output.error?.message || 'Failed to split PDF file.');
-        setStatus('error');
-      }
+      const fileBuffer = await file.arrayBuffer();
+      processPDF('SPLIT_PDF', { file: fileBuffer, ranges });
     } catch (err) {
-      if (!cancelledRef.current) {
-        setError(err instanceof Error ? err.message : 'An unexpected error occurred.');
-        setStatus('error');
-      }
+      console.error("Error preparing for worker:", err);
+      setUploadError("Failed to prepare file for processing");
     }
-  }, [file, getPageRanges]);
+  }, [file, getPageRanges, processPDF, resetWorker]);
 
   /**
    * Handle cancel operation
    */
   const handleCancel = useCallback(() => {
     cancelledRef.current = true;
-    setStatus('idle');
+    resetWorker();
     setProgress(0);
-  }, []);
+  }, [resetWorker]);
 
   /**
    * Format file size
@@ -312,7 +339,7 @@ export function SplitPDFTool({ className = '' }: SplitPDFToolProps) {
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
   };
 
-  const isProcessing = status === 'processing' || status === 'uploading';
+  const isProcessing = isWorkerProcessing;
   const canSplit = file && totalPages > 0 && !isProcessing && (
     (splitMode === 'ranges' && (rangeInput.trim() || selectedPages.size > 0)) ||
     splitMode === 'every-page' ||
@@ -336,12 +363,12 @@ export function SplitPDFTool({ className = '' }: SplitPDFToolProps) {
       )}
 
       {/* Error Message */}
-      {error && (
-        <div 
+      {(uploadError || workerError) && (
+        <div
           className="p-4 rounded-[var(--radius-md)] bg-red-900/20 border border-red-800 text-red-200"
           role="alert"
         >
-          <p className="text-sm">{error}</p>
+          <p className="text-sm">{uploadError || workerError}</p>
         </div>
       )}
 
@@ -380,10 +407,10 @@ export function SplitPDFTool({ className = '' }: SplitPDFToolProps) {
           <h3 className="text-lg font-medium text-[hsl(var(--color-foreground))] mb-4">
             {tTools('splitPdf.splitModeTitle') || 'Split Method'}
           </h3>
-          
+
           <div className="space-y-4">
             {/* Mode Selection */}
-            <div 
+            <div
               className="flex flex-wrap gap-2"
               role="radiogroup"
               aria-label="Split method selection"
@@ -394,11 +421,10 @@ export function SplitPDFTool({ className = '' }: SplitPDFToolProps) {
                 aria-checked={splitMode === 'ranges'}
                 onClick={() => setSplitMode('ranges')}
                 disabled={isProcessing}
-                className={`px-4 py-2 rounded-[var(--radius-md)] text-sm font-medium transition-colors ${
-                  splitMode === 'ranges'
-                    ? 'bg-[hsl(var(--color-primary))] text-[hsl(var(--color-primary-foreground))]'
-                    : 'bg-[hsl(var(--color-muted))] text-[hsl(var(--color-foreground))] hover:bg-[hsl(var(--color-muted)/0.8)]'
-                }`}
+                className={`px-4 py-2 rounded-[var(--radius-md)] text-sm font-medium transition-colors ${splitMode === 'ranges'
+                  ? 'bg-[hsl(var(--color-primary))] text-[hsl(var(--color-primary-foreground))]'
+                  : 'bg-[hsl(var(--color-muted))] text-[hsl(var(--color-foreground))] hover:bg-[hsl(var(--color-muted)/0.8)]'
+                  }`}
               >
                 {tTools('splitPdf.modeRanges') || 'By Page Ranges'}
               </button>
@@ -408,11 +434,10 @@ export function SplitPDFTool({ className = '' }: SplitPDFToolProps) {
                 aria-checked={splitMode === 'every-page'}
                 onClick={() => setSplitMode('every-page')}
                 disabled={isProcessing}
-                className={`px-4 py-2 rounded-[var(--radius-md)] text-sm font-medium transition-colors ${
-                  splitMode === 'every-page'
-                    ? 'bg-[hsl(var(--color-primary))] text-[hsl(var(--color-primary-foreground))]'
-                    : 'bg-[hsl(var(--color-muted))] text-[hsl(var(--color-foreground))] hover:bg-[hsl(var(--color-muted)/0.8)]'
-                }`}
+                className={`px-4 py-2 rounded-[var(--radius-md)] text-sm font-medium transition-colors ${splitMode === 'every-page'
+                  ? 'bg-[hsl(var(--color-primary))] text-[hsl(var(--color-primary-foreground))]'
+                  : 'bg-[hsl(var(--color-muted))] text-[hsl(var(--color-foreground))] hover:bg-[hsl(var(--color-muted)/0.8)]'
+                  }`}
               >
                 {tTools('splitPdf.modeEveryPage') || 'Split Every Page'}
               </button>
@@ -422,11 +447,10 @@ export function SplitPDFTool({ className = '' }: SplitPDFToolProps) {
                 aria-checked={splitMode === 'every-n-pages'}
                 onClick={() => setSplitMode('every-n-pages')}
                 disabled={isProcessing}
-                className={`px-4 py-2 rounded-[var(--radius-md)] text-sm font-medium transition-colors ${
-                  splitMode === 'every-n-pages'
-                    ? 'bg-[hsl(var(--color-primary))] text-[hsl(var(--color-primary-foreground))]'
-                    : 'bg-[hsl(var(--color-muted))] text-[hsl(var(--color-foreground))] hover:bg-[hsl(var(--color-muted)/0.8)]'
-                }`}
+                className={`px-4 py-2 rounded-[var(--radius-md)] text-sm font-medium transition-colors ${splitMode === 'every-n-pages'
+                  ? 'bg-[hsl(var(--color-primary))] text-[hsl(var(--color-primary-foreground))]'
+                  : 'bg-[hsl(var(--color-muted))] text-[hsl(var(--color-foreground))] hover:bg-[hsl(var(--color-muted)/0.8)]'
+                  }`}
               >
                 {tTools('splitPdf.modeEveryN') || 'Split Every N Pages'}
               </button>
@@ -436,8 +460,8 @@ export function SplitPDFTool({ className = '' }: SplitPDFToolProps) {
             {splitMode === 'ranges' && (
               <div className="space-y-3">
                 <div>
-                  <label 
-                    htmlFor="page-ranges" 
+                  <label
+                    htmlFor="page-ranges"
                     className="block text-sm font-medium text-[hsl(var(--color-foreground))] mb-1"
                   >
                     {tTools('splitPdf.rangeInputLabel') || 'Page Ranges'}
@@ -460,8 +484,8 @@ export function SplitPDFTool({ className = '' }: SplitPDFToolProps) {
 
             {splitMode === 'every-n-pages' && (
               <div>
-                <label 
-                  htmlFor="pages-per-split" 
+                <label
+                  htmlFor="pages-per-split"
                   className="block text-sm font-medium text-[hsl(var(--color-foreground))] mb-1"
                 >
                   {tTools('splitPdf.pagesPerSplitLabel') || 'Pages per file'}
@@ -490,7 +514,7 @@ export function SplitPDFTool({ className = '' }: SplitPDFToolProps) {
         <Card variant="outlined" size="lg">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-medium text-[hsl(var(--color-foreground))]">
-              {tTools('splitPdf.pagePreviewTitle') || 'Select Pages'} 
+              {tTools('splitPdf.pagePreviewTitle') || 'Select Pages'}
               {selectedPages.size > 0 && ` (${selectedPages.size} selected)`}
             </h3>
             <div className="flex gap-2">
@@ -520,11 +544,10 @@ export function SplitPDFTool({ className = '' }: SplitPDFToolProps) {
                   type="button"
                   onClick={() => handleTogglePage(preview.pageNumber)}
                   disabled={isProcessing}
-                  className={`relative aspect-[3/4] rounded-[var(--radius-md)] border-2 overflow-hidden transition-all ${
-                    selectedPages.has(preview.pageNumber)
-                      ? 'border-[hsl(var(--color-primary))] ring-2 ring-[hsl(var(--color-primary)/0.3)]'
-                      : 'border-[hsl(var(--color-border))] hover:border-[hsl(var(--color-primary)/0.5)]'
-                  }`}
+                  className={`relative aspect-[3/4] rounded-[var(--radius-md)] border-2 overflow-hidden transition-all ${selectedPages.has(preview.pageNumber)
+                    ? 'border-[hsl(var(--color-primary))] ring-2 ring-[hsl(var(--color-primary)/0.3)]'
+                    : 'border-[hsl(var(--color-border))] hover:border-[hsl(var(--color-primary)/0.5)]'
+                    }`}
                   aria-label={`Page ${preview.pageNumber}${selectedPages.has(preview.pageNumber) ? ' (selected)' : ''}`}
                 >
                   {preview.thumbnail ? (
@@ -561,10 +584,10 @@ export function SplitPDFTool({ className = '' }: SplitPDFToolProps) {
       {isProcessing && (
         <ProcessingProgress
           progress={progress}
-          status={status}
-          message={progressMessage}
+          status={'processing'}
+          message={progressMessage || 'Splitting PDF...'}
           onCancel={handleCancel}
-          showPercentage
+          showPercentage={false}
         />
       )}
 
@@ -578,8 +601,8 @@ export function SplitPDFTool({ className = '' }: SplitPDFToolProps) {
             disabled={!canSplit}
             loading={isProcessing}
           >
-            {isProcessing 
-              ? (t('status.processing') || 'Processing...') 
+            {isProcessing
+              ? (t('status.processing') || 'Processing...')
               : (tTools('splitPdf.splitButton') || 'Split PDF')
             }
           </Button>
@@ -587,15 +610,15 @@ export function SplitPDFTool({ className = '' }: SplitPDFToolProps) {
       )}
 
       {/* Results */}
-      {status === 'complete' && results.length > 0 && (
+      {results.length > 0 && !isProcessing && (
         <Card variant="outlined" size="lg">
           <h3 className="text-lg font-medium text-[hsl(var(--color-foreground))] mb-4">
             {tTools('splitPdf.resultsTitle') || 'Split Results'} ({results.length} {results.length === 1 ? 'file' : 'files'})
           </h3>
-          
+
           <div className="space-y-2">
             {results.map((result, index) => (
-              <div 
+              <div
                 key={index}
                 className="flex items-center justify-between p-3 rounded-[var(--radius-md)] bg-[hsl(var(--color-muted)/0.3)]"
               >
@@ -627,8 +650,8 @@ export function SplitPDFTool({ className = '' }: SplitPDFToolProps) {
       )}
 
       {/* Success Message */}
-      {status === 'complete' && results.length > 0 && (
-        <div 
+      {results.length > 0 && !isProcessing && (
+        <div
           className="p-4 rounded-[var(--radius-md)] bg-green-900/20 border border-green-800 text-green-200"
           role="status"
         >
