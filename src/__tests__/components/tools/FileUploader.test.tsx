@@ -59,6 +59,11 @@ describe('FileUploader', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   describe('Rendering', () => {
@@ -122,7 +127,7 @@ describe('FileUploader', () => {
         />
       );
       
-      expect(screen.getByText(/Max files: 5/)).toBeInTheDocument();
+      expect(screen.getByText(/Files: 5/)).toBeInTheDocument();
     });
   });
 
@@ -179,6 +184,7 @@ describe('FileUploader', () => {
       
       fireEvent.change(fileInput);
       
+      vi.advanceTimersByTime(3000);
       expect(mockOnFilesSelected).toHaveBeenCalledWith([mockFile]);
     });
   });
@@ -219,6 +225,7 @@ describe('FileUploader', () => {
       
       fireEvent.drop(dropZone, { dataTransfer });
       
+      vi.advanceTimersByTime(3000);
       expect(mockOnFilesSelected).toHaveBeenCalledWith([mockFile]);
     });
 
@@ -239,6 +246,7 @@ describe('FileUploader', () => {
       
       fireEvent.drop(dropZone, { dataTransfer });
       
+      vi.advanceTimersByTime(3000);
       expect(mockOnFilesSelected).toHaveBeenCalledWith(mockFiles);
     });
   });
@@ -298,6 +306,7 @@ describe('FileUploader', () => {
       
       fireEvent.drop(dropZone, { dataTransfer });
       
+      vi.advanceTimersByTime(3000);
       expect(mockOnFilesSelected).toHaveBeenCalledWith([pdfFile]);
     });
 
@@ -323,6 +332,7 @@ describe('FileUploader', () => {
       
       expect(mockOnError).toHaveBeenCalled();
       // Should still call with first 2 files
+      vi.advanceTimersByTime(3000);
       expect(mockOnFilesSelected).toHaveBeenCalledWith([mockFiles[0], mockFiles[1]]);
     });
 
@@ -344,6 +354,7 @@ describe('FileUploader', () => {
       
       fireEvent.drop(dropZone, { dataTransfer });
       
+      vi.advanceTimersByTime(3000);
       expect(mockOnFilesSelected).toHaveBeenCalledWith([mockFiles[0]]);
     });
   });

@@ -170,9 +170,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
     if (disabled) return;
 
     setDragCounter(prev => prev + 1);
-    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
-      setIsDragging(true);
-    }
+    setIsDragging(true);
   }, [disabled]);
 
   /**
@@ -326,7 +324,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
             <Plus className="w-10 h-10" />
           </div>
           <p className="text-2xl font-bold text-white mb-2">
-            Drop files to upload
+            Drop files here
           </p>
           <p className="text-sm text-white/60">
             Release to start processing
@@ -433,13 +431,23 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
         </div>
 
         {/* File info hints - only show when multiple files allowed */}
-        {multiple && (
-          <div className="mt-6 flex flex-wrap gap-2 justify-center">
+        <div className="mt-6 flex flex-wrap gap-2 justify-center">
+          {multiple && (
             <span className="text-xs px-2 py-1 rounded-md bg-[hsl(var(--color-muted))] text-[hsl(var(--color-muted-foreground))]">
               Files: {maxFiles}
             </span>
-          </div>
-        )}
+          )}
+          {accept.length > 0 && accept[0] !== '*/*' && accept[0] !== '*' && (
+            <span className="text-xs px-2 py-1 rounded-md bg-[hsl(var(--color-muted))] text-[hsl(var(--color-muted-foreground))]">
+              {accept.join(', ')}
+            </span>
+          )}
+          {maxSize !== Infinity && (
+            <span className="text-xs px-2 py-1 rounded-md bg-[hsl(var(--color-muted))] text-[hsl(var(--color-muted-foreground))]">
+              {Math.round(maxSize / (1024 * 1024))}MB
+            </span>
+          )}
+        </div>
       </div>
     </>
   );
