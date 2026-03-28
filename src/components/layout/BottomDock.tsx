@@ -215,7 +215,7 @@ export const BottomDock: React.FC<BottomDockProps> = ({ locale }) => {
                         {/* Search Input */}
                         <div className="flex items-center gap-3 px-6 py-4 border-b border-[hsl(var(--color-border)/0.3)]">
                             <Search className="w-5 h-5 text-[hsl(var(--color-primary))]" />
-                            <input
+                            <input aria-label={t("tools.search.placeholder") || "Search for tools..."}
                                 ref={searchInputRef}
                                 type="text"
                                 value={searchQuery}
