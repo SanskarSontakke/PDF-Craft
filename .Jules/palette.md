@@ -1,3 +1,3 @@
-## 2025-03-28 - Missing ARIA label on search input
-**Learning:** Found that the global search input in the BottomDock navigation lacked an `aria-label`, making it difficult for screen reader users to identify the purpose of the input field.
-**Action:** Added an `aria-label` using the localized placeholder text to ensure the search input is properly announced by screen readers.
+## 2024-05-14 - Improve FileUploader UX Requirements feedback
+**Learning:** Checking for `e.dataTransfer.items.length > 0` on drag events is not reliable across different browsers and OS combinations. When users drag files over an element, browsers often do not populate the `.items` list until the actual drop event occurs for security/privacy reasons. This caused the drag overlay not to show consistently.
+**Action:** When implementing drag-and-drop file uploaders, trigger the drag active state on `dragenter` and `dragover` without checking the contents of the `dataTransfer` object to ensure consistent UX feedback.
