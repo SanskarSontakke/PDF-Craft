@@ -353,6 +353,7 @@ export function BookmarkTool({ className = '' }: BookmarkToolProps) {
             <button
               onClick={(e) => { e.stopPropagation(); handleToggleExpand(bookmark.id); }}
               className="w-5 h-5 flex items-center justify-center text-gray-500 hover:text-gray-700"
+              aria-label={bookmark.isExpanded ? 'Collapse bookmark' : 'Expand bookmark'}
             >
               {bookmark.isExpanded ? '▼' : '▶'}
             </button>
@@ -391,6 +392,7 @@ export function BookmarkTool({ className = '' }: BookmarkToolProps) {
                   onClick={(e) => { e.stopPropagation(); setEditingBookmark(bookmark); }}
                   className="p-1 text-gray-400 hover:text-blue-500"
                   title="Edit"
+                  aria-label={`Edit ${bookmark.title}`}
                 >
                   ✎
                 </button>
@@ -398,6 +400,7 @@ export function BookmarkTool({ className = '' }: BookmarkToolProps) {
                   onClick={(e) => { e.stopPropagation(); handleAddChild(bookmark.id); }}
                   className="p-1 text-gray-400 hover:text-green-500"
                   title="Add child"
+                  aria-label={`Add child to ${bookmark.title}`}
                 >
                   +
                 </button>
@@ -405,6 +408,7 @@ export function BookmarkTool({ className = '' }: BookmarkToolProps) {
                   onClick={(e) => { e.stopPropagation(); handleDeleteBookmark(bookmark.id); }}
                   className="p-1 text-gray-400 hover:text-red-500"
                   title="Delete"
+                  aria-label={`Delete ${bookmark.title}`}
                 >
                   ×
                 </button>
