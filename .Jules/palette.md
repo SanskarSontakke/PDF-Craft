@@ -1,3 +1,3 @@
-## 2024-05-14 - Improve FileUploader UX Requirements feedback
-**Learning:** Checking for `e.dataTransfer.items.length > 0` on drag events is not reliable across different browsers and OS combinations. When users drag files over an element, browsers often do not populate the `.items` list until the actual drop event occurs for security/privacy reasons. This caused the drag overlay not to show consistently.
-**Action:** When implementing drag-and-drop file uploaders, trigger the drag active state on `dragenter` and `dragover` without checking the contents of the `dataTransfer` object to ensure consistent UX feedback.
+## 2024-05-18 - Missing ARIA on Custom Dialogs
+**Learning:** Custom UI modal panels (like the Search panel in the Bottom Dock) built with generic `div` containers are opaque to screen readers unless explicitly marked with `role="dialog"` and `aria-modal="true"`. Furthermore, icon-only dismiss buttons in these custom dialogs often lack accessible names, confusing keyboard/screen reader users.
+**Action:** When implementing custom modal or bottom-sheet UI elements, always ensure the container has `role="dialog"` (or `alertdialog`), `aria-modal="true"`, and an `aria-label` or `aria-labelledby`, and ensure all interactive elements within have clear accessible names (e.g., `aria-label="Close"` on icon buttons).
