@@ -206,6 +206,9 @@ export const BottomDock: React.FC<BottomDockProps> = ({ locale }) => {
                         ref={searchPanelRef}
                         className="fixed inset-x-0 bottom-0 top-auto w-full max-w-2xl mx-auto h-[80vh] bg-[hsl(var(--color-card))] rounded-t-3xl shadow-[0_-10px_40px_rgba(0,0,0,0.5)] border-t border-[hsl(var(--color-border))] z-[50] flex flex-col overflow-hidden"
                         style={{ animation: 'dock-slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-label={t('navigation.search') || "Search tools"}
                     >
                         {/* Drag Handle */}
                         <div className="w-full flex justify-center py-3 cursor-grab active:cursor-grabbing border-b border-[hsl(var(--color-border)/0.1)]">
@@ -214,7 +217,7 @@ export const BottomDock: React.FC<BottomDockProps> = ({ locale }) => {
 
                         {/* Search Input */}
                         <div className="flex items-center gap-3 px-6 py-4 border-b border-[hsl(var(--color-border)/0.3)]">
-                            <Search className="w-5 h-5 text-[hsl(var(--color-primary))]" />
+                            <Search className="w-5 h-5 text-[hsl(var(--color-primary))]" aria-hidden="true" />
                             <input aria-label={t("tools.search.placeholder") || "Search for tools..."}
                                 ref={searchInputRef}
                                 type="text"
@@ -226,9 +229,10 @@ export const BottomDock: React.FC<BottomDockProps> = ({ locale }) => {
                             />
                             <button
                                 onClick={() => setIsSearchOpen(false)}
+                                aria-label={t('common.buttons.close') || "Close search"}
                                 className="p-2 -mr-2 text-[hsl(var(--color-muted-foreground))] hover:bg-[hsl(var(--color-muted)/0.5)] rounded-full transition-colors"
                             >
-                                <ChevronDown className="w-6 h-6" />
+                                <ChevronDown className="w-6 h-6" aria-hidden="true" />
                             </button>
                         </div>
 
