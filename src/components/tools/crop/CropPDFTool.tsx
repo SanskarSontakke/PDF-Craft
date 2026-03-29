@@ -425,6 +425,7 @@ export function CropPDFTool({ className = '' }: CropPDFToolProps) {
                     disabled={isProcessing}
                     className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-[hsl(var(--color-muted))] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     title={tTools('cropPdf.zoomOut') || 'Zoom Out'}
+                    aria-label={tTools('cropPdf.zoomOut') || 'Zoom Out'}
                   >
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM13 10H7" />
@@ -441,6 +442,7 @@ export function CropPDFTool({ className = '' }: CropPDFToolProps) {
                     disabled={isProcessing}
                     className="px-3 py-1 text-sm font-medium text-gray-600 hover:bg-[hsl(var(--color-muted))] rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     title={tTools('cropPdf.resetZoom') || 'Reset Zoom'}
+                    aria-label={tTools('cropPdf.resetZoom') || 'Reset Zoom'}
                   >
                     {tTools('cropPdf.reset') || 'Reset'}
                   </button>
@@ -451,6 +453,7 @@ export function CropPDFTool({ className = '' }: CropPDFToolProps) {
                     disabled={isProcessing}
                     className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-[hsl(var(--color-muted))] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     title={tTools('cropPdf.zoomIn') || 'Zoom In'}
+                    aria-label={tTools('cropPdf.zoomIn') || 'Zoom In'}
                   >
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7" />
@@ -464,6 +467,7 @@ export function CropPDFTool({ className = '' }: CropPDFToolProps) {
                     onClick={handleToggleFullscreen}
                     className="w-10 h-10 flex items-center justify-center rounded-full hover:bg-[hsl(var(--color-muted))] transition-colors"
                     title={isFullscreen ? (tTools('cropPdf.exitFullscreen') || 'Exit Fullscreen') : (tTools('cropPdf.fullscreen') || 'Fullscreen')}
+                    aria-label={isFullscreen ? (tTools('cropPdf.exitFullscreen') || 'Exit Fullscreen') : (tTools('cropPdf.fullscreen') || 'Fullscreen')}
                   >
                     {isFullscreen ? (
                       <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -486,6 +490,7 @@ export function CropPDFTool({ className = '' }: CropPDFToolProps) {
                     onClick={() => changePage(-1)}
                     disabled={state.currentPage <= 1 || isProcessing}
                     className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[hsl(var(--color-muted))] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Previous page"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -499,6 +504,7 @@ export function CropPDFTool({ className = '' }: CropPDFToolProps) {
                     onClick={() => changePage(1)}
                     disabled={state.currentPage >= state.numPages || isProcessing}
                     className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[hsl(var(--color-muted))] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label="Next page"
                   >
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

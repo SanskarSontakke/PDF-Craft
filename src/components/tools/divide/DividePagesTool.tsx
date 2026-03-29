@@ -261,6 +261,7 @@ export function DividePagesTool({ className = '' }: DividePagesToolProps) {
                       ? 'border-[hsl(var(--color-primary))] bg-[hsl(var(--color-primary)/0.1)]'
                       : 'border-[hsl(var(--color-border))] hover:border-[hsl(var(--color-primary)/0.5)]'
                   }`}
+                  aria-label="Split vertically"
                 >
                   <div className="flex flex-col items-center gap-2">
                     <div className="w-12 h-16 border-2 border-current rounded flex">
@@ -284,6 +285,7 @@ export function DividePagesTool({ className = '' }: DividePagesToolProps) {
                       ? 'border-[hsl(var(--color-primary))] bg-[hsl(var(--color-primary)/0.1)]'
                       : 'border-[hsl(var(--color-border))] hover:border-[hsl(var(--color-primary)/0.5)]'
                   }`}
+                  aria-label="Split horizontally"
                 >
                   <div className="flex flex-col items-center gap-2">
                     <div className="w-12 h-16 border-2 border-current rounded flex flex-col">
@@ -307,6 +309,7 @@ export function DividePagesTool({ className = '' }: DividePagesToolProps) {
                       ? 'border-[hsl(var(--color-primary))] bg-[hsl(var(--color-primary)/0.1)]'
                       : 'border-[hsl(var(--color-border))] hover:border-[hsl(var(--color-primary)/0.5)]'
                   }`}
+                  aria-label="Split into 2x2 grid"
                 >
                   <div className="flex flex-col items-center gap-2">
                     <div className="w-12 h-16 border-2 border-current rounded grid grid-cols-2 grid-rows-2">
@@ -332,6 +335,7 @@ export function DividePagesTool({ className = '' }: DividePagesToolProps) {
                       ? 'border-[hsl(var(--color-primary))] bg-[hsl(var(--color-primary)/0.1)]'
                       : 'border-[hsl(var(--color-border))] hover:border-[hsl(var(--color-primary)/0.5)]'
                   }`}
+                  aria-label="Split into 3x3 grid"
                 >
                   <div className="flex flex-col items-center gap-2">
                     <div className="w-12 h-16 border-2 border-current rounded grid grid-cols-3 grid-rows-3">

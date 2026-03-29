@@ -241,7 +241,7 @@ export function CompressPDFTool({ className = '' }: CompressPDFToolProps) {
                   <button
                     onClick={() => removeFile(batchFile.id)}
                     className="p-1 text-[hsl(var(--color-muted-foreground))] hover:text-red-500 transition-colors"
-                    aria-label="Remove file"
+                    aria-label={`Remove ${batchFile.file.name}`}
                   >
                     <X className="w-4 h-4" />
                   </button>
