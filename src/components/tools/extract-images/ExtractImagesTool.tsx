@@ -325,7 +325,7 @@ export function ExtractImagesTool({ className = '' }: ExtractImagesToolProps) {
                                     type="button"
                                     onClick={() => handleRemoveFile(item.id)}
                                     disabled={isProcessing}
-                                    className="p-1 rounded hover:bg-red-100 text-[hsl(var(--color-muted-foreground))] hover:text-red-600"
+                                    className="p-1 rounded transition-colors hover:bg-[hsl(var(--color-destructive)/0.1)] text-[hsl(var(--color-muted-foreground))] hover:text-[hsl(var(--color-destructive))]"
                                     aria-label={`Remove ${item.file.name}`}
                                 >
                                     <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -451,14 +451,16 @@ export function ExtractImagesTool({ className = '' }: ExtractImagesToolProps) {
                                 className="group relative rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] overflow-hidden bg-[hsl(var(--color-muted)/0.2)]"
                             >
                                 {/* Image Preview with click handler */}
-                                <div
-                                    className="aspect-square flex items-center justify-center overflow-hidden bg-[hsl(var(--color-muted)/0.1)] cursor-pointer"
+                                <button
+                                    type="button"
+                                    className="w-full aspect-square flex items-center justify-center overflow-hidden bg-[hsl(var(--color-muted)/0.1)] cursor-pointer focus-visible:ring-2 focus-visible:ring-[hsl(var(--color-ring))] focus-visible:outline-none"
                                     onClick={() => setSelectedImage(image)}
+                                    aria-label={`Preview ${image.name}`}
                                 >
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img
                                         src={imagePreviewUrls[image.index]}
-                                        alt={image.name}
+                                        alt=""
                                         className="max-w-full max-h-full object-contain transition-transform group-hover:scale-105"
                                         loading="lazy"
                                     />
@@ -467,7 +469,7 @@ export function ExtractImagesTool({ className = '' }: ExtractImagesToolProps) {
                                             <path d="M15 3h6v6M14 10l6.1-6.1M9 21H3v-6M10 14l-6.1 6.1" />
                                         </svg>
                                     </div>
-                                </div>
+                                </button>
 
                                 {/* Image Info */}
                                 <div className="p-2">
