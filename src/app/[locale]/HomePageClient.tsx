@@ -8,7 +8,7 @@ import { ArrowRight, Zap, Wrench, Lock, Sparkles, Edit, FileImage, FolderOpen, S
 import { BottomDock } from '@/components/layout/BottomDock';
 import { Footer } from '@/components/layout/Footer';
 import { ToolGrid } from '@/components/tools/ToolGrid';
-import { Button } from '@/components/ui/Button';
+import { buttonVariants } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 import { getAllTools, getToolsByCategory } from '@/config/tools';
 import { type Locale } from '@/lib/i18n/config';
@@ -152,13 +152,17 @@ export default function HomePageClient({ locale, localizedToolContent }: HomePag
 
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-                <Link href={`/${locale}/tools`}>
-                  <Button variant="primary" size="lg" className="h-11 px-8 text-base shadow-lg hover:shadow-primary/25 transition-all hover:-translate-y-0.5">
-                    {t('home.hero.cta')}
-                    <ArrowRight className="ml-2 h-5 w-5" aria-hidden="true" />
-                  </Button>
+                <Link
+                  href={`/${locale}/tools`}
+                  className={buttonVariants({
+                    variant: 'primary',
+                    size: 'lg',
+                    className: 'h-11 px-8 text-base shadow-lg hover:shadow-primary/25 transition-all hover:-translate-y-0.5',
+                  })}
+                >
+                  {t('home.hero.cta')}
+                  <ArrowRight className="ml-2 h-5 w-5" aria-hidden="true" />
                 </Link>
-
               </div>
             </div>
           </div>
@@ -201,11 +205,12 @@ export default function HomePageClient({ locale, localizedToolContent }: HomePag
                   {t(`home.categoriesDescription.${categoryTranslationKeys['organize-manage']}`)}
                 </p>
               </div>
-              <Link href={`/${locale}/tools`}>
-                <Button variant="outline" size="sm" className="group">
-                  {t('common.navigation.tools')}
-                  <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
-                </Button>
+              <Link
+                href={`/${locale}/tools`}
+                className={buttonVariants({ variant: 'outline', size: 'sm', className: 'group' })}
+              >
+                {t('common.navigation.tools')}
+                <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" aria-hidden="true" />
               </Link>
             </div>
             <ToolGrid
@@ -239,7 +244,7 @@ export default function HomePageClient({ locale, localizedToolContent }: HomePag
                   <Link
                     key={category}
                     href={`/${locale}/tools?category=${category}`}
-                    className="group"
+                    className="group focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--color-ring))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--color-background))] rounded-xl"
                   >
                     <Card className="p-5 h-full glass-card hover:bg-[hsl(var(--color-secondary)/0.8)] transition-all duration-300 hover:shadow-xl hover:-translate-y-1 border-[hsl(var(--color-border)/0.6)]">
                       <div className="flex items-start gap-4">

@@ -5,3 +5,7 @@
 ## 2024-05-18 - Interactive Divs and Hardcoded Colors
 **Learning:** Interactive `div` elements used for modals/previews lack keyboard focus by default, excluding keyboard-only users. Additionally, hardcoded light-theme colors (e.g., `bg-red-100`) cause severe contrast issues in the default dark-theme environment.
 **Action:** Always use semantic `<button>` elements for clickable actions to ensure automatic keyboard accessibility. Always use CSS variables (like `hsl(var(--color-destructive))`) for hover states to respect the active theme.
+
+## 2025-02-14 - Nested Buttons inside Links in Next.js
+**Learning:** Found a critical accessibility issue where `<Button>` components (rendering as `<button>`) were nested inside Next.js `<Link>` elements. This creates invalid HTML (`<a><button>...</button></a>`) and creates double focus rings for screen readers and keyboard users.
+**Action:** Implemented `asChild` pattern using `@radix-ui/react-slot` in the `Button` component, allowing the button styles and semantics to cleanly merge into the `Link` element without breaking HTML rules. Added `focus-visible:ring-offset-[hsl(var(--color-background))]` to make focus rings accessible.

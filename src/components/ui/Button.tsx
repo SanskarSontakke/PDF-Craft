@@ -72,6 +72,26 @@ const LoadingSpinner = () => (
   </svg>
 );
 
+export const buttonVariants = ({
+  variant = 'primary',
+  size = 'md',
+  className = '',
+}: {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  className?: string;
+} = {}) => {
+  const baseStyles = `
+    inline-flex items-center justify-center gap-2
+    font-medium rounded-[var(--radius-md)]
+    transition-all duration-[var(--transition-normal)]
+    focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--color-background))]
+    disabled:opacity-50 disabled:cursor-not-allowed
+  `;
+
+  return `${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${className}`.trim();
+};
+
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
@@ -89,14 +109,6 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     const isDisabled = disabled || loading;
 
-    const baseStyles = `
-      inline-flex items-center justify-center gap-2
-      font-medium rounded-[var(--radius-md)]
-      transition-all duration-[var(--transition-normal)]
-      focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2
-      disabled:opacity-50 disabled:cursor-not-allowed
-    `;
-
     return (
       <button
         ref={ref}
@@ -105,7 +117,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         aria-disabled={isDisabled}
         aria-busy={loading}
         aria-label={ariaLabel}
-        className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${className}`.trim()}
+        className={buttonVariants({ variant, size, className })}
         {...props}
       >
         {loading && <LoadingSpinner />}
