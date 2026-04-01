@@ -9,7 +9,6 @@
 ## 2025-02-14 - Nested Buttons inside Links in Next.js
 **Learning:** Found a critical accessibility issue where `<Button>` components (rendering as `<button>`) were nested inside Next.js `<Link>` elements. This creates invalid HTML (`<a><button>...</button></a>`) and creates double focus rings for screen readers and keyboard users.
 **Action:** Implemented `asChild` pattern using `@radix-ui/react-slot` in the `Button` component, allowing the button styles and semantics to cleanly merge into the `Link` element without breaking HTML rules. Added `focus-visible:ring-offset-[hsl(var(--color-background))]` to make focus rings accessible.
-
-## 2025-02-14 - Keyboard Accessibility for Non-Native Interactive Elements
-**Learning:** Setting `tabIndex={0}` and `role="button"` on a non-native interactive element (like a `div`) makes it focusable and recognizable to screen readers, but it does not inherently make it accessible via the keyboard (e.g., triggering actions with the 'Enter' or 'Space' keys). This means keyboard-only users can navigate to the element but cannot interact with it.
-**Action:** Always implement an `onKeyDown` handler for non-native interactive elements to listen for 'Enter' and 'Space' key presses, trigger the intended action (e.g., `onClick`), and prevent the default browser scroll behavior for 'Space' when the element is activated.
+## 2026-04-01 - Accessible Interactive Divs
+**Learning:** When making a non-native element like a `div` interactive (e.g., adding `tabIndex` and `role="button"`), it doesn't automatically trigger `onClick` handlers via keyboard. Keyboard users expect 'Enter' and 'Space' to activate buttons.
+**Action:** Always add an `onKeyDown` handler to trigger the `onClick` action for `Enter` and `Space` keys when creating custom interactive components from standard block elements.

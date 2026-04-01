@@ -92,6 +92,20 @@ describe('Card', () => {
       fireEvent.click(screen.getByText('Clickable'));
       expect(handleClick).toHaveBeenCalledTimes(1);
     });
+
+    it('handles Enter key press when clickable', () => {
+      const handleClick = vi.fn();
+      render(<Card clickable onClick={handleClick}>Clickable</Card>);
+      fireEvent.keyDown(screen.getByText('Clickable'), { key: 'Enter', code: 'Enter' });
+      expect(handleClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('handles Space key press when clickable', () => {
+      const handleClick = vi.fn();
+      render(<Card clickable onClick={handleClick}>Clickable</Card>);
+      fireEvent.keyDown(screen.getByText('Clickable'), { key: ' ', code: 'Space' });
+      expect(handleClick).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('Custom className', () => {

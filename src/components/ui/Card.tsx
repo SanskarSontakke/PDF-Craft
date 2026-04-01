@@ -87,6 +87,14 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
       `
       : '';
 
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (clickable && props.onClick && (e.key === 'Enter' || e.key === ' ')) {
+        e.preventDefault();
+        props.onClick(e as any);
+      }
+      props.onKeyDown?.(e);
+    };
+
     return (
       <div
         ref={ref}
@@ -96,6 +104,7 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
         onKeyDown={handleKeyDown}
         onClick={onClick}
         {...props}
+        onKeyDown={clickable || props.onKeyDown ? handleKeyDown : undefined}
       >
         {children}
       </div>
