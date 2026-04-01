@@ -115,6 +115,7 @@ describe('Card', () => {
       expect(card).toHaveClass('custom-class');
     });
   });
+
 });
 
 describe('Card Subcomponents', () => {
@@ -198,3 +199,37 @@ describe('Card Subcomponents', () => {
     });
   });
 });
+
+  describe('Keyboard Accessibility', () => {
+    it('calls onClick when Enter is pressed on a clickable card', () => {
+      const handleClick = vi.fn();
+      render(<Card clickable onClick={handleClick}>Clickable</Card>);
+      const card = screen.getByRole('button');
+      fireEvent.keyDown(card, { key: 'Enter', code: 'Enter' });
+      expect(handleClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('calls onClick when Space is pressed on a clickable card', () => {
+      const handleClick = vi.fn();
+      render(<Card clickable onClick={handleClick}>Clickable</Card>);
+      const card = screen.getByRole('button');
+      fireEvent.keyDown(card, { key: ' ', code: 'Space' });
+      expect(handleClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('does not call onClick when other keys are pressed', () => {
+      const handleClick = vi.fn();
+      render(<Card clickable onClick={handleClick}>Clickable</Card>);
+      const card = screen.getByRole('button');
+      fireEvent.keyDown(card, { key: 'A', code: 'KeyA' });
+      expect(handleClick).not.toHaveBeenCalled();
+    });
+
+    it('calls custom onKeyDown prop if provided', () => {
+      const handleKeyDown = vi.fn();
+      render(<Card clickable onKeyDown={handleKeyDown}>Clickable</Card>);
+      const card = screen.getByRole('button');
+      fireEvent.keyDown(card, { key: 'A', code: 'KeyA' });
+      expect(handleKeyDown).toHaveBeenCalledTimes(1);
+    });
+  });
