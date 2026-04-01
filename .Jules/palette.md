@@ -1,3 +1,7 @@
+## 2026-04-01 - Incomplete Keyboard Accessibility on Custom "Button" Roles
+**Learning:** Adding `role="button"` and `tabIndex={0}` to generic containers (like `Card` components) is not enough for full accessibility. While it makes the element focusable and readable by screen readers as a button, it fails to map the `Enter` and `Space` keys to the `onClick` handler, creating a broken experience for keyboard-only users.
+**Action:** Always complement `role="button"` on non-native interactive elements with an `onKeyDown` handler. Ensure `Enter` and `Space` keys trigger the click action, and specifically use `e.preventDefault()` on `Space` to prevent unwanted page scrolling.
+
 ## 2024-05-18 - Missing ARIA on Custom Dialogs
 **Learning:** Custom UI modal panels (like the Search panel in the Bottom Dock) built with generic `div` containers are opaque to screen readers unless explicitly marked with `role="dialog"` and `aria-modal="true"`. Furthermore, icon-only dismiss buttons in these custom dialogs often lack accessible names, confusing keyboard/screen reader users.
 **Action:** When implementing custom modal or bottom-sheet UI elements, always ensure the container has `role="dialog"` (or `alertdialog`), `aria-modal="true"`, and an `aria-label` or `aria-labelledby`, and ensure all interactive elements within have clear accessible names (e.g., `aria-label="Close"` on icon buttons).

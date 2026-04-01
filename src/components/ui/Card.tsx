@@ -43,10 +43,21 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
       hover = false,
       clickable = false,
       className = '',
+      onClick,
+      onKeyDown,
       ...props
     },
     ref
   ) => {
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+      if (clickable && (e.key === 'Enter' || e.key === ' ')) {
+        e.preventDefault(); // Prevent page scroll for space
+        onClick?.(e as unknown as React.MouseEvent<HTMLDivElement>);
+      }
+
+      onKeyDown?.(e);
+    };
+
     const baseStyles = `
       rounded-[var(--radius-lg)]
       text-[hsl(var(--color-card-foreground))]
@@ -77,6 +88,8 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
         className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${hoverStyles} ${clickableStyles} ${className}`.trim()}
         tabIndex={clickable ? 0 : undefined}
         role={clickable ? 'button' : undefined}
+        onClick={onClick}
+        onKeyDown={handleKeyDown}
         {...props}
       >
         {children}
