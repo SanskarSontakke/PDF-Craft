@@ -1,0 +1,46 @@
+
+> pdfcraft@0.1.0 dev /app
+> next dev --turbopack
+
+ ⚠ Specified "headers" will not automatically work with "output: export". See more info here: https://nextjs.org/docs/messages/export-no-custom-routes
+ ⚠ Port 3000 is in use by an unknown process, using available port 3001 instead.
+ ⚠ Specified "headers" will not automatically work with "output: export". See more info here: https://nextjs.org/docs/messages/export-no-custom-routes
+   ▲ Next.js 15.5.14 (Turbopack)
+   - Local:        http://localhost:3001
+   - Network:      http://192.168.0.2:3001
+
+ ✓ Starting...
+ ✓ Compiled middleware in 493ms
+ ✓ Ready in 2.3s
+ ○ Compiling /[locale]/tools ...
+ ✓ Compiled /[locale]/tools in 9.8s
+ ⨯ ./src/components/ui/Card.tsx:90:11
+Ecmascript file had an error
+[0m [90m 88 |[39m       [33m:[39m [32m''[39m[33m;[39m
+ [90m 89 |[39m
+[31m[1m>[22m[39m[90m 90 |[39m     [36mconst[39m handleKeyDown [33m=[39m (e[33m:[39m [33mReact[39m[33m.[39m[33mKeyboardEvent[39m[33m<[39m[33mHTMLDivElement[39m[33m>[39m) [33m=>[39m {
+ [90m    |[39m           [31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m[31m[1m^[22m[39m
+ [90m 91 |[39m       [36mif[39m (clickable [33m&&[39m props[33m.[39monClick [33m&&[39m (e[33m.[39mkey [33m===[39m [32m'Enter'[39m [33m||[39m e[33m.[39mkey [33m===[39m [32m' '[39m)) {
+ [90m 92 |[39m         e[33m.[39mpreventDefault()[33m;[39m
+ [90m 93 |[39m         props[33m.[39monClick(e [36mas[39m any)[33m;[39m[0m
+
+the name `handleKeyDown` is defined multiple times
+
+Import traces:
+  Client Component Browser:
+    ./src/components/ui/Card.tsx [Client Component Browser]
+    ./src/app/[locale]/tools/ToolsPageClient.tsx [Client Component Browser]
+    ./src/app/[locale]/tools/ToolsPageClient.tsx [Server Component]
+    ./src/app/[locale]/tools/page.tsx [Server Component]
+
+  Client Component SSR:
+    ./src/components/ui/Card.tsx [Client Component SSR]
+    ./src/app/[locale]/tools/ToolsPageClient.tsx [Client Component SSR]
+    ./src/app/[locale]/tools/ToolsPageClient.tsx [Server Component]
+    ./src/app/[locale]/tools/page.tsx [Server Component]
+
+
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 3.5s
+ GET /en/tools/ 500 in 13858ms
+ ✓ Compiled in 710ms
