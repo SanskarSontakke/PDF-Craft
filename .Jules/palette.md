@@ -16,3 +16,7 @@
 ## 2026-04-01 - Accessible Interactive Divs
 **Learning:** When making a non-native element like a `div` interactive (e.g., adding `tabIndex` and `role="button"`), it doesn't automatically trigger `onClick` handlers via keyboard. Keyboard users expect 'Enter' and 'Space' to activate buttons.
 **Action:** Always add an `onKeyDown` handler to trigger the `onClick` action for `Enter` and `Space` keys when creating custom interactive components from standard block elements.
+
+## 2026-05-18 - Keyboard Accessibility in Interactive Lists/Grids
+**Learning:** When turning a list of items or grid of items (like PDF page previews) into interactive, selectable elements using `div`s, setting `onClick` is not enough. Keyboard-only users need `tabIndex={0}`, `role="button"`, and an `onKeyDown` handler that supports 'Enter' and 'Space' to perform the same actions. Without this, the entire feature is inaccessible to non-mouse users.
+**Action:** Any time an `onClick` is added to a non-interactive element like a `div` in a mapped array, immediately consider keyboard support (`onKeyDown`, `tabIndex`, `role`, and visible focus rings).

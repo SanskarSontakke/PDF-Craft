@@ -596,6 +596,17 @@ export function PDFMultiTool({ className = '' }: PDFMultiToolProps) {
                     if (currentOperation === 'delete') handleToggleDelete(index);
                     if (['rotate', 'duplicate', 'delete'].includes(currentOperation)) handleToggleSelect(index);
                   }}
+                  onKeyDown={(e) => {
+                    if (['delete', 'rotate', 'duplicate'].includes(currentOperation)) {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        if (e.key === ' ') e.preventDefault();
+                        if (currentOperation === 'delete') handleToggleDelete(index);
+                        handleToggleSelect(index);
+                      }
+                    }
+                  }}
+                  role={['delete', 'rotate', 'duplicate'].includes(currentOperation) ? "button" : undefined}
+                  tabIndex={['delete', 'rotate', 'duplicate'].includes(currentOperation) && !isProcessing ? 0 : undefined}
                   className={`
                     relative aspect-[3/4] rounded-[var(--radius-md)] border-2 overflow-hidden transition-all
                     ${draggedIndex === index ? 'opacity-50 border-dashed scale-95' : ''}
@@ -603,7 +614,7 @@ export function PDFMultiTool({ className = '' }: PDFMultiToolProps) {
                     ${page.selected ? 'ring-2 ring-blue-500 border-blue-500' : ''}
                     ${page.markedForDelete ? 'opacity-40 border-red-500' : ''}
                     ${currentOperation === 'organize' && !isProcessing ? 'cursor-grab hover:border-[hsl(var(--color-primary)/0.5)]' : ''}
-                    ${['delete', 'rotate', 'duplicate'].includes(currentOperation) ? 'cursor-pointer' : ''}
+                    ${['delete', 'rotate', 'duplicate'].includes(currentOperation) ? 'cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--color-primary))] focus-visible:ring-offset-2' : ''}
                   `}
                 >
                   {page.thumbnail ? (
