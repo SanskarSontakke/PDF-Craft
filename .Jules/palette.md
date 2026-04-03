@@ -13,6 +13,11 @@
 ## 2025-02-14 - Nested Buttons inside Links in Next.js
 **Learning:** Found a critical accessibility issue where `<Button>` components (rendering as `<button>`) were nested inside Next.js `<Link>` elements. This creates invalid HTML (`<a><button>...</button></a>`) and creates double focus rings for screen readers and keyboard users.
 **Action:** Implemented `asChild` pattern using `@radix-ui/react-slot` in the `Button` component, allowing the button styles and semantics to cleanly merge into the `Link` element without breaking HTML rules. Added `focus-visible:ring-offset-[hsl(var(--color-background))]` to make focus rings accessible.
+
 ## 2026-04-01 - Accessible Interactive Divs
 **Learning:** When making a non-native element like a `div` interactive (e.g., adding `tabIndex` and `role="button"`), it doesn't automatically trigger `onClick` handlers via keyboard. Keyboard users expect 'Enter' and 'Space' to activate buttons.
 **Action:** Always add an `onKeyDown` handler to trigger the `onClick` action for `Enter` and `Space` keys when creating custom interactive components from standard block elements.
+
+## 2026-05-01 - Missing Focus Visibility on Custom Navigation Elements
+**Learning:** Custom navigation elements, like the items and dock in `BottomDock.tsx`, lack native outline behavior when built using Tailwind CSS resets. This creates an invisible barrier for keyboard-only navigation as users cannot visually determine where the current focus lies.
+**Action:** Always explicitly add focus ring classes (e.g., `focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--color-ring))]`) to all interactive elements, including `<Link>`, `<button>`, and list items that act as selectable links or actions. Additionally, ensure icon-only buttons provide a `title` attribute corresponding to their `aria-label` to provide tooltips for mouse users.

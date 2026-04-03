@@ -170,9 +170,10 @@ export const BottomDock: React.FC<BottomDockProps> = ({ locale }) => {
         return (
             <button
                 onClick={() => setIsDockCollapsed(false)}
-                className="fixed bottom-2 left-1/2 -translate-x-1/2 z-50 dock-collapse-bar"
+                className="fixed bottom-2 left-1/2 -translate-x-1/2 z-50 dock-collapse-bar focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--color-ring))] rounded-full"
                 style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
                 aria-label="Expand navigation dock"
+                title="Expand navigation dock"
             >
                 <div className="flex items-center gap-2 px-6 py-1.5 rounded-full bg-[hsl(var(--color-card)/0.4)] backdrop-blur-md border border-[hsl(var(--color-border)/0.2)] hover:bg-[hsl(var(--color-card)/0.6)] transition-colors cursor-pointer">
                     <ChevronUp className="w-3.5 h-3.5 text-[hsl(var(--color-muted-foreground)/0.6)]" />
@@ -230,7 +231,8 @@ export const BottomDock: React.FC<BottomDockProps> = ({ locale }) => {
                             <button
                                 onClick={() => setIsSearchOpen(false)}
                                 aria-label={t('common.buttons.close') || "Close search"}
-                                className="p-2 -mr-2 text-[hsl(var(--color-muted-foreground))] hover:bg-[hsl(var(--color-muted)/0.5)] rounded-full transition-colors"
+                                title={t('common.buttons.close') || "Close search"}
+                                className="p-2 -mr-2 text-[hsl(var(--color-muted-foreground))] hover:bg-[hsl(var(--color-muted)/0.5)] rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--color-ring))]"
                             >
                                 <ChevronDown className="w-6 h-6" aria-hidden="true" />
                             </button>
@@ -250,7 +252,7 @@ export const BottomDock: React.FC<BottomDockProps> = ({ locale }) => {
                                         <button
                                             key={result.tool.slug}
                                             onClick={() => handleSearchSelect(result.tool.slug)}
-                                            className={`w-full flex items-center gap-4 px-4 py-3 text-left rounded-xl transition-all duration-200 ${index === selectedIndex
+                                            className={`w-full flex items-center gap-4 px-4 py-3 text-left rounded-xl transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--color-ring))] ${index === selectedIndex
                                                 ? 'bg-[hsl(var(--color-primary)/0.1)] ring-1 ring-[hsl(var(--color-primary)/0.2)]'
                                                 : 'hover:bg-[hsl(var(--color-muted)/0.4)]'
                                                 }`}
@@ -349,7 +351,7 @@ export const BottomDock: React.FC<BottomDockProps> = ({ locale }) => {
                             <Link
                                 key={item.id}
                                 href={item.href}
-                                className={`relative flex items-center justify-center w-14 h-12 rounded-2xl transition-all duration-200 ${isActive
+                                className={`relative flex items-center justify-center w-14 h-12 rounded-2xl transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--color-ring))] ${isActive
                                     ? 'bg-[hsl(var(--color-primary)/0.1)]'
                                     : 'hover:bg-[hsl(var(--color-muted)/0.5)]'
                                     }`}
@@ -365,7 +367,7 @@ export const BottomDock: React.FC<BottomDockProps> = ({ locale }) => {
                         <button
                             key={item.id}
                             onClick={item.onClick}
-                            className={`relative flex items-center justify-center w-14 h-12 rounded-2xl transition-all duration-200 ${isActive
+                            className={`relative flex items-center justify-center w-14 h-12 rounded-2xl transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--color-ring))] ${isActive
                                 ? 'bg-[hsl(var(--color-primary)/0.1)]'
                                 : 'hover:bg-[hsl(var(--color-muted)/0.5)]'
                                 }`}
@@ -385,8 +387,9 @@ export const BottomDock: React.FC<BottomDockProps> = ({ locale }) => {
                         setIsSearchOpen(false);
                         setIsLangOpen(false);
                     }}
-                    className="flex items-center justify-center w-8 h-8 rounded-xl hover:bg-[hsl(var(--color-muted)/0.5)] transition-colors"
+                    className="flex items-center justify-center w-8 h-8 rounded-xl hover:bg-[hsl(var(--color-muted)/0.5)] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--color-ring))]"
                     aria-label="Minimize dock"
+                    title="Minimize dock"
                 >
                     <Minus className="w-3.5 h-3.5 text-[hsl(var(--color-muted-foreground)/0.6)]" />
                 </button>
