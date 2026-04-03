@@ -66,6 +66,7 @@ export function ToolPage({ tool, content, locale, children, localizedRelatedTool
                 href={`/${locale}`}
                 className="flex items-center hover:text-[hsl(var(--color-primary))] transition-colors"
                 title={t('common.navigation.home')}
+                aria-label={t('common.navigation.home')}
               >
                 <Home className="w-4 h-4" />
               </Link>
