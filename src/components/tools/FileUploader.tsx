@@ -285,6 +285,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
     transition-all duration-300
     cursor-pointer
     group
+    focus-within:outline-none focus-within:ring-2 focus-within:ring-[hsl(var(--color-primary))] focus-within:ring-offset-2
   `;
 
   // Dynamic styles based on state
@@ -394,7 +395,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           accept={acceptString}
           multiple={multiple}
           onChange={handleInputChange}
-          className="hidden"
+          className="sr-only"
           aria-hidden="true"
           disabled={disabled}
         />
