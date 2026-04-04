@@ -16,3 +16,7 @@
 ## 2026-04-01 - Accessible Interactive Divs
 **Learning:** When making a non-native element like a `div` interactive (e.g., adding `tabIndex` and `role="button"`), it doesn't automatically trigger `onClick` handlers via keyboard. Keyboard users expect 'Enter' and 'Space' to activate buttons.
 **Action:** Always add an `onKeyDown` handler to trigger the `onClick` action for `Enter` and `Space` keys when creating custom interactive components from standard block elements.
+
+## 2026-04-04 - Missing Focus Indicators on Layout Buttons
+**Learning:** Raw `<button>` elements in global layouts (like the Bottom Dock's search/minimize buttons and the Footer's language selector) lacked `focus-visible` utility classes. While they are natively focusable, without a visible focus ring, keyboard-only users cannot see when these critical navigation elements are active, especially when default browser outlines are overridden or invisible against complex backgrounds.
+**Action:** Consistently apply `focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--color-ring))]` to all standalone `<button>` implementations to ensure keyboard focus visibility matches the `Button` component standard. Use `focus-visible:ring-offset-2` when the background might obscure the ring.
