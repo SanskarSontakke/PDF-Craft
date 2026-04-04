@@ -210,7 +210,7 @@ export const BatchProcessingPanel: React.FC<BatchProcessingPanelProps> = ({
       <div
         onDrop={handleDrop}
         onDragOver={handleDragOver}
-        className="border-2 border-dashed border-[hsl(var(--color-border))] rounded-[var(--radius-lg)] p-6 text-center hover:border-[hsl(var(--color-primary))] transition-colors cursor-pointer"
+        className="border-2 border-dashed border-[hsl(var(--color-border))] rounded-[var(--radius-lg)] p-6 text-center hover:border-[hsl(var(--color-primary))] focus-within:border-[hsl(var(--color-primary))] focus-within:ring-2 focus-within:ring-[hsl(var(--color-ring))] transition-colors cursor-pointer"
         role="region"
         aria-label="File drop zone"
       >
@@ -220,7 +220,7 @@ export const BatchProcessingPanel: React.FC<BatchProcessingPanelProps> = ({
           multiple
           accept={acceptedTypes}
           onChange={handleFileSelect}
-          className="hidden"
+          className="sr-only"
           disabled={isProcessing}
           aria-label={translations.addFiles}
         />
