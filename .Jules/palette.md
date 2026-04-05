@@ -16,3 +16,7 @@
 ## 2026-04-01 - Accessible Interactive Divs
 **Learning:** When making a non-native element like a `div` interactive (e.g., adding `tabIndex` and `role="button"`), it doesn't automatically trigger `onClick` handlers via keyboard. Keyboard users expect 'Enter' and 'Space' to activate buttons.
 **Action:** Always add an `onKeyDown` handler to trigger the `onClick` action for `Enter` and `Space` keys when creating custom interactive components from standard block elements.
+
+## 2026-04-05 - File Drop Zone Keyboard Accessibility
+**Learning:** Custom file drop zones that wrap a visually hidden `<input type="file">` using `display: none` (e.g., Tailwind's `hidden` class) are completely inaccessible to screen readers, preventing users from understanding the expected interaction or hearing the file input's label. Additionally, hiding the input removes the browser's default focus ring, making keyboard navigation difficult to track.
+**Action:** Always use `sr-only` instead of `hidden` on the `<input type="file">` element within custom drop zones. This keeps the element visually hidden but available to assistive technologies and focusable. To ensure the focus is visible to keyboard users, add `focus-within` styles (e.g., `focus-within:ring-2`) to the parent container, so it displays a focus ring when the visually hidden input becomes active.

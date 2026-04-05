@@ -11,6 +11,7 @@ export interface CardProps extends HTMLAttributes<HTMLDivElement> {
   variant?: CardVariant;
   hover?: boolean;
   clickable?: boolean;
+  onKeyDown?: React.KeyboardEventHandler<HTMLDivElement>;
 }
 
 const sizeStyles: Record<CardSize, string> = {
@@ -87,24 +88,15 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
       `
       : '';
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-      if (clickable && props.onClick && (e.key === 'Enter' || e.key === ' ')) {
-        e.preventDefault();
-        props.onClick(e as any);
-      }
-      props.onKeyDown?.(e);
-    };
-
     return (
       <div
         ref={ref}
         className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${hoverStyles} ${clickableStyles} ${className}`.trim()}
         tabIndex={clickable ? 0 : undefined}
         role={clickable ? 'button' : undefined}
-        onKeyDown={handleKeyDown}
         onClick={onClick}
+        onKeyDown={clickable || onKeyDown ? handleKeyDown : undefined}
         {...props}
-        onKeyDown={clickable || props.onKeyDown ? handleKeyDown : undefined}
       >
         {children}
       </div>
