@@ -532,8 +532,9 @@ export function ExtractImagesTool({ className = '' }: ExtractImagesToolProps) {
                         <button
                             className="absolute -top-12 right-0 p-2 text-white hover:text-white/80 transition-colors"
                             onClick={() => setSelectedImage(null)}
+                            aria-label={t('buttons.close') || 'Close'}
                         >
-                            <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                                 <path d="M18 6L6 18M6 6l12 12" />
                             </svg>
                         </button>

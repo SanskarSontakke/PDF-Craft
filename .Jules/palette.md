@@ -16,3 +16,7 @@
 ## 2026-04-01 - Accessible Interactive Divs
 **Learning:** When making a non-native element like a `div` interactive (e.g., adding `tabIndex` and `role="button"`), it doesn't automatically trigger `onClick` handlers via keyboard. Keyboard users expect 'Enter' and 'Space' to activate buttons.
 **Action:** Always add an `onKeyDown` handler to trigger the `onClick` action for `Enter` and `Space` keys when creating custom interactive components from standard block elements.
+
+## 2026-04-05 - Missing ARIA Labels on Full-Screen Image Previews
+**Learning:** Icon-only close buttons in full-screen custom modals or image previews (like in `ExtractImagesTool.tsx`) often lack accessible names, making them difficult to use with screen readers since they only announce "button" or the SVG contents. Furthermore, interior SVGs are read out redundantly unless marked with `aria-hidden="true"`.
+**Action:** Always provide an `aria-label` (preferably localized via `t('buttons.close')`) on icon-only close buttons. Also ensure the inner `<svg>` element has `aria-hidden="true"` to prevent redundant reading.
