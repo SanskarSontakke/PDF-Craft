@@ -3,13 +3,15 @@
 > next dev --turbopack
 
  ⚠ Specified "headers" will not automatically work with "output: export". See more info here: https://nextjs.org/docs/messages/export-no-custom-routes
- ⚠ Port 3000 is in use by an unknown process, using available port 3001 instead.
  ⚠ Specified "headers" will not automatically work with "output: export". See more info here: https://nextjs.org/docs/messages/export-no-custom-routes
    ▲ Next.js 15.5.14 (Turbopack)
-   - Local:        http://localhost:3001
-   - Network:      http://192.168.0.2:3001
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.0.2:3000
 
  ✓ Starting...
- ○ Compiling middleware ...
- ✓ Compiled middleware in 686ms
- ✓ Ready in 3.1s
+ ✓ Compiled middleware in 419ms
+ ✓ Ready in 1983ms
+ ○ Compiling /[locale]/tools/[tool] ...
+ ✓ Compiled /[locale]/tools/[tool] in 13.3s
+ GET /en/tools/pdf-multi-tool/ 200 in 16491ms
+ GET /en/tools/pdf-multi-tool/ 200 in 623ms

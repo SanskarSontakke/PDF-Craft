@@ -439,7 +439,7 @@ describe('FileUploader', () => {
       render(<FileUploader onFilesSelected={mockOnFilesSelected} />);
       
       const fileInput = document.querySelector('input[type="file"]');
-      expect(fileInput).toHaveAttribute('aria-hidden', 'true');
+      expect(fileInput).toHaveClass('sr-only');
     });
   });
 });
