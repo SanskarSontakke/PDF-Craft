@@ -16,3 +16,7 @@
 ## 2026-04-01 - Accessible Interactive Divs
 **Learning:** When making a non-native element like a `div` interactive (e.g., adding `tabIndex` and `role="button"`), it doesn't automatically trigger `onClick` handlers via keyboard. Keyboard users expect 'Enter' and 'Space' to activate buttons.
 **Action:** Always add an `onKeyDown` handler to trigger the `onClick` action for `Enter` and `Space` keys when creating custom interactive components from standard block elements.
+
+## 2026-04-06 - Accessible File Input in Custom Drop Zones
+**Learning:** Using `className="hidden"` or `aria-hidden="true"` on native `<input type="file">` elements inside custom drag-and-drop zones removes them from the accessibility tree, breaking screen reader interaction and keyboard focus mapping.
+**Action:** Always use `className="sr-only"` for the hidden file input instead of `hidden`. Move the `aria-label` directly to this input element, and remove redundant focus/keyboard handlers (like `tabIndex`, `role="button"`, and `onKeyDown`) from the wrapper `div`, relying entirely on the native input's accessibility. Apply `focus-within` styles to the wrapper to indicate focus visually.
