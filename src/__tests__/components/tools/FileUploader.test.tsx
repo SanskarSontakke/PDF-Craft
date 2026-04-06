@@ -435,11 +435,12 @@ describe('FileUploader', () => {
       expect(dropZone).toHaveAttribute('tabIndex', '-1');
     });
 
-    it('hides file input from accessibility tree', () => {
+    it('hides file input visually but keeps it in accessibility tree', () => {
       render(<FileUploader onFilesSelected={mockOnFilesSelected} />);
       
       const fileInput = document.querySelector('input[type="file"]');
-      expect(fileInput).toHaveAttribute('aria-hidden', 'true');
+      expect(fileInput).toHaveClass('sr-only');
+      expect(fileInput).not.toHaveAttribute('aria-hidden', 'true');
     });
   });
 });
