@@ -70,7 +70,8 @@ describe('FileUploader', () => {
     it('renders with default props', () => {
       render(<FileUploader onFilesSelected={mockOnFilesSelected} />);
       
-      expect(screen.getByRole('button', { name: /upload/i })).toBeInTheDocument();
+      const fileInput = document.querySelector('input[type="file"]');
+      expect(fileInput).toBeInTheDocument();
       expect(screen.getByText(/drag and drop/i)).toBeInTheDocument();
     });
 
@@ -135,8 +136,8 @@ describe('FileUploader', () => {
     it('opens file picker on click', async () => {
       render(<FileUploader onFilesSelected={mockOnFilesSelected} />);
       
-      const dropZone = screen.getByRole('button', { name: /upload/i });
       const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const dropZone = fileInput.parentElement as HTMLElement;
       
       const clickSpy = vi.spyOn(fileInput, 'click');
       
@@ -148,8 +149,8 @@ describe('FileUploader', () => {
     it('opens file picker on Enter key', () => {
       render(<FileUploader onFilesSelected={mockOnFilesSelected} />);
       
-      const dropZone = screen.getByRole('button', { name: /upload/i });
       const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const dropZone = fileInput.parentElement as HTMLElement;
       
       const clickSpy = vi.spyOn(fileInput, 'click');
       
@@ -161,8 +162,8 @@ describe('FileUploader', () => {
     it('opens file picker on Space key', () => {
       render(<FileUploader onFilesSelected={mockOnFilesSelected} />);
       
-      const dropZone = screen.getByRole('button', { name: /upload/i });
       const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const dropZone = fileInput.parentElement as HTMLElement;
       
       const clickSpy = vi.spyOn(fileInput, 'click');
       
@@ -193,7 +194,8 @@ describe('FileUploader', () => {
     it('shows drag overlay when dragging over', () => {
       render(<FileUploader onFilesSelected={mockOnFilesSelected} />);
       
-      const dropZone = screen.getByRole('button', { name: /upload/i });
+      const fileInput = document.querySelector('input[type="file"]');
+      const dropZone = fileInput?.parentElement as HTMLElement;
       const mockFile = createMockFile('test.pdf', 1024, 'application/pdf');
       const dataTransfer = createDataTransfer([mockFile]);
       
@@ -205,7 +207,8 @@ describe('FileUploader', () => {
     it('hides drag overlay when dragging leaves', () => {
       render(<FileUploader onFilesSelected={mockOnFilesSelected} />);
       
-      const dropZone = screen.getByRole('button', { name: /upload/i });
+      const fileInput = document.querySelector('input[type="file"]');
+      const dropZone = fileInput?.parentElement as HTMLElement;
       const mockFile = createMockFile('test.pdf', 1024, 'application/pdf');
       const dataTransfer = createDataTransfer([mockFile]);
       
@@ -219,7 +222,8 @@ describe('FileUploader', () => {
     it('handles file drop', () => {
       render(<FileUploader onFilesSelected={mockOnFilesSelected} />);
       
-      const dropZone = screen.getByRole('button', { name: /upload/i });
+      const fileInput = document.querySelector('input[type="file"]');
+      const dropZone = fileInput?.parentElement as HTMLElement;
       const mockFile = createMockFile('test.pdf', 1024, 'application/pdf');
       const dataTransfer = createDataTransfer([mockFile]);
       
@@ -237,7 +241,8 @@ describe('FileUploader', () => {
         />
       );
       
-      const dropZone = screen.getByRole('button', { name: /upload/i });
+      const fileInput = document.querySelector('input[type="file"]');
+      const dropZone = fileInput?.parentElement as HTMLElement;
       const mockFiles = [
         createMockFile('test1.pdf', 1024, 'application/pdf'),
         createMockFile('test2.pdf', 1024, 'application/pdf'),
@@ -261,7 +266,8 @@ describe('FileUploader', () => {
         />
       );
       
-      const dropZone = screen.getByRole('button', { name: /upload/i });
+      const fileInput = document.querySelector('input[type="file"]');
+      const dropZone = fileInput?.parentElement as HTMLElement;
       const largeFile = createMockFile('large.pdf', 2048, 'application/pdf');
       const dataTransfer = createDataTransfer([largeFile]);
       
@@ -280,7 +286,8 @@ describe('FileUploader', () => {
         />
       );
       
-      const dropZone = screen.getByRole('button', { name: /upload/i });
+      const fileInput = document.querySelector('input[type="file"]');
+      const dropZone = fileInput?.parentElement as HTMLElement;
       const invalidFile = createMockFile('test.txt', 1024, 'text/plain');
       const dataTransfer = createDataTransfer([invalidFile]);
       
@@ -299,7 +306,8 @@ describe('FileUploader', () => {
         />
       );
       
-      const dropZone = screen.getByRole('button', { name: /upload/i });
+      const fileInput = document.querySelector('input[type="file"]');
+      const dropZone = fileInput?.parentElement as HTMLElement;
       // File with .pdf extension but empty MIME type
       const pdfFile = createMockFile('test.pdf', 1024, '');
       const dataTransfer = createDataTransfer([pdfFile]);
@@ -320,7 +328,8 @@ describe('FileUploader', () => {
         />
       );
       
-      const dropZone = screen.getByRole('button', { name: /upload/i });
+      const fileInput = document.querySelector('input[type="file"]');
+      const dropZone = fileInput?.parentElement as HTMLElement;
       const mockFiles = [
         createMockFile('test1.pdf', 1024, 'application/pdf'),
         createMockFile('test2.pdf', 1024, 'application/pdf'),
@@ -345,7 +354,8 @@ describe('FileUploader', () => {
         />
       );
       
-      const dropZone = screen.getByRole('button', { name: /upload/i });
+      const fileInput = document.querySelector('input[type="file"]');
+      const dropZone = fileInput?.parentElement as HTMLElement;
       const mockFiles = [
         createMockFile('test1.pdf', 1024, 'application/pdf'),
         createMockFile('test2.pdf', 1024, 'application/pdf'),
@@ -368,8 +378,8 @@ describe('FileUploader', () => {
         />
       );
       
-      const dropZone = screen.getByRole('button', { name: /upload/i });
       const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+      const dropZone = fileInput?.parentElement as HTMLElement;
       
       const clickSpy = vi.spyOn(fileInput, 'click');
       
@@ -386,7 +396,8 @@ describe('FileUploader', () => {
         />
       );
       
-      const dropZone = screen.getByRole('button', { name: /upload/i });
+      const fileInput = document.querySelector('input[type="file"]');
+      const dropZone = fileInput?.parentElement as HTMLElement;
       const mockFile = createMockFile('test.pdf', 1024, 'application/pdf');
       const dataTransfer = createDataTransfer([mockFile]);
       
@@ -394,33 +405,22 @@ describe('FileUploader', () => {
       
       expect(mockOnFilesSelected).not.toHaveBeenCalled();
     });
-
-    it('has aria-disabled attribute when disabled', () => {
-      render(
-        <FileUploader 
-          onFilesSelected={mockOnFilesSelected}
-          disabled={true}
-        />
-      );
-      
-      const dropZone = screen.getByRole('button', { name: /upload/i });
-      expect(dropZone).toHaveAttribute('aria-disabled', 'true');
-    });
   });
 
   describe('Accessibility', () => {
-    it('has proper role and aria-label', () => {
+    it('has proper aria-label on input element', () => {
       render(<FileUploader onFilesSelected={mockOnFilesSelected} />);
       
-      const dropZone = screen.getByRole('button', { name: /upload/i });
-      expect(dropZone).toBeInTheDocument();
+      const fileInput = document.querySelector('input[type="file"]');
+      expect(fileInput).toHaveAttribute('aria-label');
     });
 
-    it('is focusable when not disabled', () => {
+    it('is focusable by default via the input element', () => {
       render(<FileUploader onFilesSelected={mockOnFilesSelected} />);
       
-      const dropZone = screen.getByRole('button', { name: /upload/i });
-      expect(dropZone).toHaveAttribute('tabIndex', '0');
+      const fileInput = document.querySelector('input[type="file"]');
+      expect(fileInput).not.toBeDisabled();
+      expect(fileInput).toHaveAttribute('aria-label');
     });
 
     it('is not focusable when disabled', () => {
@@ -431,15 +431,17 @@ describe('FileUploader', () => {
         />
       );
       
-      const dropZone = screen.getByRole('button', { name: /upload/i });
-      expect(dropZone).toHaveAttribute('tabIndex', '-1');
+      const fileInput = document.querySelector('input[type="file"]');
+      expect(fileInput).toBeDisabled();
+      expect(fileInput).toHaveAttribute('aria-disabled', 'true');
     });
 
-    it('hides file input from accessibility tree', () => {
+    it('has sr-only file input instead of hidden', () => {
       render(<FileUploader onFilesSelected={mockOnFilesSelected} />);
       
       const fileInput = document.querySelector('input[type="file"]');
-      expect(fileInput).toHaveAttribute('aria-hidden', 'true');
+      expect(fileInput).toHaveClass('sr-only');
+      expect(fileInput).not.toHaveAttribute('aria-hidden', 'true');
     });
   });
 });

@@ -234,17 +234,6 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   }, [disabled]);
 
   /**
-   * Handle keyboard interaction
-   */
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (disabled) return;
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      fileInputRef.current?.click();
-    }
-  }, [disabled]);
-
-  /**
    * Handle paste from clipboard
    */
   useEffect(() => {
@@ -285,6 +274,7 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
     transition-all duration-300
     cursor-pointer
     group
+    focus-within:ring-2 focus-within:ring-[hsl(var(--color-ring))] focus-within:ring-offset-2 focus-within:ring-offset-[hsl(var(--color-background))]
   `;
 
   // Dynamic styles based on state
@@ -375,13 +365,16 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
       {processingOverlay}
       <div
         ref={dropZoneRef}
-        role="button"
-        tabIndex={disabled ? -1 : 0}
-        aria-label={label || t('buttons.upload')}
-        aria-disabled={disabled}
         className={`${baseStyles} ${stateStyles} ${className}`.trim()}
         onClick={handleClick}
-        onKeyDown={handleKeyDown}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            handleClick();
+          }
+        }}
+        role="button"
+        tabIndex={disabled ? -1 : 0}
         onDragEnter={handleDragEnter}
         onDragLeave={handleDragLeave}
         onDragOver={handleDragOver}
@@ -394,8 +387,9 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
           accept={acceptString}
           multiple={multiple}
           onChange={handleInputChange}
-          className="hidden"
-          aria-hidden="true"
+          className="sr-only"
+          aria-label={label || t('buttons.upload')}
+          aria-disabled={disabled}
           disabled={disabled}
         />
 
