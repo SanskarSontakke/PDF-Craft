@@ -88,11 +88,17 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
       : '';
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-      if (clickable && props.onClick && (e.key === 'Enter' || e.key === ' ')) {
-        e.preventDefault();
-        props.onClick(e as any);
+      if (clickable && (e.key === 'Enter' || e.key === ' ')) {
+        if (e.key === ' ') {
+          e.preventDefault(); // Prevent page scroll on Space
+        }
+        if (onClick) {
+          onClick(e as unknown as React.MouseEvent<HTMLDivElement>);
+        }
       }
-      props.onKeyDown?.(e);
+      if (onKeyDown) {
+        onKeyDown(e);
+      }
     };
 
     return (
@@ -104,7 +110,6 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
         onKeyDown={handleKeyDown}
         onClick={onClick}
         {...props}
-        onKeyDown={clickable || props.onKeyDown ? handleKeyDown : undefined}
       >
         {children}
       </div>
