@@ -13,6 +13,11 @@
 ## 2025-02-14 - Nested Buttons inside Links in Next.js
 **Learning:** Found a critical accessibility issue where `<Button>` components (rendering as `<button>`) were nested inside Next.js `<Link>` elements. This creates invalid HTML (`<a><button>...</button></a>`) and creates double focus rings for screen readers and keyboard users.
 **Action:** Implemented `asChild` pattern using `@radix-ui/react-slot` in the `Button` component, allowing the button styles and semantics to cleanly merge into the `Link` element without breaking HTML rules. Added `focus-visible:ring-offset-[hsl(var(--color-background))]` to make focus rings accessible.
+
 ## 2026-04-01 - Accessible Interactive Divs
 **Learning:** When making a non-native element like a `div` interactive (e.g., adding `tabIndex` and `role="button"`), it doesn't automatically trigger `onClick` handlers via keyboard. Keyboard users expect 'Enter' and 'Space' to activate buttons.
 **Action:** Always add an `onKeyDown` handler to trigger the `onClick` action for `Enter` and `Space` keys when creating custom interactive components from standard block elements.
+
+## 2026-04-01 - File Uploader Input Accessibility
+**Learning:** For custom file uploaders using hidden `<input type="file">` elements, using `className="hidden"` completely removes the input from the accessibility tree. Screen reader users can no longer interact with it through forms navigation or detect its native file selection capability.
+**Action:** When hiding the native file input in custom uploaders, always use `className="sr-only"` instead of `hidden` to keep it in the accessibility tree, add `tabIndex={-1}` to prevent double-focusing (if the parent `div` handles focus), and ensure the parent `div` properly displays a focus ring (e.g. `focus-within:ring-2`) when the hidden input receives focus.
