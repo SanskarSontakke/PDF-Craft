@@ -342,11 +342,19 @@ export function BookmarkTool({ className = '' }: BookmarkToolProps) {
     return (
       <div key={bookmark.id} style={{ marginLeft: depth * 16 }}>
         <div
-          className={`flex items-center gap-2 p-2 rounded cursor-pointer transition-colors ${isSelected
+          role="button"
+          tabIndex={0}
+          className={`flex items-center gap-2 p-2 rounded cursor-pointer transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--color-ring))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--color-background))] ${isSelected
             ? 'bg-blue-100 border border-blue-300'
             : 'hover:bg-[hsl(var(--color-muted))]'
             }`}
           onClick={() => handleBookmarkClick(bookmark)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handleBookmarkClick(bookmark);
+            }
+          }}
         >
           {/* Expand/collapse toggle */}
           {bookmark.children.length > 0 && (
@@ -362,7 +370,7 @@ export function BookmarkTool({ className = '' }: BookmarkToolProps) {
 
           {/* Bookmark content */}
           {isEditing ? (
-            <div className="flex-1 flex gap-2" onClick={(e) => e.stopPropagation()}>
+            <div className="flex-1 flex gap-2" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
               <input
                 type="text"
                 value={editingBookmark.title}
