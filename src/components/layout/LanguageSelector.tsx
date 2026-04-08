@@ -192,7 +192,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({ currentLocal
                 onKeyDown={(e) => handleOptionKeyDown(e, locale, index)}
                 className={`
                   flex items-center justify-between w-full px-3 py-2 text-sm text-left
-                  transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[hsl(var(--color-ring))]
+                  transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[hsl(var(--color-ring))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--color-background))]
                   ${isSelected 
                     ? 'bg-[hsl(var(--color-primary)/0.1)] text-[hsl(var(--color-primary))]' 
                     : 'text-[hsl(var(--color-foreground))] hover:bg-[hsl(var(--color-muted))] focus:bg-[hsl(var(--color-muted))]'

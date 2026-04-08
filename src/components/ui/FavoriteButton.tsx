@@ -88,7 +88,7 @@ export function FavoriteButton({
             className={`
         inline-flex items-center gap-2 
         transition-all duration-200
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--color-ring))] focus-visible:ring-offset-2
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--color-ring))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--color-background))]
         rounded-full
         ${className}
       `}

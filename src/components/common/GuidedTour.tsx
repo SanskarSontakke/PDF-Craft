@@ -333,7 +333,7 @@ export const GuidedTour: React.FC<GuidedTourProps> = ({
                   }
                 }
               }}
-              className={`w-2 h-2 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--color-ring))] focus-visible:ring-offset-1 ${
+              className={`w-2 h-2 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--color-ring))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--color-background))] ${
                 index === currentStep
                   ? 'bg-[hsl(var(--color-primary))]'
                   : 'bg-[hsl(var(--color-muted))] hover:bg-[hsl(var(--color-muted-foreground))]'

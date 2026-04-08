@@ -57,7 +57,7 @@ export function ToolCard({ tool, locale, className = '', localizedContent }: Too
   return (
     <Link
       href={toolUrl}
-      className={`block focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--color-ring))] focus-visible:ring-offset-2 rounded-[var(--radius-lg)] group ${className}`}
+      className={`block focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--color-ring))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--color-background))] rounded-[var(--radius-lg)] group ${className}`}
       data-testid="tool-card"
     >
       <Card
