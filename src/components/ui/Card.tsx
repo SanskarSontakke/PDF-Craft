@@ -84,16 +84,9 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
         focus-visible:ring-2
         focus-visible:ring-[hsl(var(--color-ring))]
         focus-visible:ring-offset-2
+        focus-visible:ring-offset-[hsl(var(--color-background))]
       `
       : '';
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-      if (clickable && props.onClick && (e.key === 'Enter' || e.key === ' ')) {
-        e.preventDefault();
-        props.onClick(e as any);
-      }
-      props.onKeyDown?.(e);
-    };
 
     return (
       <div
@@ -101,10 +94,9 @@ export const Card = forwardRef<HTMLDivElement, CardProps>(
         className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${hoverStyles} ${clickableStyles} ${className}`.trim()}
         tabIndex={clickable ? 0 : undefined}
         role={clickable ? 'button' : undefined}
-        onKeyDown={handleKeyDown}
         onClick={onClick}
         {...props}
-        onKeyDown={clickable || props.onKeyDown ? handleKeyDown : undefined}
+        onKeyDown={clickable || onKeyDown ? handleKeyDown : undefined}
       >
         {children}
       </div>

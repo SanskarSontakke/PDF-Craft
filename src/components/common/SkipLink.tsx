@@ -52,7 +52,7 @@ export const SkipLink: React.FC<SkipLinkProps> = ({
         px-4 py-2
         bg-[hsl(var(--color-primary))] text-[hsl(var(--color-primary-foreground))]
         font-medium rounded-[var(--radius-md)]
-        focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--color-ring))] focus-visible:ring-offset-2
+        focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--color-ring))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--color-background))]
         transition-all duration-[var(--transition-fast)]
       "
     >

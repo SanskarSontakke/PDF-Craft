@@ -188,7 +188,7 @@ export const RecentFilesDropdown: React.FC<RecentFilesDropdownProps> = ({
                     <Link
                       ref={(el) => { itemRefs.current[index] = el; }}
                       href={`/${locale}/tools/${file.toolUsed}`}
-                      className="flex-1 min-w-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--color-ring))] rounded-sm"
+                      className="flex-1 min-w-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--color-ring))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--color-background))] rounded-sm"
                       tabIndex={focusedIndex === index ? 0 : -1}
                       onClick={() => {
                         setIsOpen(false);
@@ -217,7 +217,7 @@ export const RecentFilesDropdown: React.FC<RecentFilesDropdownProps> = ({
                         e.stopPropagation();
                         removeFile(file.id);
                       }}
-                      className="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1 text-[hsl(var(--color-muted-foreground))] hover:text-[hsl(var(--color-destructive))] focus:text-[hsl(var(--color-destructive))] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--color-ring))] rounded-sm"
+                      className="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1 text-[hsl(var(--color-muted-foreground))] hover:text-[hsl(var(--color-destructive))] focus:text-[hsl(var(--color-destructive))] transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--color-ring))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--color-background))] rounded-sm"
                       aria-label={`Remove ${file.name}`}
                       tabIndex={-1}
                     >
