@@ -16,3 +16,7 @@
 ## 2026-04-01 - Accessible Interactive Divs
 **Learning:** When making a non-native element like a `div` interactive (e.g., adding `tabIndex` and `role="button"`), it doesn't automatically trigger `onClick` handlers via keyboard. Keyboard users expect 'Enter' and 'Space' to activate buttons.
 **Action:** Always add an `onKeyDown` handler to trigger the `onClick` action for `Enter` and `Space` keys when creating custom interactive components from standard block elements.
+
+## 2024-05-18 - Missing Focus Styles on Custom File Uploaders
+**Learning:** Custom drop zones using interactive `div` elements for file uploads often lack visual focus indicators when navigated via keyboard. Additionally, using `className="hidden"` on the actual `<input type="file">` makes it completely inaccessible to screen readers.
+**Action:** Always ensure custom drop zones have `tabIndex={0}` on the container with `focus-visible` styles, and use `className="sr-only" tabIndex={-1}` instead of `hidden` on the input element for proper accessibility and visual feedback.
