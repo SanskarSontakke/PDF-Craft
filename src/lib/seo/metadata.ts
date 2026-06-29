@@ -7,8 +7,9 @@
 
 import type { Metadata } from 'next';
 import { siteConfig } from '@/config/site';
-import { type Locale, localeConfig } from '@/lib/i18n/config';
+import { type Locale, localeConfig, locales } from '@/lib/i18n/config';
 import type { Tool, ToolContent } from '@/types/tool';
+import { getBasePath } from '@/lib/utils/path';
 
 /**
  * Base metadata configuration
@@ -42,7 +43,8 @@ export interface ToolMetadataOptions extends BaseMetadataOptions {
  */
 export function getCanonicalUrl(locale: Locale, path: string = ''): string {
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
-  return `${siteConfig.url}/${locale}${cleanPath}`;
+  const basePath = getBasePath().replace(/\/$/, '');
+  return `${siteConfig.url}${basePath}/${locale}${cleanPath}`;
 }
 
 /**
@@ -51,14 +53,14 @@ export function getCanonicalUrl(locale: Locale, path: string = ''): string {
 export function getAlternateUrls(path: string = ''): Record<string, string> {
   const cleanPath = path.startsWith('/') ? path : `/${path}`;
   const alternates: Record<string, string> = {};
+  const basePath = getBasePath().replace(/\/$/, '');
 
-  const locales: Locale[] = ['en', 'ja', 'ko', 'es', 'fr', 'de', 'zh', 'zh-TW', 'pt'];
   for (const locale of locales) {
-    alternates[locale] = `${siteConfig.url}/${locale}${cleanPath}`;
+    alternates[locale] = `${siteConfig.url}${basePath}/${locale}${cleanPath}`;
   }
 
   // Add x-default pointing to English
-  alternates['x-default'] = `${siteConfig.url}/en${cleanPath}`;
+  alternates['x-default'] = `${siteConfig.url}${basePath}/en${cleanPath}`;
 
   return alternates;
 }
@@ -170,12 +172,15 @@ export function generateToolMetadata(options: ToolMetadataOptions): Metadata {
 /**
  * Generate metadata for the homepage
  */
-export function generateHomeMetadata(locale: Locale): Metadata {
+export function generateHomeMetadata(locale: Locale, translations?: { title: string; description: string }): Metadata {
+  const defaultTitle = `${siteConfig.name} - Professional PDF Tools`;
+  const defaultDescription = siteConfig.description;
+
   return generateBaseMetadata({
     locale,
     path: '',
-    title: `${siteConfig.name} - Professional PDF Tools`,
-    description: siteConfig.description,
+    title: translations?.title || defaultTitle,
+    description: translations?.description || defaultDescription,
     keywords: ['PDF tools', 'merge PDF', 'split PDF', 'compress PDF', 'convert PDF', 'free PDF tools', 'online PDF editor'],
   });
 }
@@ -183,12 +188,12 @@ export function generateHomeMetadata(locale: Locale): Metadata {
 /**
  * Generate metadata for the tools listing page
  */
-export function generateToolsListMetadata(locale: Locale): Metadata {
+export function generateToolsListMetadata(locale: Locale, translations?: { title: string; description: string }): Metadata {
   return generateBaseMetadata({
     locale,
     path: '/tools',
-    title: 'All PDF Tools',
-    description: 'Browse all 67+ professional PDF tools. Merge, split, compress, convert, edit, and secure your PDF files for free.',
+    title: translations?.title || 'All PDF Tools',
+    description: translations?.description || 'Browse all 67+ professional PDF tools. Merge, split, compress, convert, edit, and secure your PDF files for free.',
     keywords: ['PDF tools', 'all PDF tools', 'PDF editor', 'PDF converter', 'PDF merger', 'PDF splitter'],
   });
 }
@@ -196,12 +201,12 @@ export function generateToolsListMetadata(locale: Locale): Metadata {
 /**
  * Generate metadata for the about page
  */
-export function generateAboutMetadata(locale: Locale): Metadata {
+export function generateAboutMetadata(locale: Locale, translations?: { title: string; description: string }): Metadata {
   return generateBaseMetadata({
     locale,
     path: '/about',
-    title: 'About',
-    description: `Learn about ${siteConfig.name} - your free, private, and powerful PDF toolkit. All processing happens in your browser.`,
+    title: translations?.title || 'About',
+    description: translations?.description || `Learn about ${siteConfig.name} - your free, private, and powerful PDF toolkit. All processing happens in your browser.`,
     keywords: ['about', 'PDF tools', 'privacy', 'browser-based'],
   });
 }
@@ -209,12 +214,12 @@ export function generateAboutMetadata(locale: Locale): Metadata {
 /**
  * Generate metadata for the FAQ page
  */
-export function generateFaqMetadata(locale: Locale): Metadata {
+export function generateFaqMetadata(locale: Locale, translations?: { title: string; description: string }): Metadata {
   return generateBaseMetadata({
     locale,
     path: '/faq',
-    title: 'Frequently Asked Questions',
-    description: `Find answers to common questions about ${siteConfig.name}. Learn how to use our PDF tools effectively.`,
+    title: translations?.title || 'Frequently Asked Questions',
+    description: translations?.description || `Find answers to common questions about ${siteConfig.name}. Learn how to use our PDF tools effectively.`,
     keywords: ['FAQ', 'help', 'questions', 'PDF tools help'],
   });
 }
@@ -222,13 +227,26 @@ export function generateFaqMetadata(locale: Locale): Metadata {
 /**
  * Generate metadata for the privacy page
  */
-export function generatePrivacyMetadata(locale: Locale): Metadata {
+export function generatePrivacyMetadata(locale: Locale, translations?: { title: string; description: string }): Metadata {
   return generateBaseMetadata({
     locale,
     path: '/privacy',
-    title: 'Privacy Policy',
-    description: `${siteConfig.name} privacy policy. Your files never leave your device - all processing happens locally in your browser.`,
+    title: translations?.title || 'Privacy Policy',
+    description: translations?.description || `${siteConfig.name} privacy policy. Your files never leave your device - all processing happens locally in your browser.`,
     keywords: ['privacy', 'security', 'data protection', 'local processing'],
+  });
+}
+
+/**
+ * Generate metadata for the contact page
+ */
+export function generateContactMetadata(locale: Locale, translations?: { title: string; description: string }): Metadata {
+  return generateBaseMetadata({
+    locale,
+    path: '/contact',
+    title: translations?.title || 'Contact Us',
+    description: translations?.description || `Get in touch with ${siteConfig.name} team. We'd love to hear from you.`,
+    keywords: ['contact', 'support', 'help', 'feedback'],
   });
 }
 
@@ -246,6 +264,11 @@ export function getOpenGraphLocale(locale: Locale): string {
     zh: 'zh_CN',
     'zh-TW': 'zh_TW',
     pt: 'pt_BR',
+    ar: 'ar_AR',
+    it: 'it_IT',
+    id: 'id_ID',
+    vi: 'vi_VN',
+    ro: 'ro_RO',
   };
   return ogLocaleMap[locale] || 'en_US';
 }

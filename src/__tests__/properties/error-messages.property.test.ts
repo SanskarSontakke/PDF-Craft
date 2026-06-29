@@ -17,8 +17,13 @@ import esMessages from '../../../messages/es.json';
 import frMessages from '../../../messages/fr.json';
 import deMessages from '../../../messages/de.json';
 import zhMessages from '../../../messages/zh.json';
+import zhTW_Messages from '../../../messages/zh-TW.json';
 import ptMessages from '../../../messages/pt.json';
 import arMessages from '../../../messages/ar.json';
+import idMessages from '../../../messages/id.json';
+import itMessages from '../../../messages/it.json';
+import viMessages from '../../../messages/vi.json';
+import roMessages from '../../../messages/ro.json';
 
 // Map of locale to messages
 const LOCALE_MESSAGES: Record<Locale, Record<string, unknown>> = {
@@ -29,8 +34,13 @@ const LOCALE_MESSAGES: Record<Locale, Record<string, unknown>> = {
   fr: frMessages,
   de: deMessages,
   zh: zhMessages,
+  'zh-TW': zhTW_Messages,
   pt: ptMessages,
   ar: arMessages,
+  id: idMessages,
+  it: itMessages,
+  vi: viMessages,
+  ro: roMessages,
 };
 
 /**

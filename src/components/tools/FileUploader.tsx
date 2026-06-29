@@ -1,9 +1,9 @@
 'use client';
 
 import React, { useCallback, useRef, useState, useEffect } from 'react';
-import { createPortal } from 'react-dom';
 import { useTranslations } from 'next-intl';
-import { UploadCloud, File, Plus, X, FileText } from 'lucide-react';
+import { UploadCloud, File, Plus, X, Lock, Loader2 } from 'lucide-react';
+import { isTauri } from '@/lib/tauri-bridge';
 
 export interface FileUploaderProps {
   /** Accepted file types (MIME types or extensions) */
@@ -34,7 +34,6 @@ export interface FileUploaderProps {
  * 
  * Supports drag-and-drop, file picker, and paste from clipboard.
  * Beautified with premium UI and glassmorphism.
- * Shows a 3-second processing animation before completing upload.
  */
 export const FileUploader: React.FC<FileUploaderProps> = ({
   accept = ['application/pdf'],
@@ -51,13 +50,51 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   const t = useTranslations('common');
   const tErrors = useTranslations('errors');
 
+  // Encryption & Decryption states
+  const [encryptPendingFiles, setEncryptPendingFiles] = useState<File[]>([]);
+  const [encryptCurrentIndex, setEncryptCurrentIndex] = useState<number>(-1);
+  const [password, setPassword] = useState<string>('');
+  const [decryptError, setDecryptError] = useState<string | null>(null);
+  const [isDecrypting, setIsDecrypting] = useState<boolean>(false);
+  const [shouldShake, setShouldShake] = useState<boolean>(false);
+  const [decryptedFilesAccumulator, setDecryptedFilesAccumulator] = useState<File[]>([]);
+
   const [isDragging, setIsDragging] = useState(false);
   const [dragCounter, setDragCounter] = useState(0);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [processingFileName, setProcessingFileName] = useState('');
-  const [processingFiles, setProcessingFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dropZoneRef = useRef<HTMLDivElement>(null);
+
+  // Helper to check if a PDF file is encrypted
+  const checkIsEncrypted = async (file: File): Promise<boolean> => {
+    if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) {
+      return false;
+    }
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const { PDFDocument } = await import('pdf-lib');
+      await PDFDocument.load(arrayBuffer);
+      return false;
+    } catch (err: any) {
+      const msg = err.message || '';
+      if (msg.includes('encrypt') || msg.includes('password') || msg.includes('decrypt')) {
+        return true;
+      }
+      return false;
+    }
+  };
+
+  const resetDecryptStates = () => {
+    setEncryptPendingFiles([]);
+    setEncryptCurrentIndex(-1);
+    setPassword('');
+    setDecryptError(null);
+    setIsDecrypting(false);
+    setDecryptedFilesAccumulator([]);
+  };
+
+  const handleDecryptCancel = () => {
+    resetDecryptStates();
+  };
 
   // Generate accept string for input element
   const acceptString = accept.join(',');
@@ -123,9 +160,58 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   }, [accept, maxSize, maxFiles, multiple, tErrors]);
 
   /**
-   * Handle file selection — shows 3-second processing animation
+   * Handle decryption submit action
    */
-  const handleFiles = useCallback((files: FileList | File[]) => {
+  const handleDecryptSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (isDecrypting || encryptCurrentIndex === -1) return;
+
+    const fileToDecrypt = encryptPendingFiles[encryptCurrentIndex];
+    setIsDecrypting(true);
+    setDecryptError(null);
+
+    try {
+      const arrayBuffer = await fileToDecrypt.arrayBuffer();
+      const { PDFDocument } = await import('pdf-lib');
+
+      // Attempt to load with the user-provided password (cast to any for compiler compatibility)
+      const pdfDoc = await PDFDocument.load(arrayBuffer, { password } as any);
+
+      // Save as completely decrypted (without any password protection)
+      const decryptedBytes = await pdfDoc.save();
+      const decryptedBlob = new Blob([decryptedBytes as any], { type: 'application/pdf' });
+
+      // Create a fresh unlocked virtual File object, fallback to window.File to avoid Node/Browser File type clashes
+      const unlockedFile = new (window as any).File([decryptedBlob], fileToDecrypt.name.replace('.pdf', '_unlocked.pdf'), {
+        type: 'application/pdf',
+      }) as File;
+
+      const updatedAccumulator = [...decryptedFilesAccumulator, unlockedFile];
+      setDecryptedFilesAccumulator(updatedAccumulator);
+      setPassword('');
+
+      const nextIndex = encryptCurrentIndex + 1;
+      if (nextIndex < encryptPendingFiles.length) {
+        setEncryptCurrentIndex(nextIndex);
+      } else {
+        // Complete! Notify tool components of the unlocked files alongside native plain files
+        onFilesSelected(updatedAccumulator);
+        resetDecryptStates();
+      }
+    } catch (err: any) {
+      console.error('PDF Decryption failed:', err);
+      setShouldShake(true);
+      setTimeout(() => setShouldShake(false), 500);
+      setDecryptError(tErrors('incorrectPassword') || 'Incorrect password. Please try again.');
+    } finally {
+      setIsDecrypting(false);
+    }
+  };
+
+  /**
+   * Handle file selection
+   */
+  const handleFiles = useCallback(async (files: FileList | File[]) => {
     if (disabled) return;
 
     const fileArray = Array.from(files);
@@ -138,39 +224,48 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
     }
 
     if (valid.length > 0) {
-      // Show processing animation for 3 seconds
-      const displayName = valid.length === 1
-        ? valid[0].name
-        : `${valid.length} files`;
-      setProcessingFileName(displayName);
-      setProcessingFiles(valid);
-      setIsProcessing(true);
+      // Async scan for encrypted PDF files
+      const encryptedList: File[] = [];
+      const unencryptedList: File[] = [];
+
+      for (const file of valid) {
+        const isEncrypted = await checkIsEncrypted(file);
+        if (isEncrypted) {
+          encryptedList.push(file);
+        } else {
+          unencryptedList.push(file);
+        }
+      }
+
+      if (encryptedList.length > 0) {
+        // Initialize the decryption state machine queue
+        setEncryptPendingFiles(encryptedList);
+        setDecryptedFilesAccumulator(unencryptedList);
+        setEncryptCurrentIndex(0);
+        setPassword('');
+        setDecryptError(null);
+      } else {
+        // All files are already plain/unencrypted, transmit natively
+        onFilesSelected(valid);
+      }
     }
-  }, [disabled, validateFiles, onError]);
+  }, [disabled, validateFiles, onError, onFilesSelected]);
 
-  // 3-second timer to complete processing
-  useEffect(() => {
-    if (!isProcessing) return;
-    const timer = setTimeout(() => {
-      setIsProcessing(false);
-      setProcessingFileName('');
-      onFilesSelected(processingFiles);
-      setProcessingFiles([]);
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, [isProcessing, processingFiles, onFilesSelected]);
-
-  /**
-   * Handle drag enter
-   */
   const handleDragEnter = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
     if (disabled) return;
 
+    if (e.dataTransfer) {
+      e.dataTransfer.dropEffect = 'copy';
+    }
+
     setDragCounter(prev => prev + 1);
-    setIsDragging(true);
+    const hasFiles = e.dataTransfer.types && Array.from(e.dataTransfer.types).includes('Files');
+    if (hasFiles || (e.dataTransfer.items && e.dataTransfer.items.length > 0)) {
+      setIsDragging(true);
+    }
   }, [disabled]);
 
   /**
@@ -195,6 +290,9 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    if (e.dataTransfer) {
+      e.dataTransfer.dropEffect = 'copy';
+    }
   }, []);
 
   /**
@@ -245,6 +343,82 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
   }, [disabled]);
 
   /**
+   * Handle Tauri native drag-and-drop events
+   */
+  useEffect(() => {
+    if (!isTauri() || disabled) return;
+
+    let active = true;
+    const unlisteners: (() => void)[] = [];
+
+    const setupTauriDragDrop = async () => {
+      try {
+        const { getCurrentWebviewWindow } = await import('@tauri-apps/api/webviewWindow');
+        const { readFile } = await import('@tauri-apps/plugin-fs');
+        const appWindow = getCurrentWebviewWindow();
+
+        if (!active) return;
+
+        const uOver = await appWindow.listen<{ paths: string[] }>('tauri://drag-over', () => {
+          setIsDragging(true);
+        });
+        unlisteners.push(uOver);
+
+        const uLeave = await appWindow.listen('tauri://drag-leave', () => {
+          setIsDragging(false);
+        });
+        unlisteners.push(uLeave);
+
+        const uDrop = await appWindow.listen<{ paths: string[] }>('tauri://drag-drop', async (event) => {
+          setIsDragging(false);
+          const paths = event.payload.paths;
+          if (!paths || paths.length === 0) return;
+
+          const fileObjects: File[] = [];
+          for (const filePath of paths) {
+            try {
+              const bytes = await readFile(filePath);
+              const name = filePath.split(/[/\\]/).pop() || 'file.pdf';
+              
+              let mimeType = 'application/octet-stream';
+              if (name.toLowerCase().endsWith('.pdf')) {
+                mimeType = 'application/pdf';
+              } else if (name.toLowerCase().endsWith('.png')) {
+                mimeType = 'image/png';
+              } else if (name.toLowerCase().endsWith('.jpg') || name.toLowerCase().endsWith('.jpeg')) {
+                mimeType = 'image/jpeg';
+              }
+
+              const file = new (window as any).File([bytes], name, { type: mimeType }) as File;
+              fileObjects.push(file);
+            } catch (err) {
+              console.error(`Tauri failed to read dragged file: ${filePath}`, err);
+            }
+          }
+
+          if (fileObjects.length > 0) {
+            handleFiles(fileObjects);
+          }
+        });
+        unlisteners.push(uDrop);
+
+        if (!active) {
+          unlisteners.forEach(u => u());
+        }
+      } catch (err) {
+        console.error('Failed to set up Tauri drag and drop listeners:', err);
+      }
+    };
+
+    setupTauriDragDrop();
+
+    return () => {
+      active = false;
+      unlisteners.forEach(u => u());
+    };
+  }, [disabled, handleFiles]);
+
+  /**
    * Handle paste from clipboard
    */
   useEffect(() => {
@@ -277,6 +451,32 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
     };
   }, [disabled, handleFiles]);
 
+  /**
+   * Prevent default browser drag/drop behavior to avoid file navigation (only for file drags)
+   */
+  useEffect(() => {
+    const handleGlobalDragOver = (e: DragEvent) => {
+      const hasFiles = e.dataTransfer && e.dataTransfer.types && Array.from(e.dataTransfer.types).includes('Files');
+      if (hasFiles) {
+        e.preventDefault();
+      }
+    };
+    
+    const handleGlobalDrop = (e: DragEvent) => {
+      const hasFiles = e.dataTransfer && e.dataTransfer.types && Array.from(e.dataTransfer.types).includes('Files');
+      if (hasFiles) {
+        e.preventDefault();
+      }
+    };
+
+    window.addEventListener('dragover', handleGlobalDragOver);
+    window.addEventListener('drop', handleGlobalDrop);
+    return () => {
+      window.removeEventListener('dragover', handleGlobalDragOver);
+      window.removeEventListener('drop', handleGlobalDrop);
+    };
+  }, []);
+
   const baseStyles = `
     relative flex flex-col items-center justify-center
     w-full min-h-[250px] p-10
@@ -297,159 +497,194 @@ export const FileUploader: React.FC<FileUploaderProps> = ({
       bg-[hsl(var(--color-card)/0.5)] 
       hover:border-[hsl(var(--color-primary))] 
       hover:bg-[hsl(var(--color-background))] 
-      hover:shadow-xl hover:shadow-[hsl(var(--color-primary)/0.1)]
-      hover:scale-[1.01] active:scale-[0.99]
+      hover:shadow-xl hover:shadow-[hsl(var(--color-primary)/0.05)]
       glass-card
     `;
 
-  // Full-screen rainbow border overlay (rendered via portal)
-  const rainbowOverlay = isDragging && typeof document !== 'undefined'
-    ? createPortal(
-      <div
-        className="rainbow-border-overlay"
-        style={{ pointerEvents: 'none' }}
-      >
-        {/* Dark backdrop */}
-        <div
-          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-          style={{ pointerEvents: 'auto' }}
-          onDragEnter={handleDragEnter}
-          onDragLeave={handleDragLeave}
-          onDragOver={handleDragOver}
-          onDrop={handleDrop}
-        />
-        {/* Centered prompt */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10">
-          <div className="p-5 rounded-full bg-[hsl(var(--color-primary)/0.15)] text-[hsl(var(--color-primary))] mb-5 animate-bounce">
-            <Plus className="w-10 h-10" />
+  return (
+    <div
+      ref={dropZoneRef}
+      role="button"
+      tabIndex={disabled ? -1 : 0}
+      aria-label={label || t('buttons.upload')}
+      aria-disabled={disabled}
+      className={`${baseStyles} ${stateStyles} ${className}`.trim()}
+      onClick={handleClick}
+      onKeyDown={handleKeyDown}
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
+      onDrop={handleDrop}
+    >
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept={acceptString}
+        multiple={multiple}
+        onChange={handleInputChange}
+        className="hidden"
+        aria-hidden="true"
+        disabled={disabled}
+      />
+
+      {/* Decorative background blob */}
+      <div className="absolute inset-0 overflow-hidden rounded-[2rem] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[hsl(var(--color-primary)/0.03)] rounded-full blur-3xl" />
+      </div>
+
+      {/* Upload icon */}
+      <div className={`
+        mb-6 p-4 rounded-full transition-transform duration-300 group-hover:scale-110
+        ${isDragging ? 'bg-[hsl(var(--color-primary)/0.1)] text-[hsl(var(--color-primary))]' : 'bg-[hsl(var(--color-muted))] text-[hsl(var(--color-muted-foreground))] group-hover:bg-[hsl(var(--color-primary)/0.1)] group-hover:text-[hsl(var(--color-primary))]'}
+      `}>
+        <UploadCloud className="w-10 h-10" aria-hidden="true" />
+      </div>
+
+      {/* Label */}
+      <p className="text-xl font-semibold text-[hsl(var(--color-foreground))] mb-3 text-center">
+        {label || t('buttons.upload')}
+      </p>
+
+      {/* Description */}
+      <div className="text-sm text-[hsl(var(--color-muted-foreground))] text-center max-w-sm leading-relaxed">
+        {description || (
+          <>
+            <p className="mb-2">{t('fileUploader.dragDrop')}</p>
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[hsl(var(--color-muted)/0.5)] text-xs font-medium">
+              <span className="opacity-70">{t('fileUploader.support')}:</span>
+              <span>{accept && accept.length > 0 ? accept.join(', ') : t('fileUploader.paste')}</span>
+              {maxSize && maxSize !== Infinity && (
+                <span className="ml-1 opacity-70">
+                  ({Math.round(maxSize / (1024 * 1024))}MB)
+                </span>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+
+      {/* File info hints - only show when multiple files allowed */}
+      {multiple && (
+        <div className="mt-6 flex flex-wrap gap-2 justify-center">
+          <span className="text-xs px-2 py-1 rounded-md bg-[hsl(var(--color-muted))] text-[hsl(var(--color-muted-foreground))]">
+            Max files: {maxFiles}
+          </span>
+        </div>
+      )}
+
+      {/* Drag overlay */}
+      {isDragging && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-[hsl(var(--color-background)/0.9)] backdrop-blur-sm rounded-[2rem] z-10 transition-opacity duration-200">
+          <div className="p-4 rounded-full bg-[hsl(var(--color-primary)/0.1)] text-[hsl(var(--color-primary))] mb-4 motion-safe:animate-bounce">
+            <Plus className="w-8 h-8" />
           </div>
-          <p className="text-2xl font-bold text-white mb-2">
-            Drop files here
-          </p>
-          <p className="text-sm text-white/60">
-            Release to start processing
+          <p className="text-xl font-bold text-[hsl(var(--color-primary))]">
+            {t('fileUploader.dropToUpload')}
           </p>
         </div>
-      </div>,
-      document.body
-    )
-    : null;
+      )}
 
-  // 3-second processing overlay (rendered via portal)
-  const processingOverlay = isProcessing && typeof document !== 'undefined'
-    ? createPortal(
-      <>
-        {/* Animated gradient border around the entire screen */}
-        <div className="processing-border" />
-        <div className="processing-overlay">
-          {/* Spinning ring wrapper */}
-          <div className="relative mb-8">
-            <div className="processing-ring" />
-            {/* PDF icon in center of ring */}
-            <div className="absolute inset-0 flex items-center justify-center processing-pulse-icon">
-              <FileText className="w-10 h-10 text-[hsl(var(--color-primary))]" />
+      {/* Decryption Password Prompt Modal */}
+      {encryptCurrentIndex !== -1 && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md animate-in fade-in duration-300 cursor-default"
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+          }}
+        >
+          {/* Custom shake keyframe injection */}
+          <style>{`
+            @keyframes shake {
+              0%, 100% { transform: translateX(0); }
+              10%, 30%, 50%, 70%, 90% { transform: translateX(-6px); }
+              20%, 40%, 60%, 80% { transform: translateX(6px); }
+            }
+            .modal-shake {
+              animation: shake 0.5s ease-in-out;
+            }
+          `}</style>
+          
+          <div 
+            className={`bg-[hsl(var(--color-card))] border border-white/10 dark:border-zinc-800/40 p-6 rounded-[2rem] max-w-sm w-full shadow-2xl mx-4 transition-all duration-300 transform scale-100 ${
+              shouldShake ? 'modal-shake' : ''
+            }`}
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+            }}
+          >
+            <div className="flex flex-col items-center text-center">
+              {/* Lock Circle Icon */}
+              <div className="p-4 rounded-full bg-red-500/10 text-red-500 mb-4 animate-pulse">
+                <Lock className="w-8 h-8" />
+              </div>
+              
+              <h3 className="text-lg font-bold text-[hsl(var(--color-foreground))] mb-1">
+                {t('fileUploader.encryptedTitle')}
+              </h3>
+              
+              <p className="text-xs text-[hsl(var(--color-muted-foreground))] mb-4 max-w-[280px] break-all leading-relaxed">
+                {t('fileUploader.enterPasswordHelp')}
+                <span className="font-semibold text-[hsl(var(--color-foreground))]">{encryptPendingFiles[encryptCurrentIndex]?.name}</span>
+              </p>
+              
+              {/* Form */}
+              <form 
+                onSubmit={handleDecryptSubmit} 
+                className="w-full space-y-4"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="relative flex items-center">
+                  <input
+                    type="password"
+                    placeholder={t('fileUploader.passwordPlaceholder')}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    autoFocus
+                    disabled={isDecrypting}
+                    className="w-full px-4 py-2.5 rounded-[var(--radius-md)] bg-[hsl(var(--color-muted)/0.4)] border border-[hsl(var(--color-input))] text-sm text-[hsl(var(--color-foreground))] placeholder:text-zinc-400 focus:outline-none focus:ring-2 focus:ring-[hsl(var(--color-primary))] focus:border-transparent transition-all"
+                  />
+                </div>
+                
+                {decryptError && (
+                  <p className="text-xs text-red-500 font-semibold animate-in fade-in">
+                    {decryptError}
+                  </p>
+                )}
+                
+                {/* Actions */}
+                <div className="flex gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={handleDecryptCancel}
+                    disabled={isDecrypting}
+                    className="flex-1 px-4 py-2 text-xs font-semibold rounded-[var(--radius-md)] border border-[hsl(var(--color-border))] hover:bg-[hsl(var(--color-muted))] text-[hsl(var(--color-foreground))] transition-colors disabled:opacity-50"
+                  >
+                    {t('fileUploader.cancelButton')}
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isDecrypting || !password}
+                    className="flex-1 px-4 py-2 text-xs font-semibold rounded-[var(--radius-md)] bg-[hsl(var(--color-primary))] hover:bg-[hsl(var(--color-primary-hover))] text-[hsl(var(--color-primary-foreground))] transition-colors flex items-center justify-center gap-1.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isDecrypting ? (
+                      <>
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        {t('fileUploader.decrypting')}
+                      </>
+                    ) : (
+                      t('fileUploader.decryptAndContinue')
+                    )}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
-
-          {/* Processing text */}
-          <p className="text-xl font-semibold text-white mb-2">Processing PDF</p>
-          <p className="text-sm text-white/70 mb-6 max-w-xs text-center truncate px-4">
-            {processingFileName}
-          </p>
-
-          {/* Progress bar */}
-          <div className="w-64 h-1.5 rounded-full bg-white/10 overflow-hidden">
-            <div className="h-full rounded-full bg-gradient-to-r from-[hsl(var(--color-primary))] to-[hsl(var(--color-accent))] processing-progress-bar" />
-          </div>
-
-          <p className="text-xs text-white/40 mt-3">Please wait...</p>
         </div>
-      </>,
-      document.body
-    )
-    : null;
-
-  return (
-    <>
-      {rainbowOverlay}
-      {processingOverlay}
-      <div
-        ref={dropZoneRef}
-        role="button"
-        tabIndex={disabled ? -1 : 0}
-        aria-label={label || t('buttons.upload')}
-        aria-disabled={disabled}
-        className={`${baseStyles} ${stateStyles} ${className}`.trim()}
-        onClick={handleClick}
-        onKeyDown={handleKeyDown}
-        onDragEnter={handleDragEnter}
-        onDragLeave={handleDragLeave}
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
-      >
-        {/* Hidden file input */}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept={acceptString}
-          multiple={multiple}
-          onChange={handleInputChange}
-          className="hidden"
-          aria-hidden="true"
-          disabled={disabled}
-        />
-
-        {/* Decorative background blob */}
-        <div className="absolute inset-0 overflow-hidden rounded-[2rem] pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-[hsl(var(--color-primary)/0.03)] rounded-full blur-3xl" />
-        </div>
-
-        {/* Upload icon */}
-        <div className={`
-          mb-6 p-4 rounded-full transition-all duration-300 group-hover:scale-110 group-hover:animate-[pulse_2s_ease-in-out_infinite]
-          ${isDragging ? 'bg-[hsl(var(--color-primary)/0.1)] text-[hsl(var(--color-primary))] animate-[pulse_1.5s_ease-in-out_infinite]' : 'bg-[hsl(var(--color-muted))] text-[hsl(var(--color-muted-foreground))] group-hover:bg-[hsl(var(--color-primary)/0.1)] group-hover:text-[hsl(var(--color-primary))]'}
-        `}>
-          <UploadCloud className="w-10 h-10" aria-hidden="true" />
-        </div>
-
-        {/* Label */}
-        <p className="text-xl font-semibold text-[hsl(var(--color-foreground))] mb-3 text-center">
-          {label || t('buttons.upload')}
-        </p>
-
-        {/* Description */}
-        <div className="text-sm text-[hsl(var(--color-muted-foreground))] text-center max-w-sm leading-relaxed">
-          {description || (
-            <>
-              <p className="mb-2">Drag and drop files here, or click to browse</p>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[hsl(var(--color-muted)/0.5)] text-xs font-medium">
-                <span className="opacity-70">Support:</span>
-                <span>Paste (Ctrl+V)</span>
-              </div>
-            </>
-          )}
-        </div>
-
-        {/* File info hints - only show when multiple files allowed */}
-        <div className="mt-6 flex flex-wrap gap-2 justify-center">
-          {multiple && (
-            <span className="text-xs px-2 py-1 rounded-md bg-[hsl(var(--color-muted))] text-[hsl(var(--color-muted-foreground))]">
-              Files: {maxFiles}
-            </span>
-          )}
-          {accept.length > 0 && accept[0] !== '*/*' && accept[0] !== '*' && (
-            <span className="text-xs px-2 py-1 rounded-md bg-[hsl(var(--color-muted))] text-[hsl(var(--color-muted-foreground))]">
-              {accept.join(', ')}
-            </span>
-          )}
-          {maxSize !== Infinity && (
-            <span className="text-xs px-2 py-1 rounded-md bg-[hsl(var(--color-muted))] text-[hsl(var(--color-muted-foreground))]">
-              {Math.round(maxSize / (1024 * 1024))}MB
-            </span>
-          )}
-        </div>
-      </div>
-    </>
+      )}
+    </div>
   );
 };
 

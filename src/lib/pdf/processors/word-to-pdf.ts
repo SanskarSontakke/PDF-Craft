@@ -1,8 +1,8 @@
 /**
  * Word to PDF Processor
- * 
- * Converts Word documents (DOCX) to PDF.
- * Uses Pyodide via a Web Worker with python-docx and PyMuPDF.
+ *
+ * Uses LibreOffice WASM when Cross-Origin Isolation is available (best fidelity).
+ * Falls back to Pyodide (python-docx) for .docx when isolation headers are missing.
  */
 
 import type {
@@ -12,84 +12,87 @@ import type {
 } from '@/types/pdf';
 import { PDFErrorCode } from '@/types/pdf';
 import { BasePDFProcessor } from '../processor';
+import { getSharedLibreOfficeConverter } from '@/lib/libreoffice/shared-converter';
+import { isCrossOriginIsolated } from '@/lib/utils/cross-origin-isolated';
+import { convertWordToPdfPyodide } from './word-to-pdf-pyodide';
 
-/**
- * Word to PDF options
- */
+/** Maximum file size: 50 MB */
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
+/** Conversion timeout: 5 minutes */
+const CONVERT_TIMEOUT_MS = 5 * 60 * 1000;
+
 export interface WordToPDFOptions {
     /** Reserved for future options */
 }
 
-/**
- * Word to PDF Processor
- * Converts Word documents to PDF using a Web Worker.
- */
 export class WordToPDFProcessor extends BasePDFProcessor {
-    private worker: Worker | null = null;
-    private workerReady = false;
+    private conversionProgressTimer: ReturnType<typeof setInterval> | null = null;
 
-    /**
-     * Initialize the worker
-     */
-    private async initWorker(): Promise<void> {
-        if (this.worker) return;
-
-        return new Promise((resolve, reject) => {
-            try {
-                this.worker = new Worker('/workers/word-to-pdf.worker.js', { type: 'module' });
-
-                const handleMessage = (event: MessageEvent) => {
-                    const { type, error, message } = event.data;
-
-                    if (type === 'init-complete') {
-                        this.workerReady = true;
-                        resolve();
-                    } else if (type === 'status') {
-                        this.updateProgress(0, message);
-                    } else if (type === 'error') {
-                        reject(new Error(error || 'Worker initialization failed'));
-                    }
-                };
-
-                this.worker.addEventListener('message', handleMessage);
-                this.worker.addEventListener('error', (err) => {
-                    reject(new Error('Worker connection failed'));
-                });
-
-                // Send init message
-                this.worker.postMessage({
-                    type: 'init',
-                    id: 'init-' + Date.now(),
-                    data: {}
-                });
-
-            } catch (err) {
-                reject(err);
-            }
-        });
+    private startConversionProgress(message: string): void {
+        this.stopConversionProgress();
+        this.conversionProgressTimer = setInterval(() => {
+            if (this.progress >= 98) return;
+            this.updateProgress(this.progress + 1, message);
+        }, 800);
     }
 
-    /**
-     * Terminate the worker
-     */
-    private terminateWorker() {
-        if (this.worker) {
-            this.worker.terminate();
-            this.worker = null;
-            this.workerReady = false;
+    private stopConversionProgress(): void {
+        if (this.conversionProgressTimer) {
+            clearInterval(this.conversionProgressTimer);
+            this.conversionProgressTimer = null;
         }
     }
 
-    /**
-     * Reset processor state
-     */
     protected reset(): void {
+        this.stopConversionProgress();
         super.reset();
     }
 
-    /**
-     * Process Word document and convert to PDF
-     */
+    private async convertWithLibreOffice(file: File): Promise<Blob> {
+        const converter = await getSharedLibreOfficeConverter((percent, message) => {
+            this.updateProgress(Math.min(percent * 0.8, 80), message);
+        });
+
+        if (this.checkCancelled()) {
+            throw new Error('Processing was cancelled.');
+        }
+
+        this.updateProgress(85, 'Converting Word document to PDF...');
+        this.startConversionProgress('Converting Word document to PDF...');
+
+        try {
+            return await Promise.race([
+                converter.convertToPdf(file),
+                new Promise<never>((_, reject) =>
+                    setTimeout(
+                        () =>
+                            reject(
+                                new Error(
+                                    `Conversion timed out after ${CONVERT_TIMEOUT_MS / 60000} minutes. The file may be too complex.`
+                                )
+                            ),
+                        CONVERT_TIMEOUT_MS
+                    )
+                ),
+            ]);
+        } finally {
+            this.stopConversionProgress();
+        }
+    }
+
+    private async convertWithPyodideFallback(file: File): Promise<Blob> {
+        this.updateProgress(
+            10,
+            'Using compatibility converter (server lacks Cross-Origin Isolation)...'
+        );
+
+        const pdfBlob = await convertWordToPdfPyodide(file, (message) => {
+            this.updateProgress(Math.min(this.progress + 2, 90), message);
+        });
+
+        return pdfBlob;
+    }
+
     async process(
         input: ProcessInput,
         onProgress?: ProgressCallback
@@ -99,7 +102,6 @@ export class WordToPDFProcessor extends BasePDFProcessor {
 
         const { files } = input;
 
-        // Validate we have exactly 1 Word file
         if (files.length !== 1) {
             return this.createErrorOutput(
                 PDFErrorCode.INVALID_OPTIONS,
@@ -109,101 +111,39 @@ export class WordToPDFProcessor extends BasePDFProcessor {
         }
 
         const file = files[0];
+        const ext = file.name.split('.').pop()?.toLowerCase() || '';
+        const validExts = ['docx', 'doc', 'odt', 'rtf'];
 
-        // Validate file type
-        const isWord = file.name.toLowerCase().endsWith('.docx') ||
-            file.name.toLowerCase().endsWith('.doc') ||
-            file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
-            file.type === 'application/msword';
-        if (!isWord) {
+        if (!validExts.includes(ext)) {
             return this.createErrorOutput(
                 PDFErrorCode.FILE_TYPE_INVALID,
-                'Invalid file type. Please upload a Word document (.docx or .doc).',
+                'Invalid file type. Please upload .docx, .doc, .odt, or .rtf.',
                 `Received: ${file.type || file.name}`
             );
         }
 
-        // Note: .doc format is not supported by python-docx
-        if (file.name.toLowerCase().endsWith('.doc')) {
+        if (file.size > MAX_FILE_SIZE) {
             return this.createErrorOutput(
-                PDFErrorCode.FILE_TYPE_INVALID,
-                'Legacy .doc format is not supported. Please convert to .docx first.',
-                'Use Microsoft Word or LibreOffice to save as .docx'
+                PDFErrorCode.INVALID_OPTIONS,
+                `File is too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Maximum supported size is ${MAX_FILE_SIZE / 1024 / 1024} MB.`,
+                `File size: ${file.size} bytes, limit: ${MAX_FILE_SIZE} bytes`
+            );
+        }
+
+        const useLibreOffice = isCrossOriginIsolated();
+
+        if (!useLibreOffice && ext !== 'docx') {
+            return this.createErrorOutput(
+                PDFErrorCode.PROCESSING_FAILED,
+                `.${ext} files require LibreOffice, which needs Cross-Origin Isolation on your server.`,
+                'Your host must send Cross-Origin-Opener-Policy: same-origin and Cross-Origin-Embedder-Policy: require-corp on all HTML responses. Alternatively, convert the file to .docx first.'
             );
         }
 
         try {
-            this.updateProgress(10, 'Initializing converter...');
-
-            try {
-                await this.initWorker();
-            } catch (err) {
-                console.error('Failed to initialize worker:', err);
-                return this.createErrorOutput(
-                    PDFErrorCode.WORKER_FAILED,
-                    'Failed to initialize conversion worker.',
-                    err instanceof Error ? err.message : String(err)
-                );
-            }
-
-            if (this.checkCancelled()) {
-                return this.createErrorOutput(
-                    PDFErrorCode.PROCESSING_CANCELLED,
-                    'Processing was cancelled.'
-                );
-            }
-
-            this.updateProgress(30, 'Converting Word document to PDF...');
-
-            // Process conversion via worker
-            const pdfBlob = await new Promise<Blob>((resolve, reject) => {
-                if (!this.worker) {
-                    reject(new Error('Worker not initialized'));
-                    return;
-                }
-
-                const msgId = 'convert-' + Date.now();
-
-                const handleMessage = (event: MessageEvent) => {
-                    const { type, id, result, error, message } = event.data;
-
-                    if (type === 'status') {
-                        this.updateProgress(this.progress, message);
-                        return;
-                    }
-
-                    if (id !== msgId) return;
-
-                    if (type === 'convert-complete') {
-                        cleanup();
-                        resolve(result);
-                    } else if (type === 'error') {
-                        cleanup();
-                        reject(new Error(error || 'Conversion failed'));
-                    }
-                };
-
-                const handleError = (error: ErrorEvent) => {
-                    cleanup();
-                    reject(new Error('Worker error: ' + error.message));
-                };
-
-                const cleanup = () => {
-                    this.worker?.removeEventListener('message', handleMessage);
-                    this.worker?.removeEventListener('error', handleError);
-                };
-
-                this.worker.addEventListener('message', handleMessage);
-                this.worker.addEventListener('error', handleError);
-
-                this.worker.postMessage({
-                    type: 'convert',
-                    id: msgId,
-                    data: {
-                        file: file
-                    }
-                });
-            });
+            const pdfBlob = useLibreOffice
+                ? await this.convertWithLibreOffice(file)
+                : await this.convertWithPyodideFallback(file);
 
             if (this.checkCancelled()) {
                 return this.createErrorOutput(
@@ -214,49 +154,39 @@ export class WordToPDFProcessor extends BasePDFProcessor {
 
             this.updateProgress(100, 'Conversion complete!');
 
-            const baseName = file.name.replace(/\.docx?$/i, '');
-            const outputName = `${baseName}.pdf`;
-
-            return this.createSuccessOutput(
-                pdfBlob,
-                outputName,
-                { format: 'pdf' }
-            );
-
+            const baseName = file.name.replace(/\.(docx?|odt|rtf)$/i, '');
+            return this.createSuccessOutput(pdfBlob, `${baseName}.pdf`, {
+                format: 'pdf',
+                engine: useLibreOffice ? 'libreoffice' : 'pyodide',
+            });
         } catch (error) {
+            this.stopConversionProgress();
             console.error('Conversion error:', error);
-            this.terminateWorker();
-
+            const details = error instanceof Error ? error.message : 'Unknown error';
+            const isEnvError = /SharedArrayBuffer|crossOriginIsolated|Cross-Origin/i.test(
+                details
+            );
+            const hint = isEnvError
+                ? 'Add COOP/COEP headers on your server, or use a .docx file (compatibility converter works without them).'
+                : 'Verify the file is a valid Word document and try again.';
             return this.createErrorOutput(
                 PDFErrorCode.PROCESSING_FAILED,
-                'Failed to convert Word document to PDF.',
-                error instanceof Error ? error.message : 'Unknown error'
+                `Failed to convert Word document to PDF: ${details}`,
+                `${details}\n\n${hint}`
             );
         }
     }
 }
 
-/**
- * Create a new instance of the Word to PDF processor
- */
 export function createWordToPDFProcessor(): WordToPDFProcessor {
     return new WordToPDFProcessor();
 }
 
-/**
- * Convert Word to PDF (convenience function)
- */
 export async function wordToPDF(
     file: File,
     options?: Partial<WordToPDFOptions>,
     onProgress?: ProgressCallback
 ): Promise<ProcessOutput> {
     const processor = createWordToPDFProcessor();
-    return processor.process(
-        {
-            files: [file],
-            options: options || {},
-        },
-        onProgress
-    );
+    return processor.process({ files: [file], options: options || {} }, onProgress);
 }

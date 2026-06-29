@@ -9,6 +9,10 @@ vi.mock('next-intl', () => ({
     const translations: Record<string, string> = {
       'buttons.upload': 'Upload Files',
       'buttons.cancel': 'Cancel',
+      'fileUploader.dragDrop': 'Drag and drop files here, or click to browse',
+      'fileUploader.dropToUpload': 'Drop files here',
+      'fileUploader.support': 'Support',
+      'fileUploader.paste': 'Paste (Ctrl+V)',
     };
     if (key === 'fileTooLarge') {
       return `File size exceeds ${params?.maxSize}MB limit`;
@@ -59,11 +63,6 @@ describe('FileUploader', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.useFakeTimers();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
   });
 
   describe('Rendering', () => {
@@ -127,7 +126,7 @@ describe('FileUploader', () => {
         />
       );
       
-      expect(screen.getByText(/Files: 5/)).toBeInTheDocument();
+      expect(screen.getByText(/Max files: 5/)).toBeInTheDocument();
     });
   });
 
@@ -184,8 +183,9 @@ describe('FileUploader', () => {
       
       fireEvent.change(fileInput);
       
-      vi.advanceTimersByTime(3000);
-      expect(mockOnFilesSelected).toHaveBeenCalledWith([mockFile]);
+      await waitFor(() => {
+        expect(mockOnFilesSelected).toHaveBeenCalledWith([mockFile]);
+      });
     });
   });
 
@@ -216,7 +216,7 @@ describe('FileUploader', () => {
       expect(screen.queryByText('Drop files here')).not.toBeInTheDocument();
     });
 
-    it('handles file drop', () => {
+    it('handles file drop', async () => {
       render(<FileUploader onFilesSelected={mockOnFilesSelected} />);
       
       const dropZone = screen.getByRole('button', { name: /upload/i });
@@ -225,11 +225,12 @@ describe('FileUploader', () => {
       
       fireEvent.drop(dropZone, { dataTransfer });
       
-      vi.advanceTimersByTime(3000);
-      expect(mockOnFilesSelected).toHaveBeenCalledWith([mockFile]);
+      await waitFor(() => {
+        expect(mockOnFilesSelected).toHaveBeenCalledWith([mockFile]);
+      });
     });
 
-    it('handles multiple file drop when multiple is enabled', () => {
+    it('handles multiple file drop when multiple is enabled', async () => {
       render(
         <FileUploader 
           onFilesSelected={mockOnFilesSelected}
@@ -246,8 +247,9 @@ describe('FileUploader', () => {
       
       fireEvent.drop(dropZone, { dataTransfer });
       
-      vi.advanceTimersByTime(3000);
-      expect(mockOnFilesSelected).toHaveBeenCalledWith(mockFiles);
+      await waitFor(() => {
+        expect(mockOnFilesSelected).toHaveBeenCalledWith(mockFiles);
+      });
     });
   });
 
@@ -290,7 +292,7 @@ describe('FileUploader', () => {
       expect(mockOnFilesSelected).not.toHaveBeenCalled();
     });
 
-    it('accepts files with .pdf extension even without MIME type', () => {
+    it('accepts files with .pdf extension even without MIME type', async () => {
       render(
         <FileUploader 
           onFilesSelected={mockOnFilesSelected}
@@ -306,11 +308,12 @@ describe('FileUploader', () => {
       
       fireEvent.drop(dropZone, { dataTransfer });
       
-      vi.advanceTimersByTime(3000);
-      expect(mockOnFilesSelected).toHaveBeenCalledWith([pdfFile]);
+      await waitFor(() => {
+        expect(mockOnFilesSelected).toHaveBeenCalledWith([pdfFile]);
+      });
     });
 
-    it('limits files to maxFiles when multiple is enabled', () => {
+    it('limits files to maxFiles when multiple is enabled', async () => {
       render(
         <FileUploader 
           onFilesSelected={mockOnFilesSelected}
@@ -330,13 +333,13 @@ describe('FileUploader', () => {
       
       fireEvent.drop(dropZone, { dataTransfer });
       
-      expect(mockOnError).toHaveBeenCalled();
-      // Should still call with first 2 files
-      vi.advanceTimersByTime(3000);
-      expect(mockOnFilesSelected).toHaveBeenCalledWith([mockFiles[0], mockFiles[1]]);
+      await waitFor(() => {
+        expect(mockOnError).toHaveBeenCalled();
+        expect(mockOnFilesSelected).toHaveBeenCalledWith([mockFiles[0], mockFiles[1]]);
+      });
     });
 
-    it('only accepts first file when multiple is disabled', () => {
+    it('only accepts first file when multiple is disabled', async () => {
       render(
         <FileUploader 
           onFilesSelected={mockOnFilesSelected}
@@ -354,8 +357,9 @@ describe('FileUploader', () => {
       
       fireEvent.drop(dropZone, { dataTransfer });
       
-      vi.advanceTimersByTime(3000);
-      expect(mockOnFilesSelected).toHaveBeenCalledWith([mockFiles[0]]);
+      await waitFor(() => {
+        expect(mockOnFilesSelected).toHaveBeenCalledWith([mockFiles[0]]);
+      });
     });
   });
 

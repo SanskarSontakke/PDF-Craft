@@ -124,45 +124,70 @@ export class SplitPDFProcessor extends BasePDFProcessor {
       const outputFilenames: string[] = [];
       const progressPerRange = 75 / splitOptions.ranges.length;
 
-      for (let i = 0; i < splitOptions.ranges.length; i++) {
-        if (this.checkCancelled()) {
-          return this.createErrorOutput(
-            PDFErrorCode.PROCESSING_CANCELLED,
-            'Processing was cancelled.'
+      // Try to use PyMuPDF for high-fidelity splitting if possible
+      // This preserves fonts and complex structures better than pdf-lib
+      try {
+        const { loadPyMuPDF } = await import('../pymupdf-loader');
+        const pymupdf = await loadPyMuPDF();
+        
+        if (pymupdf && typeof pymupdf.splitPdf === 'function') {
+          this.updateProgress(20, 'Using high-fidelity engine for splitting...');
+          const blobs = await pymupdf.splitPdf(file, splitOptions.ranges);
+          
+          for (let i = 0; i < blobs.length; i++) {
+            const range = splitOptions.ranges[i];
+            outputBlobs.push(blobs[i]);
+            const filename = generateSplitFilename(file.name, range, i + 1, splitOptions.ranges.length);
+            outputFilenames.push(filename);
+            this.updateProgress(20 + (i + 1) * progressPerRange, `Processed part ${i + 1} of ${blobs.length}`);
+          }
+        } else {
+          throw new Error('PyMuPDF split not available');
+        }
+      } catch (pymupdfErr) {
+        console.warn('PyMuPDF split failed or not available, falling back to pdf-lib:', pymupdfErr);
+        
+        // Fallback to pdf-lib (original logic)
+        for (let i = 0; i < splitOptions.ranges.length; i++) {
+          if (this.checkCancelled()) {
+            return this.createErrorOutput(
+              PDFErrorCode.PROCESSING_CANCELLED,
+              'Processing was cancelled.'
+            );
+          }
+
+          const range = splitOptions.ranges[i];
+          const rangeProgress = 15 + (i * progressPerRange);
+
+          this.updateProgress(
+            rangeProgress,
+            `Extracting pages ${range.start}-${range.end}...`
           );
+
+          // Create a new PDF for this range
+          const newPdf = await pdfLib.PDFDocument.create();
+
+          // Get page indices (0-based)
+          const pageIndices: number[] = [];
+          for (let pageNum = range.start; pageNum <= range.end; pageNum++) {
+            pageIndices.push(pageNum - 1); // Convert to 0-based index
+          }
+
+          // Copy pages from source to new document
+          const copiedPages = await newPdf.copyPages(sourcePdf, pageIndices);
+          for (const page of copiedPages) {
+            newPdf.addPage(page);
+          }
+
+          // Save the new PDF
+          const pdfBytes = await newPdf.save({ useObjectStreams: true });
+          const blob = new Blob([new Uint8Array(pdfBytes)], { type: 'application/pdf' });
+          outputBlobs.push(blob);
+
+          // Generate filename for this range
+          const filename = generateSplitFilename(file.name, range, i + 1, splitOptions.ranges.length);
+          outputFilenames.push(filename);
         }
-
-        const range = splitOptions.ranges[i];
-        const rangeProgress = 15 + (i * progressPerRange);
-
-        this.updateProgress(
-          rangeProgress,
-          `Extracting pages ${range.start}-${range.end}...`
-        );
-
-        // Create a new PDF for this range
-        const newPdf = await pdfLib.PDFDocument.create();
-
-        // Get page indices (0-based)
-        const pageIndices: number[] = [];
-        for (let pageNum = range.start; pageNum <= range.end; pageNum++) {
-          pageIndices.push(pageNum - 1); // Convert to 0-based index
-        }
-
-        // Copy pages from source to new document
-        const copiedPages = await newPdf.copyPages(sourcePdf, pageIndices);
-        for (const page of copiedPages) {
-          newPdf.addPage(page);
-        }
-
-        // Save the new PDF
-        const pdfBytes = await newPdf.save({ useObjectStreams: true });
-        const blob = new Blob([new Uint8Array(pdfBytes)], { type: 'application/pdf' });
-        outputBlobs.push(blob);
-
-        // Generate filename for this range
-        const filename = generateSplitFilename(file.name, range, i + 1, splitOptions.ranges.length);
-        outputFilenames.push(filename);
       }
 
       this.updateProgress(95, 'Finalizing...');
@@ -315,6 +340,114 @@ export function createSplitEveryNPages(totalPages: number, n: number): PageRange
  */
 export function createSplitEveryPage(totalPages: number): PageRange[] {
   return createSplitEveryNPages(totalPages, 1);
+}
+
+/**
+ * Create ranges for even and odd pages
+ * Returns two ranges: one for odd pages, one for even pages
+ */
+export function createSplitByEvenOdd(totalPages: number): { odd: PageRange[], even: PageRange[] } {
+  const oddRanges: PageRange[] = [];
+  const evenRanges: PageRange[] = [];
+
+  for (let i = 1; i <= totalPages; i++) {
+    if (i % 2 === 1) {
+      oddRanges.push({ start: i, end: i });
+    } else {
+      evenRanges.push({ start: i, end: i });
+    }
+  }
+
+  return { odd: oddRanges, even: evenRanges };
+}
+
+/**
+ * Create ranges to split PDF into N equal parts
+ */
+export function createSplitNTimes(totalPages: number, n: number): PageRange[] {
+  if (n <= 0 || n > totalPages) {
+    return [{ start: 1, end: totalPages }];
+  }
+
+  const ranges: PageRange[] = [];
+  const pagesPerPart = Math.floor(totalPages / n);
+  const remainder = totalPages % n;
+
+  let currentPage = 1;
+  for (let i = 0; i < n; i++) {
+    // Distribute remainder pages across the first parts
+    const extraPage = i < remainder ? 1 : 0;
+    const endPage = currentPage + pagesPerPart - 1 + extraPage;
+    ranges.push({ start: currentPage, end: Math.min(endPage, totalPages) });
+    currentPage = endPage + 1;
+  }
+
+  return ranges;
+}
+
+/**
+ * Bookmark information extracted from PDF
+ */
+export interface BookmarkInfo {
+  title: string;
+  pageNumber: number;
+  children?: BookmarkInfo[];
+}
+
+/**
+ * Create ranges based on PDF bookmarks
+ * Each top-level bookmark becomes a split point
+ * @param bookmarks - Array of bookmark info with page numbers
+ * @param totalPages - Total number of pages in the PDF
+ * @returns Array of page ranges for splitting
+ */
+export function createSplitByBookmarks(
+  bookmarks: BookmarkInfo[],
+  totalPages: number
+): { ranges: PageRange[], labels: string[] } {
+  if (!bookmarks || bookmarks.length === 0) {
+    return {
+      ranges: [{ start: 1, end: totalPages }],
+      labels: ['Complete Document']
+    };
+  }
+
+  // Get unique sorted page numbers from top-level bookmarks
+  const sortedBookmarks = [...bookmarks]
+    .filter(b => b.pageNumber >= 1 && b.pageNumber <= totalPages)
+    .sort((a, b) => a.pageNumber - b.pageNumber);
+
+  if (sortedBookmarks.length === 0) {
+    return {
+      ranges: [{ start: 1, end: totalPages }],
+      labels: ['Complete Document']
+    };
+  }
+
+  const ranges: PageRange[] = [];
+  const labels: string[] = [];
+
+  for (let i = 0; i < sortedBookmarks.length; i++) {
+    const current = sortedBookmarks[i];
+    const next = sortedBookmarks[i + 1];
+
+    const start = current.pageNumber;
+    const end = next ? next.pageNumber - 1 : totalPages;
+
+    // Only add if range is valid (at least 1 page)
+    if (end >= start) {
+      ranges.push({ start, end });
+      labels.push(current.title);
+    }
+  }
+
+  // Handle case where first bookmark doesn't start at page 1
+  if (sortedBookmarks[0].pageNumber > 1) {
+    ranges.unshift({ start: 1, end: sortedBookmarks[0].pageNumber - 1 });
+    labels.unshift('Introduction');
+  }
+
+  return { ranges, labels };
 }
 
 /**

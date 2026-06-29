@@ -12,6 +12,7 @@ import type {
   ProgressCallback,
 } from '@/types/pdf';
 import { PDFErrorCode } from '@/types/pdf';
+import { logger } from '@/lib/utils/logger';
 import { BasePDFProcessor } from '../processor';
 import { loadPyMuPDF } from '../pymupdf-loader';
 
@@ -54,7 +55,7 @@ export interface CompressPDFOptions {
  * Default compress options
  */
 const DEFAULT_COMPRESS_OPTIONS: CompressPDFOptions = {
-  algorithm: 'standard',
+  algorithm: 'condense', // Use condense by default to preserve image quality
   quality: 'medium',
   removeMetadata: false,
   optimizeImages: true,
@@ -85,6 +86,27 @@ interface WorkerErrorMessage {
 }
 
 type WorkerMessage = WorkerProgressMessage | WorkerSuccessMessage | WorkerErrorMessage;
+
+function resolvePublicAssetPath(assetPath: string): string {
+  if (typeof window === 'undefined') return assetPath;
+
+  const normalizedAssetPath = assetPath.startsWith('/') ? assetPath : `/${assetPath}`;
+  const scripts = Array.from(document.querySelectorAll('script[src]')) as HTMLScriptElement[];
+  const nextScript = scripts.find((script) => script.src.includes('/_next/'));
+
+  if (!nextScript) return normalizedAssetPath;
+
+  try {
+    const scriptUrl = new URL(nextScript.src);
+    const nextIndex = scriptUrl.pathname.indexOf('/_next/');
+    if (nextIndex <= 0) return normalizedAssetPath;
+
+    const basePath = scriptUrl.pathname.slice(0, nextIndex).replace(/\/$/, '');
+    return `${basePath}${normalizedAssetPath}`;
+  } catch {
+    return normalizedAssetPath;
+  }
+}
 
 /**
  * Compress PDF Processor
@@ -148,7 +170,30 @@ export class CompressPDFProcessor extends BasePDFProcessor {
           break;
         case 'standard':
         default:
+          // First, compress PDF structure with coherentpdf worker
           result = await this.compressWithWorker(arrayBuffer, compressOptions);
+
+          // If optimizeImages is enabled, additionally compress images with PyMuPDF
+          // Skip image optimization for small files (<500KB) or low-quality settings to prevent icon/vector corruption
+          const shouldOptimizeImages = compressOptions.optimizeImages && 
+                                       originalSize > 500 * 1024 && 
+                                       compressOptions.quality !== 'low';
+          
+          if (shouldOptimizeImages) {
+            this.updateProgress(70, 'Optimizing images...');
+            try {
+              result = await this.optimizeImagesWithPyMuPDF(result.pdfBytes, compressOptions);
+            } catch (optimizationError) {
+              // Degrade gracefully to worker-only output if PyMuPDF is unavailable.
+              logger.warn(
+                '[CompressPDF] Image optimization skipped, using structure-compressed output only',
+                optimizationError
+              );
+              this.updateProgress(95, 'Image optimization unavailable, finalizing...');
+            }
+          } else if (compressOptions.optimizeImages && originalSize <= 500 * 1024) {
+            logger.log('[CompressPDF] Skipping image optimization for small file to preserve icon quality');
+          }
           break;
       }
 
@@ -207,7 +252,7 @@ export class CompressPDFProcessor extends BasePDFProcessor {
   ): Promise<{ pdfBytes: ArrayBuffer; compressedSize: number }> {
     return new Promise((resolve, reject) => {
       try {
-        this.worker = new Worker('/workers/compress.worker.js');
+        this.worker = new Worker(resolvePublicAssetPath('/workers/compress.worker.js'));
 
         this.worker.onmessage = (e: MessageEvent<WorkerMessage>) => {
           const data = e.data;
@@ -270,13 +315,10 @@ export class CompressPDFProcessor extends BasePDFProcessor {
     const blob = new Blob([pdfData], { type: 'application/pdf' });
     const file = new File([blob], 'input.pdf', { type: 'application/pdf' });
 
-    // Use PyMuPDF's condense/clean functionality
-    const result = await pymupdf.compress(file, {
+    // Use PyMuPDF's compress functionality with image optimization
+    const result: Blob = await pymupdf.compress(file, {
       quality: options.quality,
       removeMetadata: options.removeMetadata,
-      garbage: 4, // Maximum garbage collection
-      clean: true, // Clean content streams
-      deflate: true, // Compress streams
     });
 
     this.updateProgress(90, 'Finalizing...');
@@ -307,14 +349,44 @@ export class CompressPDFProcessor extends BasePDFProcessor {
     const format = options.photonFormat || 'jpeg';
     const quality = options.photonQuality || 85;
 
-    // Use PyMuPDF's photon compression
-    const result = await pymupdf.photonCompress(file, {
+    // Use PyMuPDF's photon compression (rasterize pages to images)
+    const result: Blob = await pymupdf.photonCompress(file, {
       dpi,
       format,
       quality,
     });
 
     this.updateProgress(90, 'Finalizing...');
+
+    const outputBytes = await result.arrayBuffer();
+
+    return {
+      pdfBytes: outputBytes,
+      compressedSize: outputBytes.byteLength,
+    };
+  }
+
+  /**
+   * Optimize images in PDF using PyMuPDF
+   * Called after standard compression to further reduce image sizes
+   */
+  private async optimizeImagesWithPyMuPDF(
+    pdfData: ArrayBuffer,
+    options: CompressPDFOptions
+  ): Promise<{ pdfBytes: ArrayBuffer; compressedSize: number }> {
+    const pymupdf = await loadPyMuPDF();
+
+    // Convert ArrayBuffer to File for PyMuPDF
+    const blob = new Blob([pdfData], { type: 'application/pdf' });
+    const file = new File([blob], 'input.pdf', { type: 'application/pdf' });
+
+    // Use PyMuPDF's compress functionality with image optimization
+    const result: Blob = await pymupdf.compress(file, {
+      quality: options.quality,
+      removeMetadata: options.removeMetadata,
+    });
+
+    this.updateProgress(95, 'Finalizing...');
 
     const outputBytes = await result.arrayBuffer();
 

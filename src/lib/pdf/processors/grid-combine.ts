@@ -4,6 +4,11 @@
  * Combines multiple PDF files into a grid layout on single pages.
  * Unlike N-Up which arranges pages from ONE PDF, this tool arranges
  * pages from MULTIPLE PDFs side by side.
+ * 
+ * Uses pdfjs to render each page as a high-resolution image, then
+ * creates a new PDF with the images in a grid layout using pdf-lib.
+ * This approach works reliably with ALL types of PDFs including those
+ * with annotation-only content or missing Contents streams.
  */
 
 import type {
@@ -13,7 +18,8 @@ import type {
 } from '@/types/pdf';
 import { PDFErrorCode } from '@/types/pdf';
 import { BasePDFProcessor } from '../processor';
-import { loadPdfLib } from '../loader';
+import { loadPdfLib, loadPdfjs } from '../loader';
+import { PDFJS_CONFIG } from '../config';
 
 /**
  * Grid Combine options
@@ -37,6 +43,8 @@ export interface GridCombineOptions {
     fillMode: 'leave-empty' | 'repeat' | 'stretch-last';
     /** Page mode: use only first page or all pages from each PDF */
     pageMode: 'first-page-only' | 'all-pages';
+    /** Auto trim visible area using each page's CropBox */
+    autoTrimCropBox: boolean;
 }
 
 /**
@@ -52,6 +60,7 @@ const DEFAULT_OPTIONS: GridCombineOptions = {
     spacing: 10,
     fillMode: 'leave-empty',
     pageMode: 'first-page-only',
+    autoTrimCropBox: true,
 };
 
 /**
@@ -73,6 +82,22 @@ function parseGridLayout(layout: string): [number, number] {
         return [parseInt(match[1], 10), parseInt(match[2], 10)];
     }
     return [2, 2]; // Default
+}
+
+/**
+ * A rendered page ready to be placed in the grid
+ */
+interface RenderedCell {
+    /** Embedded PNG image in the output PDF */
+    image: any;
+    /** Image width in pixels */
+    width: number;
+    /** Image height in pixels */
+    height: number;
+    /** Source file name */
+    name: string;
+    /** Page number in source file */
+    pageNum: number;
 }
 
 /**
@@ -105,9 +130,12 @@ export class GridCombineProcessor extends BasePDFProcessor {
         }
 
         try {
-            this.updateProgress(5, 'Loading PDF library...');
+            this.updateProgress(5, 'Loading libraries...');
 
-            const pdfLib = await loadPdfLib();
+            const [pdfLib, pdfjsLib] = await Promise.all([
+                loadPdfLib(),
+                loadPdfjs(),
+            ]);
 
             if (this.checkCancelled()) {
                 return this.createErrorOutput(
@@ -115,8 +143,6 @@ export class GridCombineProcessor extends BasePDFProcessor {
                     'Processing was cancelled.'
                 );
             }
-
-            this.updateProgress(10, 'Loading source PDFs...');
 
             // Get grid dimensions
             const [cols, rows] = parseGridLayout(combineOptions.gridLayout);
@@ -142,11 +168,19 @@ export class GridCombineProcessor extends BasePDFProcessor {
             const cellWidth = (usableWidth - spacing * (cols - 1)) / cols;
             const cellHeight = (usableHeight - spacing * (rows - 1)) / rows;
 
-            // Load all source PDFs
-            const sourceDocs: { doc: unknown; name: string }[] = [];
-            const progressPerFile = 30 / files.length;
+            // Create new output PDF
+            const newPdf = await pdfLib.PDFDocument.create();
 
-            for (let i = 0; i < files.length; i++) {
+            // Parse border color
+            const borderRgb = hexToRgb(combineOptions.borderColor);
+
+            // Render all source pages to images and embed them
+            const cellItems: RenderedCell[] = [];
+            const totalFiles = files.length;
+
+            this.updateProgress(10, 'Rendering source pages...');
+
+            for (let fileIdx = 0; fileIdx < totalFiles; fileIdx++) {
                 if (this.checkCancelled()) {
                     return this.createErrorOutput(
                         PDFErrorCode.PROCESSING_CANCELLED,
@@ -154,18 +188,32 @@ export class GridCombineProcessor extends BasePDFProcessor {
                     );
                 }
 
-                const file = files[i];
+                const file = files[fileIdx];
                 this.updateProgress(
-                    10 + i * progressPerFile,
-                    `Loading ${file.name}...`
+                    10 + (fileIdx / totalFiles) * 50,
+                    `Rendering ${file.name}...`
                 );
 
+                let arrayBuffer: ArrayBuffer;
                 try {
-                    const arrayBuffer = await file.arrayBuffer();
-                    const doc = await pdfLib.PDFDocument.load(arrayBuffer, {
-                        ignoreEncryption: true,
-                    });
-                    sourceDocs.push({ doc, name: file.name });
+                    arrayBuffer = await file.arrayBuffer();
+                } catch (error) {
+                    return this.createErrorOutput(
+                        PDFErrorCode.PROCESSING_FAILED,
+                        `Failed to read "${file.name}".`,
+                        error instanceof Error ? error.message : 'Unknown error'
+                    );
+                }
+
+                // Load PDF with pdfjs for rendering
+                let pdf: any;
+                try {
+                    pdf = await pdfjsLib.getDocument({
+                        data: arrayBuffer,
+                        cMapUrl: PDFJS_CONFIG.cMapUrl,
+                        cMapPacked: PDFJS_CONFIG.cMapPacked,
+                        standardFontDataUrl: PDFJS_CONFIG.standardFontDataUrl,
+                    }).promise;
                 } catch (error) {
                     return this.createErrorOutput(
                         PDFErrorCode.PROCESSING_FAILED,
@@ -173,83 +221,108 @@ export class GridCombineProcessor extends BasePDFProcessor {
                         error instanceof Error ? error.message : 'Unknown error'
                     );
                 }
-            }
 
-            this.updateProgress(40, 'Creating grid layout...');
+                const numPages = pdf.numPages;
 
-            // Create new PDF
-            const newPdf = await pdfLib.PDFDocument.create();
-
-            // Parse border color
-            const borderRgb = hexToRgb(combineOptions.borderColor);
-
-            // Get pages from each PDF based on pageMode
-            const sourcePages: { page: unknown; name: string; pageNum: number }[] = [];
-            for (const { doc, name } of sourceDocs) {
-                const pdfDoc = doc as ReturnType<typeof pdfLib.PDFDocument.load> extends Promise<infer T> ? T : never;
-                const pages = (pdfDoc as { getPages: () => unknown[] }).getPages();
-
+                // Determine which pages to render
+                const pageNumbers: number[] = [];
                 if (combineOptions.pageMode === 'all-pages') {
-                    // Include all pages from each PDF
-                    for (let i = 0; i < pages.length; i++) {
-                        sourcePages.push({ page: pages[i], name, pageNum: i + 1 });
+                    for (let p = 1; p <= numPages; p++) {
+                        pageNumbers.push(p);
                     }
                 } else {
-                    // Only first page
-                    if (pages.length > 0) {
-                        sourcePages.push({ page: pages[0], name, pageNum: 1 });
+                    if (numPages > 0) {
+                        pageNumbers.push(1);
                     }
                 }
+
+                // Render each page to PNG and embed into output PDF
+                for (const pageNum of pageNumbers) {
+                    if (this.checkCancelled()) {
+                        pdf.destroy();
+                        return this.createErrorOutput(
+                            PDFErrorCode.PROCESSING_CANCELLED,
+                            'Processing was cancelled.'
+                        );
+                    }
+
+                    try {
+                        const page = await pdf.getPage(pageNum);
+                        // Use scale 4.0 for high quality rendering in the grid
+                        const viewport = page.getViewport({ scale: 4.0 });
+
+                        const canvas = document.createElement('canvas');
+                        canvas.width = viewport.width;
+                        canvas.height = viewport.height;
+                        const ctx = canvas.getContext('2d')!;
+
+                        await page.render({
+                            canvasContext: ctx,
+                            viewport,
+                        }).promise;
+
+                        // Convert to PNG bytes
+                        const blob: Blob = await new Promise((resolve) => {
+                            canvas.toBlob((b) => resolve(b!), 'image/png');
+                        });
+                        const pngBuffer = await blob.arrayBuffer();
+                        const pngBytes = new Uint8Array(pngBuffer);
+
+                        // Embed PNG into output PDF
+                        const pngImage = await newPdf.embedPng(pngBytes);
+
+                        cellItems.push({
+                            image: pngImage,
+                            width: pngImage.width,
+                            height: pngImage.height,
+                            name: file.name,
+                            pageNum,
+                        });
+
+                        // Clean up canvas
+                        canvas.width = 0;
+                        canvas.height = 0;
+                    } catch (renderErr) {
+                        // If rendering fails for this page, skip it
+                        console.warn(
+                            `Failed to render page ${pageNum} of "${file.name}":`,
+                            renderErr
+                        );
+                    }
+                }
+
+                pdf.destroy();
             }
+
+            if (cellItems.length === 0) {
+                return this.createErrorOutput(
+                    PDFErrorCode.PROCESSING_FAILED,
+                    'No pages could be rendered from the source PDFs.'
+                );
+            }
+
+            this.updateProgress(65, 'Building grid layout...');
 
             // Apply fill mode if needed
-            let pagesToProcess = [...sourcePages];
-            if (sourcePages.length < cellsPerPage) {
+            const allItems = [...cellItems];
+            if (cellItems.length < cellsPerPage) {
                 if (combineOptions.fillMode === 'repeat') {
-                    // Repeat pages to fill the grid
-                    while (pagesToProcess.length < cellsPerPage) {
-                        const idx = pagesToProcess.length % sourcePages.length;
-                        pagesToProcess.push({ ...sourcePages[idx] });
+                    while (allItems.length < cellsPerPage) {
+                        const idx = allItems.length % cellItems.length;
+                        allItems.push({ ...cellItems[idx] });
                     }
                 } else if (combineOptions.fillMode === 'stretch-last') {
-                    // Repeat the last page to fill remaining cells
-                    const lastPage = sourcePages[sourcePages.length - 1];
-                    while (pagesToProcess.length < cellsPerPage) {
-                        pagesToProcess.push({ ...lastPage });
+                    const lastItem = cellItems[cellItems.length - 1];
+                    while (allItems.length < cellsPerPage) {
+                        allItems.push({ ...lastItem });
                     }
                 }
-                // 'leave-empty' - do nothing, keep original pages
-            }
-
-            // Pre-embed all unique source pages at once to avoid duplicate font embedding
-            // This is crucial for CJK PDFs where fonts can be very large
-            this.updateProgress(45, 'Embedding pages...');
-
-            // Create a map of unique pages to embed (using page object as key)
-            const uniquePages: unknown[] = [];
-            const pageToIndex = new Map<unknown, number>();
-
-            for (const { page } of sourcePages) {
-                if (!pageToIndex.has(page)) {
-                    pageToIndex.set(page, uniquePages.length);
-                    uniquePages.push(page);
-                }
-            }
-
-            // Embed all unique pages at once
-            const embeddedPagesArray = await newPdf.embedPages(
-                uniquePages as Parameters<typeof newPdf.embedPages>[0]
-            );
-
-            // Create a lookup from original page to embedded page
-            const embeddedPageMap = new Map<unknown, typeof embeddedPagesArray[0]>();
-            for (let i = 0; i < uniquePages.length; i++) {
-                embeddedPageMap.set(uniquePages[i], embeddedPagesArray[i]);
+                // 'leave-empty' - do nothing
             }
 
             // Calculate how many output pages we need
-            const totalOutputPages = Math.ceil(pagesToProcess.length / cellsPerPage);
-            const progressPerPage = 40 / totalOutputPages;
+            const totalOutputPages = Math.ceil(allItems.length / cellsPerPage);
+            const progressPerPage = 20 / totalOutputPages;
 
             for (let outputPageNum = 0; outputPageNum < totalOutputPages; outputPageNum++) {
                 if (this.checkCancelled()) {
@@ -260,44 +333,42 @@ export class GridCombineProcessor extends BasePDFProcessor {
                 }
 
                 this.updateProgress(
-                    50 + outputPageNum * progressPerPage,
+                    65 + outputPageNum * progressPerPage,
                     `Creating page ${outputPageNum + 1} of ${totalOutputPages}...`
                 );
 
                 const outputPage = newPdf.addPage([pageWidth, pageHeight]);
 
-                // Get the subset of source pages for this output page
+                // Get the subset of items for this output page
                 const startIdx = outputPageNum * cellsPerPage;
-                const endIdx = Math.min(startIdx + cellsPerPage, pagesToProcess.length);
-                const pageSubset = pagesToProcess.slice(startIdx, endIdx);
+                const endIdx = Math.min(startIdx + cellsPerPage, allItems.length);
+                const pageSubset = allItems.slice(startIdx, endIdx);
 
                 for (let cellIdx = 0; cellIdx < pageSubset.length; cellIdx++) {
-                    const { page: sourcePage } = pageSubset[cellIdx];
-
-                    // Use pre-embedded page from map
-                    const embeddedPage = embeddedPageMap.get(sourcePage)!;
-
-                    // Calculate scale to fit in cell
-                    const scale = Math.min(
-                        cellWidth / embeddedPage.width,
-                        cellHeight / embeddedPage.height
-                    );
-                    const scaledWidth = embeddedPage.width * scale;
-                    const scaledHeight = embeddedPage.height * scale;
+                    const item = pageSubset[cellIdx];
 
                     // Calculate position in grid
                     // PDF坐标系原点在左下角，Y轴向上
                     const col = cellIdx % cols;
                     const row = Math.floor(cellIdx / cols);
                     const cellX = margin + col * (cellWidth + spacing);
-                    // 修复Y坐标计算：从顶部开始排列，第一行在最上面
+                    // 从顶部开始排列，第一行在最上面
                     const cellY = pageHeight - margin - cellHeight - row * (cellHeight + spacing);
+
+                    // Calculate scale to fit in cell
+                    const scale = Math.min(
+                        cellWidth / item.width,
+                        cellHeight / item.height
+                    );
+                    const scaledWidth = item.width * scale;
+                    const scaledHeight = item.height * scale;
 
                     // Center within cell
                     const x = cellX + (cellWidth - scaledWidth) / 2;
                     const y = cellY + (cellHeight - scaledHeight) / 2;
 
-                    outputPage.drawPage(embeddedPage, {
+                    // Draw rendered image
+                    outputPage.drawImage(item.image, {
                         x,
                         y,
                         width: scaledWidth,
@@ -320,7 +391,7 @@ export class GridCombineProcessor extends BasePDFProcessor {
 
             this.updateProgress(90, 'Saving PDF...');
 
-            // Save the new PDF with object streams enabled for better compression
+            // Save the new PDF
             const pdfBytes = await newPdf.save({
                 useObjectStreams: true,
             });
@@ -333,7 +404,7 @@ export class GridCombineProcessor extends BasePDFProcessor {
 
             return this.createSuccessOutput(blob, outputFilename, {
                 sourceFileCount: files.length,
-                totalSourcePages: pagesToProcess.length,
+                totalSourcePages: allItems.length,
                 gridLayout: combineOptions.gridLayout,
                 outputPageCount: totalOutputPages,
                 pageMode: combineOptions.pageMode,
@@ -341,10 +412,12 @@ export class GridCombineProcessor extends BasePDFProcessor {
             });
 
         } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+            const errorStack = error instanceof Error ? error.stack : undefined;
             return this.createErrorOutput(
                 PDFErrorCode.PROCESSING_FAILED,
-                'Failed to create grid combined PDF.',
-                error instanceof Error ? error.message : 'Unknown error'
+                `Failed to create grid combined PDF: ${errorMessage}`,
+                errorStack || errorMessage
             );
         }
     }
