@@ -175,9 +175,9 @@ export const BottomDock: React.FC<BottomDockProps> = ({ locale }) => {
                 aria-label="Expand navigation dock"
             >
                 <div className="flex items-center gap-2 px-6 py-1.5 rounded-full bg-[hsl(var(--color-card)/0.4)] backdrop-blur-md border border-[hsl(var(--color-border)/0.2)] hover:bg-[hsl(var(--color-card)/0.6)] transition-colors cursor-pointer">
-                    <ChevronUp className="w-3.5 h-3.5 text-[hsl(var(--color-muted-foreground)/0.6)]" />
+                    <ChevronUp className="w-3.5 h-3.5 text-[hsl(var(--color-muted-foreground)/0.6)]" aria-hidden="true" />
                     <div className="w-8 h-0.5 rounded-full bg-[hsl(var(--color-muted-foreground)/0.3)]" />
-                    <ChevronUp className="w-3.5 h-3.5 text-[hsl(var(--color-muted-foreground)/0.6)]" />
+                    <ChevronUp className="w-3.5 h-3.5 text-[hsl(var(--color-muted-foreground)/0.6)]" aria-hidden="true" />
                 </div>
             </button>
         );
@@ -269,7 +269,7 @@ export const BottomDock: React.FC<BottomDockProps> = ({ locale }) => {
                                                 )}
                                             </div>
                                             <div className="text-[hsl(var(--color-muted-foreground))] opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <ChevronDown className="w-4 h-4 -rotate-90" />
+                                                <ChevronDown className="w-4 h-4 -rotate-90" aria-hidden="true" />
                                             </div>
                                         </button>
                                     );
@@ -332,6 +332,7 @@ export const BottomDock: React.FC<BottomDockProps> = ({ locale }) => {
                                     ? 'text-[hsl(var(--color-primary))] scale-110'
                                     : 'text-[hsl(var(--color-muted-foreground))]'
                                     }`}
+                                aria-hidden="true"
                             />
                             <span
                                 className={`text-[9px] mt-0.5 transition-colors duration-200 ${isActive
@@ -388,7 +389,7 @@ export const BottomDock: React.FC<BottomDockProps> = ({ locale }) => {
                     className="flex items-center justify-center w-8 h-8 rounded-xl hover:bg-[hsl(var(--color-muted)/0.5)] transition-colors"
                     aria-label="Minimize dock"
                 >
-                    <Minus className="w-3.5 h-3.5 text-[hsl(var(--color-muted-foreground)/0.6)]" />
+                    <Minus className="w-3.5 h-3.5 text-[hsl(var(--color-muted-foreground)/0.6)]" aria-hidden="true" />
                 </button>
             </nav>
         </div>
