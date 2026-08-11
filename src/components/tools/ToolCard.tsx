@@ -55,9 +55,8 @@ export function ToolCard({ tool, locale, className = '', localizedContent }: Too
   const categoryName = t(`home.categories.${categoryTranslationKeys[tool.category]}`);
 
   return (
-    <Link
-      href={toolUrl}
-      className={`block focus:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--color-ring))] focus-visible:ring-offset-2 rounded-[var(--radius-lg)] group ${className}`}
+    <div
+      className={`relative group block rounded-[var(--radius-lg)] focus-within:ring-2 focus-within:ring-[hsl(var(--color-ring))] focus-within:ring-offset-2 ${className}`}
       data-testid="tool-card"
     >
       <Card
@@ -67,11 +66,11 @@ export function ToolCard({ tool, locale, className = '', localizedContent }: Too
         <div className="absolute top-0 right-0 p-3 z-10">
           <FavoriteButton toolId={tool.id} size="sm" />
         </div>
-        <div className="absolute top-0 right-10 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <div className="absolute top-0 right-10 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 pointer-events-none">
           <ArrowUpRight className="w-5 h-5 text-[hsl(var(--color-primary))]" />
         </div>
 
-        <div className="flex flex-col h-full">
+        <div className="relative z-0 flex flex-col h-full">
           <div className="flex items-start gap-4 mb-4">
             {/* Tool Icon */}
             <div
@@ -89,17 +88,23 @@ export function ToolCard({ tool, locale, className = '', localizedContent }: Too
               className="text-lg font-bold text-[hsl(var(--color-card-foreground))] truncate mb-2 group-hover:text-[hsl(var(--color-primary))] transition-colors"
               data-testid="tool-card-name"
             >
-              {toolName}
+              <Link
+                href={toolUrl}
+                className="focus:outline-none before:absolute before:inset-0 before:z-0"
+                aria-label={`Open ${toolName}`}
+              >
+                {toolName}
+              </Link>
             </h3>
             <p
-              className="text-sm text-[hsl(var(--color-muted-foreground))] line-clamp-2 leading-relaxed"
+              className="text-sm text-[hsl(var(--color-muted-foreground))] line-clamp-2 leading-relaxed relative z-10 pointer-events-none"
               data-testid="tool-card-description"
             >
               {description}
             </p>
           </div>
 
-          <div className="mt-4 pt-4 border-t border-[hsl(var(--color-border)/0.5)] flex items-center justify-between text-xs text-[hsl(var(--color-muted-foreground))]">
+          <div className="mt-4 pt-4 border-t border-[hsl(var(--color-border)/0.5)] flex items-center justify-between text-xs text-[hsl(var(--color-muted-foreground))] relative z-10 pointer-events-none">
             <span className="font-medium bg-[hsl(var(--color-secondary)/0.5)] px-2 py-1 rounded-md">
               {categoryName}
             </span>
@@ -109,7 +114,7 @@ export function ToolCard({ tool, locale, className = '', localizedContent }: Too
           </div>
         </div>
       </Card>
-    </Link>
+    </div>
   );
 }
 
