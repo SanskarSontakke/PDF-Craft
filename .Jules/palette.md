@@ -16,3 +16,7 @@
 ## 2026-04-01 - Accessible Interactive Divs
 **Learning:** When making a non-native element like a `div` interactive (e.g., adding `tabIndex` and `role="button"`), it doesn't automatically trigger `onClick` handlers via keyboard. Keyboard users expect 'Enter' and 'Space' to activate buttons.
 **Action:** Always add an `onKeyDown` handler to trigger the `onClick` action for `Enter` and `Space` keys when creating custom interactive components from standard block elements.
+
+## 2026-04-01 - Drop Zone Keyboard Accessibility
+**Learning:** File input fields nested inside drag-and-drop zones are often styled with `display: none` (`hidden`), which removes them from the tab order. This breaks keyboard accessibility for users who cannot use a mouse to drag files or click the label.
+**Action:** Instead of `hidden`, use `sr-only` to visually hide the input while keeping it focusable. Combine this with `focus-within` styles on the parent drop zone container so keyboard users receive a clear visual focus ring when the hidden input is active, allowing them to use `Space` or `Enter` to open the file dialog.
