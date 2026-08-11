@@ -80,7 +80,7 @@ export const Footer: React.FC<FooterProps> = ({ locale }) => {
                   key={loc}
                   onClick={() => handleLanguageChange(loc)}
                   className={`
-                    px-3 py-1.5 text-sm rounded-full transition-all
+                    px-3 py-1.5 text-sm rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[hsl(var(--color-ring))] focus-visible:ring-offset-2 focus-visible:ring-offset-[hsl(var(--color-background))]
                     ${isActive
                       ? 'bg-[hsl(var(--color-primary))] text-white font-medium'
                       : 'bg-[hsl(var(--color-muted))] text-[hsl(var(--color-muted-foreground))] hover:bg-[hsl(var(--color-primary)/0.1)] hover:text-[hsl(var(--color-primary))]'
